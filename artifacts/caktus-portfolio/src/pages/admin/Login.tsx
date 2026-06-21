@@ -4,6 +4,7 @@ import { api } from "@/lib/api";
 
 export default function AdminLogin() {
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [, navigate] = useLocation();
@@ -13,7 +14,7 @@ export default function AdminLogin() {
     setError("");
     setLoading(true);
     try {
-      await api.login(password);
+      await api.login(password, rememberMe);
       navigate("/admin");
     } catch {
       setError("Invalid password. Try again.");
@@ -54,6 +55,31 @@ export default function AdminLogin() {
               className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-white/30 outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500/50 transition-all"
             />
           </div>
+
+          <label className="flex items-center gap-3 cursor-pointer select-none">
+            <div className="relative">
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                className="sr-only"
+              />
+              <div
+                className={`w-4 h-4 rounded border transition-colors ${
+                  rememberMe
+                    ? "bg-purple-600 border-purple-600"
+                    : "bg-white/5 border-white/20"
+                } flex items-center justify-center`}
+              >
+                {rememberMe && (
+                  <svg className="w-2.5 h-2.5 text-white" viewBox="0 0 10 8" fill="none">
+                    <path d="M1 4l2.5 2.5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                )}
+              </div>
+            </div>
+            <span className="text-white/50 text-sm">Remember me for 30 days</span>
+          </label>
 
           {error && (
             <p className="text-red-400 text-sm text-center">{error}</p>

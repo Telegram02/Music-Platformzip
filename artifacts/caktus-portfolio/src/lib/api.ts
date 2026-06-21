@@ -21,8 +21,8 @@ async function req<T>(
 
 export const api = {
   // Auth
-  login: (password: string) =>
-    req<{ ok: boolean }>("POST", "/auth/login", { password }),
+  login: (password: string, rememberMe = false) =>
+    req<{ ok: boolean }>("POST", "/auth/login", { password, rememberMe }),
   logout: () => req<{ ok: boolean }>("POST", "/auth/logout"),
   me: () => req<{ loggedIn: boolean }>("GET", "/auth/me"),
 

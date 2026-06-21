@@ -78,7 +78,7 @@ router.post("/auth/confirm-reset", async (req, res): Promise<void> => {
 });
 
 router.post("/auth/login", async (req, res): Promise<void> => {
-  const { password } = req.body as { password?: string };
+  const { password, rememberMe } = req.body as { password?: string; rememberMe?: boolean };
   if (!password) {
     res.status(400).json({ error: "Password required" });
     return;
@@ -90,13 +90,18 @@ router.post("/auth/login", async (req, res): Promise<void> => {
     return;
   }
   (req.session as { adminLoggedIn?: boolean }).adminLoggedIn = true;
+  if (rememberMe) {
+    req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000; // 30 days
+  } else {
+    req.session.cookie.expires = undefined; // session cookie — clears on browser close
+  }
   req.session.save((err) => {
     if (err) {
       req.log.error({ err }, "Session save error");
       res.status(500).json({ error: "Session error" });
       return;
     }
-    res.json({ ok: true });
+    res.json({ ok: true, rememberMe: !!rememberMe });
   });
 });
 
