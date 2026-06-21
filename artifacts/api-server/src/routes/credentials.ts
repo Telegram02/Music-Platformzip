@@ -41,12 +41,12 @@ router.post("/credentials/request-otp", requireAdmin, async (req, res): Promise<
   }
 
   const storedHash = await getAdminPasswordHash();
-  const envPassword = process.env.ADMIN_PASSWORD ?? "caktus2024";
+  const envPassword = process.env.ADMIN_PASSWORD;
 
   let valid = false;
   if (storedHash) {
     valid = await bcrypt.compare(currentPassword, storedHash);
-  } else {
+  } else if (envPassword) {
     valid = currentPassword === envPassword;
   }
 

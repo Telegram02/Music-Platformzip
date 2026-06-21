@@ -42,10 +42,14 @@ export async function seedDefaults() {
     if (existingAdmin.length === 0) {
       const email = process.env.ADMIN_EMAIL ?? "eric2277@icloud.com";
       const username = process.env.ADMIN_USERNAME ?? "admin";
-      const rawPassword = process.env.ADMIN_PASSWORD ?? "caktus2024";
-      const passwordHash = await bcrypt.hash(rawPassword, 12);
-      await db.insert(adminCredentialsTable).values({ email, username, passwordHash });
-      logger.info({ email, username }, "Admin credentials seeded");
+      const rawPassword = process.env.ADMIN_PASSWORD;
+      if (rawPassword) {
+        const passwordHash = await bcrypt.hash(rawPassword, 12);
+        await db.insert(adminCredentialsTable).values({ email, username, passwordHash });
+        logger.info({ email, username }, "Admin credentials seeded");
+      } else {
+        logger.warn("ADMIN_PASSWORD secret not set — skipping admin credential seed");
+      }
     }
 
     logger.info("Default seed complete");
