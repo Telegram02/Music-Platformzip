@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { api } from "@/lib/api";
 import { FileUploader } from "../components/FileUploader";
+import { storageUrl } from "@/lib/api";
+import { Eye, EyeOff, User } from "lucide-react";
 
 const SETTINGS_GROUPS = [
   {
@@ -61,11 +63,78 @@ export default function SiteTab() {
     }
   }
 
+  const photoUrl = settings.profilePhotoUrl ? storageUrl(settings.profilePhotoUrl) : "";
+  const photoVisible = settings.profilePhotoVisible !== "false";
+
   return (
     <div className="space-y-8 max-w-2xl">
       <div>
         <h2 className="text-lg font-semibold text-white mb-1">Site Settings</h2>
         <p className="text-white/40 text-sm">Edit core content, SEO, and contact info shown on the portfolio.</p>
+      </div>
+
+      {/* Profile Photo */}
+      <div className="space-y-4">
+        <h3 className="text-xs font-mono uppercase tracking-widest text-purple-400/80 border-b border-white/5 pb-2">
+          Profile Photo
+        </h3>
+
+        <div className="flex gap-5 items-start">
+          {/* Preview */}
+          <div className="flex-shrink-0">
+            <div className="w-24 h-24 rounded-lg border border-white/10 bg-white/5 overflow-hidden flex items-center justify-center">
+              {photoUrl ? (
+                <img src={photoUrl} alt="Profile" className="w-full h-full object-cover object-top" />
+              ) : (
+                <User size={32} className="text-white/20" />
+              )}
+            </div>
+            {photoUrl && (
+              <p className="text-[10px] text-white/25 text-center mt-1 font-mono">
+                {photoVisible ? "Visible" : "Hidden"}
+              </p>
+            )}
+          </div>
+
+          {/* Controls */}
+          <div className="flex-1 space-y-3">
+            <div>
+              <label className="block text-white/60 text-sm mb-1.5 font-medium">Photo URL</label>
+              <input
+                type="text"
+                value={settings.profilePhotoUrl ?? ""}
+                onChange={(e) => handleChange("profilePhotoUrl", e.target.value)}
+                placeholder="/objects/... or https://..."
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white placeholder-white/20 outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500/30 transition-all text-sm"
+              />
+            </div>
+
+            <FileUploader
+              accept="image/*"
+              label="Upload your photo"
+              onUploaded={(path) => {
+                handleChange("profilePhotoUrl", path);
+                handleChange("profilePhotoVisible", "true");
+              }}
+            />
+
+            {/* Show / Hide toggle */}
+            {settings.profilePhotoUrl && (
+              <button
+                type="button"
+                onClick={() => handleChange("profilePhotoVisible", photoVisible ? "false" : "true")}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border transition-all ${
+                  photoVisible
+                    ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20"
+                    : "bg-white/5 border-white/10 text-white/40 hover:bg-white/10 hover:text-white/60"
+                }`}
+              >
+                {photoVisible ? <Eye size={14} /> : <EyeOff size={14} />}
+                {photoVisible ? "Showing on site — click to hide" : "Hidden from site — click to show"}
+              </button>
+            )}
+          </div>
+        </div>
       </div>
 
       {SETTINGS_GROUPS.map((group) => (
@@ -100,7 +169,7 @@ export default function SiteTab() {
 
       <div className="space-y-4">
         <h3 className="text-xs font-mono uppercase tracking-widest text-purple-400/80 border-b border-white/5 pb-2">
-          Media
+          Background Media
         </h3>
         <div>
           <label className="block text-white/60 text-sm mb-1.5 font-medium">Background Video URL</label>
