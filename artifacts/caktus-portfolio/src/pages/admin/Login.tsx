@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useLocation } from "wouter";
+import { useLocation, Link } from "wouter";
 import { api } from "@/lib/api";
 
 export default function AdminLogin() {
@@ -66,6 +66,15 @@ export default function AdminLogin() {
           >
             {loading ? "Logging in..." : "Login"}
           </button>
+
+          <div className="text-center pt-1">
+            <Link
+              href="/admin/reset-password"
+              className="text-white/30 hover:text-white/60 text-sm transition-colors"
+            >
+              Forgot password?
+            </Link>
+          </div>
         </form>
       </div>
     </div>

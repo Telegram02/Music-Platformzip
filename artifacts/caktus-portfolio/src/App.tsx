@@ -6,6 +6,7 @@ import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import AdminLogin from "@/pages/admin/Login";
 import Dashboard from "@/pages/admin/Dashboard";
+import ResetPassword from "@/pages/admin/ResetPassword";
 
 const queryClient = new QueryClient();
 
@@ -14,6 +15,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/admin/login" component={AdminLogin} />
+      <Route path="/admin/reset-password" component={ResetPassword} />
       <Route path="/admin" component={Dashboard} />
       <Route component={NotFound} />
     </Switch>
