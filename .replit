@@ -26,3 +26,8 @@ externalPort = 8080
 [[ports]]
 localPort = 18681
 externalPort = 80
+
+[userenv]
+
+[userenv.shared]
+GMAIL_USER = "madebycaktus@gmail.com"
