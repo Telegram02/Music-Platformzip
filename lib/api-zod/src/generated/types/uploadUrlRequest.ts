@@ -5,22 +5,9 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
-export interface HealthStatus {
-  status: string;
-}
 
 export interface UploadUrlRequest {
   name: string;
   size: number;
   contentType: string;
 }
-
-export interface UploadUrlResponse {
-  uploadURL: string;
-  objectPath: string;
-}
-
-export interface ErrorEnvelope {
-  error: string;
-}
-
