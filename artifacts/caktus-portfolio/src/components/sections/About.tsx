@@ -1,7 +1,12 @@
 import { motion } from "framer-motion";
 import { AudioWaveform, Headphones, Mic2 } from "lucide-react";
+import { useSiteSettings } from "@/hooks/useSiteData";
 
 export function About() {
+  const { data: settings } = useSiteSettings();
+  const bio = settings?.bio ?? "Music producer and sound designer with experience across hip-hop, rock, metal, metalcore, electronic, industrial, ambient, horror, cinematic, and video game music. Focused on emotional storytelling through sound.";
+  const years = settings?.yearsExperience ?? "10";
+
   return (
     <section id="about" className="py-24 relative overflow-hidden bg-background">
       <div className="container mx-auto px-6 relative z-10">
@@ -55,22 +60,16 @@ export function About() {
               Crafting Worlds <br/>Through Sound.
             </h2>
             
-            <div className="space-y-6 text-foreground/80 font-light text-lg">
-              <p>
-                I am a music producer and sound designer obsessed with the visceral impact of audio. With deep roots across <span className="text-primary font-medium">hip-hop, rock, metal, electronic, industrial, and ambient</span>, I build sonic landscapes that command attention.
-              </p>
-              <p>
-                Whether it's a punishing metalcore breakdown, a brooding cinematic game score, or a pristine pop mix, my focus remains singular: <span className="text-white">emotional storytelling through sound.</span>
-              </p>
-              <p>
-                Every project benefits from high-end production, meticulous mixing, and mastering that translates perfectly from massive festival arrays to intimate headphones.
-              </p>
+            <div className="space-y-5 text-foreground/80 font-light text-lg leading-relaxed">
+              {bio.split("\n").filter(Boolean).map((para, i) => (
+                <p key={i}>{para}</p>
+              ))}
             </div>
             
             <div className="mt-10 grid grid-cols-2 sm:grid-cols-3 gap-6 pt-8 border-t border-border/50">
               <div className="flex flex-col gap-2">
                 <AudioWaveform className="text-primary" size={24} />
-                <span className="font-display font-semibold text-white">10+ Years</span>
+                <span className="font-display font-semibold text-white">{years}+ Years</span>
                 <span className="text-xs text-foreground/50 uppercase tracking-wider">Experience</span>
               </div>
               <div className="flex flex-col gap-2">

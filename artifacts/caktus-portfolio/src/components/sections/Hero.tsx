@@ -1,7 +1,13 @@
 import { motion } from "framer-motion";
 import { Play, ArrowRight, Mail } from "lucide-react";
+import { useSiteSettings } from "@/hooks/useSiteData";
+import { storageUrl } from "@/lib/api";
 
 export function Hero() {
+  const { data: settings } = useSiteSettings();
+  const tagline = settings?.tagline ?? "Cinematic soundtracks, game audio, and professional music production for artists and studios. Emotional storytelling through sound.";
+  const introVideoUrl = settings?.introVideoUrl ? storageUrl(settings.introVideoUrl) : "";
+
   const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
     const element = document.querySelector(href);
@@ -14,6 +20,16 @@ export function Hero() {
     <section id="home" className="relative min-h-[100dvh] flex items-center justify-center overflow-hidden pt-20">
       {/* Animated Background */}
       <div className="absolute inset-0 z-0">
+        {introVideoUrl ? (
+          <video
+            src={introVideoUrl}
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover opacity-30"
+          />
+        ) : null}
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-[120px] mix-blend-screen animate-float" />
         <div className="absolute bottom-1/4 right-1/4 w-[30rem] h-[30rem] bg-accent/10 rounded-full blur-[150px] mix-blend-screen animate-float" style={{ animationDelay: "2s" }} />
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjZmZmIiBmaWxsLW9wYWNpdHk9IjAuMDIiLz4KPC9zdmc+')] opacity-20 pointer-events-none" />
@@ -36,7 +52,7 @@ export function Hero() {
           </h1>
           
           <p className="text-lg md:text-xl text-foreground/70 mb-10 max-w-2xl mx-auto font-light leading-relaxed">
-            Cinematic soundtracks, game audio, and professional music production for artists and studios. Emotional storytelling through sound.
+            {tagline}
           </p>
           
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6">
