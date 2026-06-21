@@ -1,4 +1,5 @@
 import { Navbar } from "@/components/layout/Navbar";
+import { AdminBar } from "@/components/AdminBar";
 import { Hero } from "@/components/sections/Hero";
 import { About } from "@/components/sections/About";
 import { Services } from "@/components/sections/Services";
@@ -7,13 +8,17 @@ import { Industries } from "@/components/sections/Industries";
 import { Workflow } from "@/components/sections/Workflow";
 import { Contact } from "@/components/sections/Contact";
 import { Mail } from "lucide-react";
+import { useAdminStatus } from "@/hooks/useAdminStatus";
 
 export default function Home() {
+  const { isAdmin } = useAdminStatus();
+
   return (
     <div className="min-h-screen bg-background text-foreground selection:bg-primary/30 selection:text-white flex flex-col">
+      <AdminBar />
       <Navbar />
-      
-      <main className="flex-grow">
+
+      <main className={`flex-grow${isAdmin ? " pt-10" : ""}`}>
         <Hero />
         <About />
         <Services />
@@ -29,8 +34,7 @@ export default function Home() {
         </p>
       </footer>
 
-      {/* Fixed Hire Me CTA */}
-      <a 
+      <a
         href="#contact"
         onClick={(e) => {
           e.preventDefault();

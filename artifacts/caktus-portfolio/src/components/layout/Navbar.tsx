@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import { Link } from "wouter";
+import { useAdminStatus } from "@/hooks/useAdminStatus";
 
 export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { isAdmin } = useAdminStatus();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -31,17 +33,19 @@ export function Navbar() {
     }
   };
 
+  const topOffset = isAdmin ? "top-10" : "top-0";
+
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      className={`fixed ${topOffset} left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled
           ? "bg-background/80 backdrop-blur-md border-b border-border/50 py-4 shadow-lg shadow-black/50"
           : "bg-transparent py-6"
       }`}
     >
       <div className="container mx-auto px-6 flex items-center justify-between">
-        <a 
-          href="#home" 
+        <a
+          href="#home"
           onClick={(e) => scrollToSection(e, "#home")}
           className="text-2xl font-display font-bold tracking-widest text-white hover:text-primary transition-colors"
         >

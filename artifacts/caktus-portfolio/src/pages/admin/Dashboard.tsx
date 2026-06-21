@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { useLocation } from "wouter";
+import { useLocation, useSearch } from "wouter";
 import { api } from "@/lib/api";
-import { LogOut, Settings, Music, Film, Link2, Image, Home, UserCog, Clapperboard, Inbox, ShieldCheck } from "lucide-react";
+import { LogOut, Settings, Music, Film, Link2, Image, Home, UserCog, Clapperboard, Inbox, ShieldCheck, ExternalLink } from "lucide-react";
 import SiteTab from "./tabs/SiteTab";
 import TracksTab from "./tabs/TracksTab";
 import PortfolioTab from "./tabs/PortfolioTab";
@@ -13,6 +13,8 @@ import ContactTab from "./tabs/ContactTab";
 import ActivityTab from "./tabs/ActivityTab";
 
 type Tab = "site" | "tracks" | "portfolio" | "services" | "social" | "media" | "messages" | "activity" | "account";
+
+const VALID_TABS: Tab[] = ["site", "tracks", "portfolio", "services", "social", "media", "messages", "activity", "account"];
 
 const TABS: { id: Tab; label: string; icon: React.ReactNode; group: string }[] = [
   { id: "site", label: "Site Settings", icon: <Settings size={16} />, group: "Content" },
@@ -30,14 +32,27 @@ const GROUPS = ["Content", "Inbox", "Security"];
 
 export default function Dashboard() {
   const [, navigate] = useLocation();
+  const search = useSearch();
   const [checking, setChecking] = useState(true);
-  const [tab, setTab] = useState<Tab>("site");
+
+  const initialTab = (() => {
+    const params = new URLSearchParams(search);
+    const t = params.get("tab") as Tab | null;
+    return t && VALID_TABS.includes(t) ? t : "site";
+  })();
+
+  const [tab, setTab] = useState<Tab>(initialTab);
 
   useEffect(() => {
     api.me()
       .then(() => setChecking(false))
       .catch(() => navigate("/admin/login"));
   }, [navigate]);
+
+  function switchTab(t: Tab) {
+    setTab(t);
+    window.history.replaceState(null, "", `/admin?tab=${t}`);
+  }
 
   async function handleLogout() {
     await api.logout();
@@ -64,13 +79,15 @@ export default function Dashboard() {
               href="/"
               className="flex items-center gap-1.5 text-white/50 hover:text-white text-sm transition-colors px-3 py-1.5 rounded-lg hover:bg-white/5"
             >
-              <Home size={15} /> View Site
+              <ExternalLink size={14} />
+              <span className="hidden sm:inline">View Site</span>
             </a>
             <button
               onClick={handleLogout}
               className="flex items-center gap-1.5 text-white/50 hover:text-red-400 text-sm transition-colors px-3 py-1.5 rounded-lg hover:bg-red-500/10"
             >
-              <LogOut size={15} /> Logout
+              <LogOut size={15} />
+              <span className="hidden sm:inline">Logout</span>
             </button>
           </div>
         </div>
@@ -90,7 +107,7 @@ export default function Dashboard() {
                     {groupTabs.map((t) => (
                       <button
                         key={t.id}
-                        onClick={() => setTab(t.id)}
+                        onClick={() => switchTab(t.id)}
                         className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
                           tab === t.id
                             ? "bg-purple-600/20 text-purple-300 border border-purple-500/30"
