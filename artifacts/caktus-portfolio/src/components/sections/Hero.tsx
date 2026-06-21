@@ -30,9 +30,9 @@ export function Hero() {
             Music Producer | Composer | Sound Designer
           </div>
           
-          <h1 className="text-6xl md:text-8xl font-display font-bold text-white mb-6 tracking-tighter leading-none">
+          <h1 className="text-[5.5rem] md:text-[10rem] text-white mb-6 leading-none" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.02em' }}>
             <span className="block drop-shadow-[0_0_30px_rgba(147,51,234,0.3)]">CAKTUS</span>
-            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-primary via-purple-400 to-accent">AUDIO</span>
+            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-primary via-purple-400 to-accent">PRODUCTIONS</span>
           </h1>
           
           <p className="text-lg md:text-xl text-foreground/70 mb-10 max-w-2xl mx-auto font-light leading-relaxed">

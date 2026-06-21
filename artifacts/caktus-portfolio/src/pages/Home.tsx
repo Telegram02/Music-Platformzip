@@ -25,7 +25,7 @@ export default function Home() {
 
       <footer className="py-8 bg-background border-t border-border/20 text-center">
         <p className="text-foreground/40 text-sm font-mono">
-          &copy; {new Date().getFullYear()} Caktus Audio. All rights reserved.
+          &copy; {new Date().getFullYear()} Caktus Productions. All rights reserved.
         </p>
       </footer>
 
