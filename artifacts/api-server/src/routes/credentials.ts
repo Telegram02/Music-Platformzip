@@ -77,10 +77,11 @@ router.post("/credentials/request-otp", requireAdmin, async (req, res): Promise<
 });
 
 router.post("/credentials/verify-otp", requireAdmin, async (req, res): Promise<void> => {
-  const { code, newPassword, newEmail } = req.body as {
+  const { code, newPassword, newEmail, newUsername } = req.body as {
     code?: string;
     newPassword?: string;
     newEmail?: string;
+    newUsername?: string;
   };
 
   if (!code) {
@@ -111,13 +112,18 @@ router.post("/credentials/verify-otp", requireAdmin, async (req, res): Promise<v
   await db.update(adminOtpTable).set({ used: "true" }).where(eq(adminOtpTable.id, match.id));
 
   const passwordHash = await bcrypt.hash(newPassword, 12);
-  const email = newEmail?.trim() || (await getAdminEmail()) || (process.env.GMAIL_USER ?? "admin@caktus.local");
+  const email = newEmail?.trim() || (await getAdminEmail()) || (process.env.ADMIN_EMAIL ?? process.env.GMAIL_USER ?? "admin@caktus.local");
+
+  type CredUpdate = { email: string; passwordHash: string; username?: string };
+  const updates: CredUpdate = { email, passwordHash };
+  if (newUsername?.trim()) updates.username = newUsername.trim();
 
   const existing = await db.select().from(adminCredentialsTable).limit(1);
   if (existing.length > 0) {
-    await db.update(adminCredentialsTable).set({ email, passwordHash });
+    await db.update(adminCredentialsTable).set(updates);
   } else {
-    await db.insert(adminCredentialsTable).values({ email, passwordHash });
+    const username = newUsername?.trim() ?? process.env.ADMIN_USERNAME ?? "admin";
+    await db.insert(adminCredentialsTable).values({ email, username, passwordHash });
   }
 
   req.log.info("Admin credentials updated");

@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { Eye, EyeOff, Mail, Lock, ShieldCheck, KeyRound } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, ShieldCheck, KeyRound, User } from "lucide-react";
 
-type Step = "password" | "otp" | "done";
+type Step = "form" | "otp" | "done";
 
 async function apiPost(path: string, body: Record<string, string>) {
   const res = await fetch(`/api/${path}`, {
@@ -16,8 +16,9 @@ async function apiPost(path: string, body: Record<string, string>) {
 }
 
 export default function AccountTab() {
-  const [step, setStep] = useState<Step>("password");
+  const [step, setStep] = useState<Step>("form");
   const [currentPassword, setCurrentPassword] = useState("");
+  const [newUsername, setNewUsername] = useState("");
   const [newEmail, setNewEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -50,7 +51,7 @@ export default function AccountTab() {
     setError("");
     setLoading(true);
     try {
-      await apiPost("credentials/verify-otp", { code: otp, newPassword, newEmail });
+      await apiPost("credentials/verify-otp", { code: otp, newPassword, newEmail, newUsername });
       setStep("done");
     } catch (err) {
       setError((err as Error).message);
@@ -60,8 +61,9 @@ export default function AccountTab() {
   }
 
   function reset() {
-    setStep("password");
+    setStep("form");
     setCurrentPassword("");
+    setNewUsername("");
     setNewEmail("");
     setNewPassword("");
     setConfirmPassword("");
@@ -74,10 +76,10 @@ export default function AccountTab() {
     <div className="max-w-md">
       <h2 className="text-lg font-semibold text-white mb-1">Account Credentials</h2>
       <p className="text-white/40 text-sm mb-8">
-        Change your admin password. A 6-digit code will be emailed to verify it's you.
+        Change your admin username, email, or password. A 6-digit code will be emailed to verify it's you.
       </p>
 
-      {step === "password" && (
+      {step === "form" && (
         <form onSubmit={handleRequestOtp} className="space-y-5">
           <div>
             <label className="block text-white/50 text-xs mb-2 uppercase tracking-wider">Current Password</label>
@@ -88,6 +90,7 @@ export default function AccountTab() {
                 onChange={(e) => setCurrentPassword(e.target.value)}
                 required
                 placeholder="Your current password"
+                autoComplete="current-password"
                 className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-white/20 focus:outline-none focus:border-purple-500 pr-10"
               />
               <button type="button" onClick={() => setShowCurrent(!showCurrent)} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60">
@@ -96,50 +99,71 @@ export default function AccountTab() {
             </div>
           </div>
 
-          <div className="border-t border-white/10 pt-5">
-            <label className="block text-white/50 text-xs mb-2 uppercase tracking-wider">New Email (optional)</label>
-            <div className="relative">
-              <Mail size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/20" />
-              <input
-                type="email"
-                value={newEmail}
-                onChange={(e) => setNewEmail(e.target.value)}
-                placeholder="Leave blank to keep current"
-                className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 pl-9 text-white placeholder-white/20 focus:outline-none focus:border-purple-500"
-              />
-            </div>
-          </div>
+          <div className="border-t border-white/10 pt-5 space-y-4">
+            <p className="text-white/30 text-xs uppercase tracking-wider">New credentials (leave blank to keep current)</p>
 
-          <div>
-            <label className="block text-white/50 text-xs mb-2 uppercase tracking-wider">New Password</label>
-            <div className="relative">
-              <input
-                type={showNew ? "text" : "password"}
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                required
-                minLength={8}
-                placeholder="At least 8 characters"
-                className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-white/20 focus:outline-none focus:border-purple-500 pr-10"
-              />
-              <button type="button" onClick={() => setShowNew(!showNew)} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60">
-                {showNew ? <EyeOff size={16} /> : <Eye size={16} />}
-              </button>
+            <div>
+              <label className="block text-white/50 text-xs mb-2 uppercase tracking-wider">New Username</label>
+              <div className="relative">
+                <User size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/20" />
+                <input
+                  type="text"
+                  value={newUsername}
+                  onChange={(e) => setNewUsername(e.target.value)}
+                  placeholder="Leave blank to keep current"
+                  autoComplete="username"
+                  className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 pl-9 text-white placeholder-white/20 focus:outline-none focus:border-purple-500"
+                />
+              </div>
             </div>
-          </div>
 
-          <div>
-            <label className="block text-white/50 text-xs mb-2 uppercase tracking-wider">Confirm New Password</label>
-            <div className="relative">
-              <Lock size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/20" />
-              <input
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-                placeholder="Repeat new password"
-                className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 pl-9 text-white placeholder-white/20 focus:outline-none focus:border-purple-500"
-              />
+            <div>
+              <label className="block text-white/50 text-xs mb-2 uppercase tracking-wider">New Email (optional)</label>
+              <div className="relative">
+                <Mail size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/20" />
+                <input
+                  type="email"
+                  value={newEmail}
+                  onChange={(e) => setNewEmail(e.target.value)}
+                  placeholder="Leave blank to keep current"
+                  className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 pl-9 text-white placeholder-white/20 focus:outline-none focus:border-purple-500"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-white/50 text-xs mb-2 uppercase tracking-wider">New Password</label>
+              <div className="relative">
+                <input
+                  type={showNew ? "text" : "password"}
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  required
+                  minLength={8}
+                  placeholder="At least 8 characters"
+                  autoComplete="new-password"
+                  className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-white/20 focus:outline-none focus:border-purple-500 pr-10"
+                />
+                <button type="button" onClick={() => setShowNew(!showNew)} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60">
+                  {showNew ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-white/50 text-xs mb-2 uppercase tracking-wider">Confirm New Password</label>
+              <div className="relative">
+                <Lock size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/20" />
+                <input
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                  placeholder="Repeat new password"
+                  autoComplete="new-password"
+                  className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 pl-9 text-white placeholder-white/20 focus:outline-none focus:border-purple-500"
+                />
+              </div>
             </div>
           </div>
 
@@ -195,7 +219,7 @@ export default function AccountTab() {
               className="flex-1 py-3 bg-purple-600 hover:bg-purple-500 disabled:opacity-50 text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2"
             >
               {loading ? <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <ShieldCheck size={16} />}
-              {loading ? "Verifying…" : "Confirm change"}
+              {loading ? "Saving…" : "Confirm changes"}
             </button>
           </div>
         </form>
@@ -206,7 +230,7 @@ export default function AccountTab() {
           <div className="bg-green-500/10 border border-green-500/20 rounded-lg px-5 py-6 text-center">
             <ShieldCheck size={32} className="text-green-400 mx-auto mb-3" />
             <p className="text-green-300 font-semibold text-lg mb-1">Credentials updated!</p>
-            <p className="text-green-400/60 text-sm">Your new password is active. You'll need it on your next login.</p>
+            <p className="text-green-400/60 text-sm">Your new login details are active. You'll need them on your next login.</p>
           </div>
           <button
             onClick={reset}

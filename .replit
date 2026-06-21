@@ -35,3 +35,5 @@ externalPort = 80
 
 [userenv.shared]
 GMAIL_USER = "madebycaktus@gmail.com"
+ADMIN_EMAIL = "eric2277@icloud.com"
+ADMIN_USERNAME = "admin"

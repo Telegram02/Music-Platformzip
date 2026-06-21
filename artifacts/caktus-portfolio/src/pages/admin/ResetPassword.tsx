@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { KeyRound, Lock, ShieldCheck, ArrowLeft, Eye, EyeOff } from "lucide-react";
+import { KeyRound, Lock, ShieldCheck, ArrowLeft, Eye, EyeOff, User } from "lucide-react";
 
 type Step = "request" | "confirm" | "done";
 
@@ -20,6 +20,7 @@ export default function ResetPassword() {
   const [step, setStep] = useState<Step>("request");
   const [sentTo, setSentTo] = useState("");
   const [code, setCode] = useState("");
+  const [newUsername, setNewUsername] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showNew, setShowNew] = useState(false);
@@ -54,7 +55,7 @@ export default function ResetPassword() {
     }
     setLoading(true);
     try {
-      await apiPost("confirm-reset", { code, newPassword });
+      await apiPost("confirm-reset", { code, newPassword, newUsername });
       setStep("done");
     } catch (err) {
       setError((err as Error).message);
@@ -74,7 +75,7 @@ export default function ResetPassword() {
             CAKTUS PRODUCTIONS
           </h1>
           <p className="text-white/40 text-sm tracking-widest uppercase">
-            Reset Password
+            Reset Credentials
           </p>
         </div>
 
@@ -86,7 +87,7 @@ export default function ResetPassword() {
                   <KeyRound size={20} className="text-purple-400" />
                 </div>
                 <p className="text-white/60 text-sm leading-relaxed">
-                  A 6-digit reset code will be sent to your registered admin email.
+                  A 6-digit reset code will be sent to your registered admin email. You can then update your username and/or password.
                 </p>
               </div>
 
@@ -155,47 +156,73 @@ export default function ResetPassword() {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-white/50 text-xs mb-2 uppercase tracking-wider">
-                  New Password
-                </label>
-                <div className="relative">
-                  <input
-                    type={showNew ? "text" : "password"}
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    required
-                    minLength={8}
-                    placeholder="At least 8 characters"
-                    className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-white/20 focus:outline-none focus:border-purple-500 pr-10"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowNew(!showNew)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60"
-                  >
-                    {showNew ? <EyeOff size={16} /> : <Eye size={16} />}
-                  </button>
-                </div>
-              </div>
+              <div className="border-t border-white/10 pt-4 space-y-4">
+                <p className="text-white/30 text-xs uppercase tracking-wider">New credentials (leave blank to keep current)</p>
 
-              <div>
-                <label className="block text-white/50 text-xs mb-2 uppercase tracking-wider">
-                  Confirm Password
-                </label>
-                <div className="relative">
-                  <Lock
-                    size={15}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-white/20"
-                  />
-                  <input
-                    type="password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    required
-                    placeholder="Repeat new password"
-                    className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 pl-9 text-white placeholder-white/20 focus:outline-none focus:border-purple-500"
-                  />
+                <div>
+                  <label className="block text-white/50 text-xs mb-2 uppercase tracking-wider">
+                    New Username
+                  </label>
+                  <div className="relative">
+                    <User
+                      size={15}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 text-white/20"
+                    />
+                    <input
+                      type="text"
+                      value={newUsername}
+                      onChange={(e) => setNewUsername(e.target.value)}
+                      placeholder="Leave blank to keep current"
+                      autoComplete="username"
+                      className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 pl-9 text-white placeholder-white/20 focus:outline-none focus:border-purple-500"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-white/50 text-xs mb-2 uppercase tracking-wider">
+                    New Password
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showNew ? "text" : "password"}
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      required
+                      minLength={8}
+                      placeholder="At least 8 characters"
+                      autoComplete="new-password"
+                      className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-white/20 focus:outline-none focus:border-purple-500 pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowNew(!showNew)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60"
+                    >
+                      {showNew ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-white/50 text-xs mb-2 uppercase tracking-wider">
+                    Confirm Password
+                  </label>
+                  <div className="relative">
+                    <Lock
+                      size={15}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 text-white/20"
+                    />
+                    <input
+                      type="password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      required
+                      placeholder="Repeat new password"
+                      autoComplete="new-password"
+                      className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 pl-9 text-white placeholder-white/20 focus:outline-none focus:border-purple-500"
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -227,7 +254,7 @@ export default function ResetPassword() {
                   ) : (
                     <ShieldCheck size={16} />
                   )}
-                  {loading ? "Resetting…" : "Reset password"}
+                  {loading ? "Saving…" : "Save credentials"}
                 </button>
               </div>
             </form>
@@ -240,10 +267,10 @@ export default function ResetPassword() {
                   <ShieldCheck size={20} className="text-green-400" />
                 </div>
                 <p className="text-green-300 font-semibold text-lg mb-1">
-                  Password reset!
+                  Credentials updated!
                 </p>
                 <p className="text-white/40 text-sm">
-                  Your new password is active. You can now log in.
+                  Your new login details are active.
                 </p>
               </div>
               <button

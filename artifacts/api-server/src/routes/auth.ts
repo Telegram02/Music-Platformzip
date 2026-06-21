@@ -2,7 +2,7 @@ import { Router, type IRouter } from "express";
 import bcrypt from "bcryptjs";
 import { desc, eq } from "drizzle-orm";
 import { db, adminCredentialsTable, adminOtpTable } from "@workspace/db";
-import { verifyPassword, requireAdmin } from "../lib/auth";
+import { verifyCredentials, requireAdmin } from "../lib/auth";
 import { sendOtpEmail, isEmailConfigured } from "../lib/email";
 
 const router: IRouter = Router();
@@ -40,7 +40,11 @@ router.post("/auth/request-reset", async (req, res): Promise<void> => {
 });
 
 router.post("/auth/confirm-reset", async (req, res): Promise<void> => {
-  const { code, newPassword } = req.body as { code?: string; newPassword?: string };
+  const { code, newPassword, newUsername } = req.body as {
+    code?: string;
+    newPassword?: string;
+    newUsername?: string;
+  };
 
   if (!code) {
     res.status(400).json({ error: "Reset code required" });
@@ -66,27 +70,33 @@ router.post("/auth/confirm-reset", async (req, res): Promise<void> => {
 
   const passwordHash = await bcrypt.hash(newPassword, 12);
   const existing = await db.select().from(adminCredentialsTable).limit(1);
+
+  type CredUpdate = { passwordHash: string; username?: string };
+  const updates: CredUpdate = { passwordHash };
+  if (newUsername?.trim()) updates.username = newUsername.trim();
+
   if (existing.length > 0) {
-    await db.update(adminCredentialsTable).set({ passwordHash });
+    await db.update(adminCredentialsTable).set(updates);
   } else {
-    const fallbackEmail = process.env.GMAIL_USER ?? "admin@caktus.local";
-    await db.insert(adminCredentialsTable).values({ email: fallbackEmail, passwordHash });
+    const fallbackEmail = process.env.ADMIN_EMAIL ?? process.env.GMAIL_USER ?? "admin@caktus.local";
+    const fallbackUsername = newUsername?.trim() ?? process.env.ADMIN_USERNAME ?? "admin";
+    await db.insert(adminCredentialsTable).values({ email: fallbackEmail, username: fallbackUsername, passwordHash });
   }
 
-  req.log.info("Admin password reset via email OTP");
+  req.log.info("Admin credentials reset via email OTP");
   res.json({ ok: true });
 });
 
 router.post("/auth/login", async (req, res): Promise<void> => {
-  const { password, rememberMe } = req.body as { password?: string; rememberMe?: boolean };
-  if (!password) {
-    res.status(400).json({ error: "Password required" });
+  const { username, password, rememberMe } = req.body as { username?: string; password?: string; rememberMe?: boolean };
+  if (!username || !password) {
+    res.status(400).json({ error: "Username and password required" });
     return;
   }
-  const valid = await verifyPassword(password);
+  const valid = await verifyCredentials(username, password);
   if (!valid) {
     req.log.warn("Failed admin login attempt");
-    res.status(401).json({ error: "Invalid password" });
+    res.status(401).json({ error: "Invalid username or password" });
     return;
   }
   (req.session as { adminLoggedIn?: boolean }).adminLoggedIn = true;

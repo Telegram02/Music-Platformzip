@@ -1,4 +1,5 @@
-import { db, siteSettingsTable, socialLinksTable } from "@workspace/db";
+import bcrypt from "bcryptjs";
+import { db, siteSettingsTable, socialLinksTable, adminCredentialsTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { logger } from "./logger";
 
@@ -35,6 +36,16 @@ export async function seedDefaults() {
       for (const link of DEFAULT_SOCIAL) {
         await db.insert(socialLinksTable).values(link);
       }
+    }
+
+    const existingAdmin = await db.select().from(adminCredentialsTable).limit(1);
+    if (existingAdmin.length === 0) {
+      const email = process.env.ADMIN_EMAIL ?? "eric2277@icloud.com";
+      const username = process.env.ADMIN_USERNAME ?? "admin";
+      const rawPassword = process.env.ADMIN_PASSWORD ?? "caktus2024";
+      const passwordHash = await bcrypt.hash(rawPassword, 12);
+      await db.insert(adminCredentialsTable).values({ email, username, passwordHash });
+      logger.info({ email, username }, "Admin credentials seeded");
     }
 
     logger.info("Default seed complete");

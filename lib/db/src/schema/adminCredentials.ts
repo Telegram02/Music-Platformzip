@@ -2,6 +2,7 @@ import { pgTable, text, serial, timestamp } from "drizzle-orm/pg-core";
 
 export const adminCredentialsTable = pgTable("admin_credentials", {
   id: serial("id").primaryKey(),
+  username: text("username").notNull().default("admin"),
   email: text("email").notNull(),
   passwordHash: text("password_hash").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

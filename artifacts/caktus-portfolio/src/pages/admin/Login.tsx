@@ -3,6 +3,7 @@ import { useLocation, Link } from "wouter";
 import { api } from "@/lib/api";
 
 export default function AdminLogin() {
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState("");
@@ -14,10 +15,10 @@ export default function AdminLogin() {
     setError("");
     setLoading(true);
     try {
-      await api.login(password, rememberMe);
+      await api.login(username, password, rememberMe);
       navigate("/admin");
     } catch {
-      setError("Invalid password. Try again.");
+      setError("Invalid username or password. Try again.");
     } finally {
       setLoading(false);
     }
@@ -44,14 +45,29 @@ export default function AdminLogin() {
         >
           <div>
             <label className="block text-white/70 text-sm mb-2 font-medium">
+              Username
+            </label>
+            <input
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="Enter username"
+              autoFocus
+              autoComplete="username"
+              className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-white/30 outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500/50 transition-all"
+            />
+          </div>
+
+          <div>
+            <label className="block text-white/70 text-sm mb-2 font-medium">
               Password
             </label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter admin password"
-              autoFocus
+              placeholder="Enter password"
+              autoComplete="current-password"
               className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-white/30 outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500/50 transition-all"
             />
           </div>
@@ -87,7 +103,7 @@ export default function AdminLogin() {
 
           <button
             type="submit"
-            disabled={loading || !password}
+            disabled={loading || !username || !password}
             className="w-full bg-purple-600 hover:bg-purple-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-3 rounded-lg transition-colors"
           >
             {loading ? "Logging in..." : "Login"}
@@ -98,7 +114,7 @@ export default function AdminLogin() {
               href="/admin/reset-password"
               className="text-white/30 hover:text-white/60 text-sm transition-colors"
             >
-              Forgot password?
+              Forgot username or password?
             </Link>
           </div>
         </form>
