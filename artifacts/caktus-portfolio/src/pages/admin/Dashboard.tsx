@@ -1,24 +1,32 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { api } from "@/lib/api";
-import { LogOut, Settings, Music, Film, Link2, Image, Home, UserCog } from "lucide-react";
+import { LogOut, Settings, Music, Film, Link2, Image, Home, UserCog, Clapperboard, Inbox, ShieldCheck } from "lucide-react";
 import SiteTab from "./tabs/SiteTab";
 import TracksTab from "./tabs/TracksTab";
 import PortfolioTab from "./tabs/PortfolioTab";
 import SocialTab from "./tabs/SocialTab";
 import MediaTab from "./tabs/MediaTab";
 import AccountTab from "./tabs/AccountTab";
+import ServicesTab from "./tabs/ServicesTab";
+import ContactTab from "./tabs/ContactTab";
+import ActivityTab from "./tabs/ActivityTab";
 
-type Tab = "site" | "tracks" | "portfolio" | "social" | "media" | "account";
+type Tab = "site" | "tracks" | "portfolio" | "services" | "social" | "media" | "messages" | "activity" | "account";
 
-const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
-  { id: "site", label: "Site Settings", icon: <Settings size={16} /> },
-  { id: "tracks", label: "Audio Tracks", icon: <Music size={16} /> },
-  { id: "portfolio", label: "Portfolio", icon: <Film size={16} /> },
-  { id: "social", label: "Social Links", icon: <Link2 size={16} /> },
-  { id: "media", label: "Media Library", icon: <Image size={16} /> },
-  { id: "account", label: "Account", icon: <UserCog size={16} /> },
+const TABS: { id: Tab; label: string; icon: React.ReactNode; group: string }[] = [
+  { id: "site", label: "Site Settings", icon: <Settings size={16} />, group: "Content" },
+  { id: "services", label: "Services", icon: <Clapperboard size={16} />, group: "Content" },
+  { id: "tracks", label: "Audio Tracks", icon: <Music size={16} />, group: "Content" },
+  { id: "portfolio", label: "Portfolio", icon: <Film size={16} />, group: "Content" },
+  { id: "social", label: "Social Links", icon: <Link2 size={16} />, group: "Content" },
+  { id: "media", label: "Media Library", icon: <Image size={16} />, group: "Content" },
+  { id: "messages", label: "Messages", icon: <Inbox size={16} />, group: "Inbox" },
+  { id: "activity", label: "Login Activity", icon: <ShieldCheck size={16} />, group: "Security" },
+  { id: "account", label: "Account", icon: <UserCog size={16} />, group: "Security" },
 ];
+
+const GROUPS = ["Content", "Inbox", "Security"];
 
 export default function Dashboard() {
   const [, navigate] = useLocation();
@@ -46,17 +54,11 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0f] text-white">
-      {/* Top bar */}
       <header className="border-b border-white/10 bg-black/30 backdrop-blur-sm sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span
-              className="text-xl text-purple-400"
-              style={{ fontFamily: "'Bebas Neue', sans-serif" }}
-            >
-              CAKTUS ADMIN
-            </span>
-          </div>
+          <span className="text-xl text-purple-400" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
+            CAKTUS ADMIN
+          </span>
           <div className="flex items-center gap-3">
             <a
               href="/"
@@ -75,35 +77,48 @@ export default function Dashboard() {
       </header>
 
       <div className="max-w-6xl mx-auto px-4 py-8 flex gap-8">
-        {/* Sidebar */}
         <aside className="w-52 flex-shrink-0">
-          <nav className="space-y-1 sticky top-24">
-            {TABS.map((t) => (
-              <button
-                key={t.id}
-                onClick={() => setTab(t.id)}
-                className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                  tab === t.id
-                    ? "bg-purple-600/20 text-purple-300 border border-purple-500/30"
-                    : "text-white/50 hover:text-white hover:bg-white/5 border border-transparent"
-                }`}
-              >
-                <span className={tab === t.id ? "text-purple-400" : "text-white/30"}>
-                  {t.icon}
-                </span>
-                {t.label}
-              </button>
-            ))}
+          <nav className="space-y-5 sticky top-24">
+            {GROUPS.map((group) => {
+              const groupTabs = TABS.filter((t) => t.group === group);
+              return (
+                <div key={group}>
+                  <p className="text-white/25 text-[10px] font-mono uppercase tracking-widest px-4 mb-1.5">
+                    {group}
+                  </p>
+                  <div className="space-y-0.5">
+                    {groupTabs.map((t) => (
+                      <button
+                        key={t.id}
+                        onClick={() => setTab(t.id)}
+                        className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                          tab === t.id
+                            ? "bg-purple-600/20 text-purple-300 border border-purple-500/30"
+                            : "text-white/50 hover:text-white hover:bg-white/5 border border-transparent"
+                        }`}
+                      >
+                        <span className={tab === t.id ? "text-purple-400" : "text-white/30"}>
+                          {t.icon}
+                        </span>
+                        {t.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
           </nav>
         </aside>
 
-        {/* Main content */}
         <main className="flex-1 min-w-0">
           {tab === "site" && <SiteTab />}
+          {tab === "services" && <ServicesTab />}
           {tab === "tracks" && <TracksTab />}
           {tab === "portfolio" && <PortfolioTab />}
           {tab === "social" && <SocialTab />}
           {tab === "media" && <MediaTab />}
+          {tab === "messages" && <ContactTab />}
+          {tab === "activity" && <ActivityTab />}
           {tab === "account" && <AccountTab />}
         </main>
       </div>

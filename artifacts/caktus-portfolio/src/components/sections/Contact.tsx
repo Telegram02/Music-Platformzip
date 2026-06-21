@@ -1,7 +1,9 @@
 import { motion } from "framer-motion";
-import { Mail, ArrowRight } from "lucide-react";
+import { Mail, ArrowRight, Send, CheckCircle, AlertCircle } from "lucide-react";
+import { useState } from "react";
 import { FaYoutube, FaInstagram, FaSoundcloud, FaDiscord, FaTiktok, FaTwitter, FaSpotify, FaTwitch } from "react-icons/fa";
 import { useSiteSettings, useSocialLinks } from "@/hooks/useSiteData";
+import { api } from "@/lib/api";
 
 const PLATFORM_ICONS: Record<string, React.ReactNode> = {
   youtube: <FaYoutube size={20} />,
@@ -29,79 +31,198 @@ export function Contact() {
   const { data: settings } = useSiteSettings();
   const { data: socialLinks = [] } = useSocialLinks();
 
+  const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState("");
+
   const email = settings?.contactEmail ?? "caktusaudio@gmail.com";
   const discord = settings?.discord ?? "caktus";
+  const availability = settings?.availability ?? "Currently accepting projects for Q4. Reach out to discuss your vision, rates, and availability.";
 
   const discordLink = socialLinks.find((l) => l.platform === "discord");
   const otherLinks = socialLinks.filter((l) => l.platform !== "discord" && l.url);
 
+  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!form.name || !form.email || !form.message) return;
+    setSubmitting(true);
+    setError("");
+    try {
+      await api.submitContact(form);
+      setSubmitted(true);
+      setForm({ name: "", email: "", subject: "", message: "" });
+    } catch (err) {
+      setError((err as Error).message ?? "Failed to send. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
   return (
     <section id="contact" className="py-32 relative bg-card border-t border-border/30 overflow-hidden">
-      {/* Background glow */}
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-primary/10 blur-[120px] rounded-t-full pointer-events-none" />
-      
+
       <div className="container mx-auto px-6 relative z-10">
-        <div className="max-w-4xl mx-auto flex flex-col items-center text-center">
+        <div className="max-w-5xl mx-auto">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
+            className="text-center mb-16"
           >
             <h2 className="text-5xl md:text-7xl font-display font-bold text-white mb-6">
               Let's build something <span className="text-primary italic">massive.</span>
             </h2>
-            <p className="text-xl text-foreground/70 font-light mb-12 max-w-2xl mx-auto">
-              Currently accepting projects for Q4. Reach out to discuss your vision, rates, and availability.
+            <p className="text-xl text-foreground/70 font-light max-w-2xl mx-auto">
+              {availability}
             </p>
-            
-            <a 
-              href={`mailto:${email}`}
-              className="inline-flex items-center gap-3 px-10 py-5 bg-white text-black font-bold uppercase tracking-widest rounded-sm hover:bg-primary hover:text-white transition-all duration-300 hover:shadow-[0_0_30px_rgba(147,51,234,0.6)] hover:-translate-y-1 group mb-16"
-            >
-              <Mail size={20} />
-              {email}
-              <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform" />
-            </a>
           </motion.div>
-          
-          <div className="w-full h-[1px] bg-border/50 mb-12" />
-          
-          <div className="flex flex-col md:flex-row items-center justify-between w-full gap-8">
-            <div className="flex items-center gap-2 text-foreground/60 font-mono text-sm">
-              <FaDiscord size={20} className="text-[#5865F2]" />
-              <span>Discord: {discordLink?.url || discord}</span>
-            </div>
-            
-            <div className="flex gap-4 flex-wrap justify-center md:justify-end">
-              {otherLinks.length > 0
-                ? otherLinks.map((link) => (
-                    <a
-                      key={link.id}
-                      href={link.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={`w-12 h-12 rounded-full border border-border/50 flex items-center justify-center text-foreground transition-all ${PLATFORM_COLORS[link.platform] ?? "hover:text-white hover:border-white hover:bg-white/5"}`}
-                    >
-                      {PLATFORM_ICONS[link.platform] ?? <span className="text-xs capitalize">{link.platform[0]}</span>}
-                    </a>
-                  ))
-                : (
-                  <>
-                    <a href="#" className="w-12 h-12 rounded-full border border-border/50 flex items-center justify-center text-foreground hover:text-[#FF5500] hover:border-[#FF5500] transition-all">
-                      <FaSoundcloud size={20} />
-                    </a>
-                    <a href="#" className="w-12 h-12 rounded-full border border-border/50 flex items-center justify-center text-foreground hover:text-[#E1306C] hover:border-[#E1306C] transition-all">
-                      <FaInstagram size={20} />
-                    </a>
-                    <a href="#" className="w-12 h-12 rounded-full border border-border/50 flex items-center justify-center text-foreground hover:text-[#FF0000] hover:border-[#FF0000] transition-all">
-                      <FaYoutube size={20} />
-                    </a>
-                  </>
-                )
-              }
-            </div>
+
+          <div className="grid md:grid-cols-2 gap-12 mb-16">
+            {/* Direct contact */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+              className="flex flex-col gap-6"
+            >
+              <div>
+                <p className="text-white/40 text-xs uppercase tracking-widest mb-4 font-mono">Direct Contact</p>
+                <a
+                  href={`mailto:${email}`}
+                  className="inline-flex items-center gap-3 px-8 py-4 bg-white text-black font-bold uppercase tracking-widest rounded-sm hover:bg-primary hover:text-white transition-all duration-300 hover:shadow-[0_0_30px_rgba(147,51,234,0.6)] hover:-translate-y-1 group w-full justify-center"
+                >
+                  <Mail size={18} />
+                  {email}
+                  <ArrowRight size={18} className="group-hover:translate-x-2 transition-transform" />
+                </a>
+              </div>
+
+              <div className="p-6 bg-background/50 border border-border/30 rounded-sm">
+                <p className="text-white/40 text-xs uppercase tracking-widest mb-4 font-mono">Discord</p>
+                <div className="flex items-center gap-2 text-foreground/80 font-mono">
+                  <FaDiscord size={20} className="text-[#5865F2]" />
+                  <span>{discordLink?.url || discord}</span>
+                </div>
+              </div>
+
+              {otherLinks.length > 0 && (
+                <div>
+                  <p className="text-white/40 text-xs uppercase tracking-widest mb-4 font-mono">Find Me Online</p>
+                  <div className="flex gap-3 flex-wrap">
+                    {otherLinks.map((link) => (
+                      <a
+                        key={link.id}
+                        href={link.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`w-12 h-12 rounded-full border border-border/50 flex items-center justify-center text-foreground transition-all ${PLATFORM_COLORS[link.platform] ?? "hover:text-white hover:border-white hover:bg-white/5"}`}
+                      >
+                        {PLATFORM_ICONS[link.platform] ?? <span className="text-xs capitalize">{link.platform[0]}</span>}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </motion.div>
+
+            {/* Contact form */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+            >
+              <p className="text-white/40 text-xs uppercase tracking-widest mb-4 font-mono">Send a Message</p>
+
+              {submitted ? (
+                <div className="flex flex-col items-center justify-center gap-4 h-64 text-center p-8 border border-emerald-500/30 rounded-sm bg-emerald-500/5">
+                  <CheckCircle size={40} className="text-emerald-400" />
+                  <div>
+                    <p className="text-white font-semibold text-lg">Message sent!</p>
+                    <p className="text-white/50 text-sm mt-1">I'll get back to you as soon as possible.</p>
+                  </div>
+                  <button
+                    onClick={() => setSubmitted(false)}
+                    className="text-sm text-white/40 hover:text-white underline transition-colors"
+                  >
+                    Send another
+                  </button>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <input
+                        name="name"
+                        value={form.name}
+                        onChange={handleChange}
+                        placeholder="Your name *"
+                        required
+                        className="w-full bg-white/5 border border-white/10 rounded-sm px-4 py-3 text-white placeholder-white/30 outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all text-sm"
+                      />
+                    </div>
+                    <div>
+                      <input
+                        name="email"
+                        type="email"
+                        value={form.email}
+                        onChange={handleChange}
+                        placeholder="Your email *"
+                        required
+                        className="w-full bg-white/5 border border-white/10 rounded-sm px-4 py-3 text-white placeholder-white/30 outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all text-sm"
+                      />
+                    </div>
+                  </div>
+                  <input
+                    name="subject"
+                    value={form.subject}
+                    onChange={handleChange}
+                    placeholder="Subject (optional)"
+                    className="w-full bg-white/5 border border-white/10 rounded-sm px-4 py-3 text-white placeholder-white/30 outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all text-sm"
+                  />
+                  <textarea
+                    name="message"
+                    value={form.message}
+                    onChange={handleChange}
+                    placeholder="Tell me about your project *"
+                    required
+                    rows={5}
+                    className="w-full bg-white/5 border border-white/10 rounded-sm px-4 py-3 text-white placeholder-white/30 outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all text-sm resize-none"
+                  />
+                  {error && (
+                    <div className="flex items-center gap-2 text-red-400 text-sm">
+                      <AlertCircle size={16} />
+                      {error}
+                    </div>
+                  )}
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className="w-full flex items-center justify-center gap-2 px-8 py-4 bg-primary text-white font-bold uppercase tracking-widest rounded-sm hover:bg-primary/90 hover:shadow-[0_0_20px_rgba(147,51,234,0.5)] transition-all duration-300 disabled:opacity-50"
+                  >
+                    {submitting ? (
+                      <span className="w-5 h-5 rounded-full border-2 border-white border-t-transparent animate-spin" />
+                    ) : (
+                      <>
+                        <Send size={16} />
+                        Send Message
+                      </>
+                    )}
+                  </button>
+                </form>
+              )}
+            </motion.div>
           </div>
+
+          <div className="w-full h-[1px] bg-border/50" />
         </div>
       </div>
     </section>

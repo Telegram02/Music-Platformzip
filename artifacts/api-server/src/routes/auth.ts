@@ -1,11 +1,21 @@
 import { Router, type IRouter } from "express";
 import bcrypt from "bcryptjs";
 import { desc, eq } from "drizzle-orm";
-import { db, adminCredentialsTable, adminOtpTable } from "@workspace/db";
+import rateLimit from "express-rate-limit";
+import { db, adminCredentialsTable, adminOtpTable, loginActivityTable } from "@workspace/db";
 import { verifyCredentials, requireAdmin } from "../lib/auth";
 import { sendOtpEmail, isEmailConfigured } from "../lib/email";
 
 const router: IRouter = Router();
+
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Too many login attempts. Please try again in 15 minutes." },
+  skipSuccessfulRequests: true,
+});
 
 function generateOtp(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();
@@ -46,25 +56,15 @@ router.post("/auth/confirm-reset", async (req, res): Promise<void> => {
     newUsername?: string;
   };
 
-  if (!code) {
-    res.status(400).json({ error: "Reset code required" });
-    return;
-  }
+  if (!code) { res.status(400).json({ error: "Reset code required" }); return; }
   if (!newPassword || newPassword.length < 8) {
-    res.status(400).json({ error: "New password must be at least 8 characters" });
-    return;
+    res.status(400).json({ error: "New password must be at least 8 characters" }); return;
   }
 
   const now = new Date();
   const otpRows = await db.select().from(adminOtpTable).orderBy(desc(adminOtpTable.id)).limit(10);
-  const match = otpRows.find(
-    (r) => r.code === code && r.used === "false" && new Date(r.expiresAt) > now
-  );
-
-  if (!match) {
-    res.status(401).json({ error: "Invalid or expired code. Request a new one." });
-    return;
-  }
+  const match = otpRows.find((r) => r.code === code && r.used === "false" && new Date(r.expiresAt) > now);
+  if (!match) { res.status(401).json({ error: "Invalid or expired code. Request a new one." }); return; }
 
   await db.update(adminOtpTable).set({ used: "true" }).where(eq(adminOtpTable.id, match.id));
 
@@ -87,38 +87,43 @@ router.post("/auth/confirm-reset", async (req, res): Promise<void> => {
   res.json({ ok: true });
 });
 
-router.post("/auth/login", async (req, res): Promise<void> => {
-  const { username, password, rememberMe } = req.body as { username?: string; password?: string; rememberMe?: boolean };
+router.post("/auth/login", loginLimiter, async (req, res): Promise<void> => {
+  const { username, password, rememberMe } = req.body as {
+    username?: string; password?: string; rememberMe?: boolean;
+  };
   if (!username || !password) {
-    res.status(400).json({ error: "Username and password required" });
-    return;
+    res.status(400).json({ error: "Username and password required" }); return;
   }
   const valid = await verifyCredentials(username, password);
+
+  await db.insert(loginActivityTable).values({
+    username,
+    success: valid,
+    ipAddress: (req.ip ?? "").slice(0, 100),
+  }).catch(() => {});
+
   if (!valid) {
     req.log.warn("Failed admin login attempt");
-    res.status(401).json({ error: "Invalid username or password" });
-    return;
+    res.status(401).json({ error: "Invalid username or password" }); return;
   }
+
   (req.session as { adminLoggedIn?: boolean }).adminLoggedIn = true;
   if (rememberMe) {
-    req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000; // 30 days
+    req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000;
   } else {
-    req.session.cookie.expires = undefined; // session cookie — clears on browser close
+    req.session.cookie.expires = undefined;
   }
   req.session.save((err) => {
     if (err) {
       req.log.error({ err }, "Session save error");
-      res.status(500).json({ error: "Session error" });
-      return;
+      res.status(500).json({ error: "Session error" }); return;
     }
     res.json({ ok: true, rememberMe: !!rememberMe });
   });
 });
 
 router.post("/auth/logout", (req, res): void => {
-  req.session.destroy(() => {
-    res.json({ ok: true });
-  });
+  req.session.destroy(() => { res.json({ ok: true }); });
 });
 
 router.get("/auth/me", requireAdmin, (_req, res): void => {

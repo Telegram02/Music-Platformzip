@@ -7,6 +7,9 @@ import portfolioRouter from "./portfolio";
 import socialRouter from "./social";
 import storageRouter from "./storage";
 import credentialsRouter from "./credentials";
+import servicesRouter from "./services";
+import contactRouter from "./contact";
+import activityRouter from "./activity";
 
 const router: IRouter = Router();
 
@@ -18,5 +21,8 @@ router.use(portfolioRouter);
 router.use(socialRouter);
 router.use(storageRouter);
 router.use(credentialsRouter);
+router.use(servicesRouter);
+router.use(contactRouter);
+router.use(activityRouter);
 
 export default router;

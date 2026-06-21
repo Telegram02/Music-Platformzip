@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { api, type AudioTrack, type PortfolioItem, type SocialLink } from "@/lib/api";
+import { api, type AudioTrack, type PortfolioItem, type SocialLink, type Service, type ContactMessage, type LoginActivity } from "@/lib/api";
 
 export function useSiteSettings() {
   return useQuery({
@@ -33,4 +33,28 @@ export function usePortfolioItems() {
   });
 }
 
-export type { AudioTrack, PortfolioItem, SocialLink };
+export function useServices() {
+  return useQuery({
+    queryKey: ["services"],
+    queryFn: () => api.getServices(false),
+    staleTime: 30_000,
+  });
+}
+
+export function useMessages() {
+  return useQuery({
+    queryKey: ["contact-messages"],
+    queryFn: () => api.getMessages(),
+    staleTime: 10_000,
+  });
+}
+
+export function useActivity() {
+  return useQuery({
+    queryKey: ["login-activity"],
+    queryFn: () => api.getActivity(),
+    staleTime: 15_000,
+  });
+}
+
+export type { AudioTrack, PortfolioItem, SocialLink, Service, ContactMessage, LoginActivity };
