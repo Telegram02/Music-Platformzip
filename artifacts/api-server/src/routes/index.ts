@@ -6,6 +6,7 @@ import tracksRouter from "./tracks";
 import portfolioRouter from "./portfolio";
 import socialRouter from "./social";
 import storageRouter from "./storage";
+import credentialsRouter from "./credentials";
 
 const router: IRouter = Router();
 
@@ -16,5 +17,6 @@ router.use(tracksRouter);
 router.use(portfolioRouter);
 router.use(socialRouter);
 router.use(storageRouter);
+router.use(credentialsRouter);
 
 export default router;

@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { api } from "@/lib/api";
-import { LogOut, Settings, Music, Film, Link2, Image, Home } from "lucide-react";
+import { LogOut, Settings, Music, Film, Link2, Image, Home, UserCog } from "lucide-react";
 import SiteTab from "./tabs/SiteTab";
 import TracksTab from "./tabs/TracksTab";
 import PortfolioTab from "./tabs/PortfolioTab";
 import SocialTab from "./tabs/SocialTab";
 import MediaTab from "./tabs/MediaTab";
+import AccountTab from "./tabs/AccountTab";
 
-type Tab = "site" | "tracks" | "portfolio" | "social" | "media";
+type Tab = "site" | "tracks" | "portfolio" | "social" | "media" | "account";
 
 const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
   { id: "site", label: "Site Settings", icon: <Settings size={16} /> },
@@ -16,6 +17,7 @@ const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
   { id: "portfolio", label: "Portfolio", icon: <Film size={16} /> },
   { id: "social", label: "Social Links", icon: <Link2 size={16} /> },
   { id: "media", label: "Media Library", icon: <Image size={16} /> },
+  { id: "account", label: "Account", icon: <UserCog size={16} /> },
 ];
 
 export default function Dashboard() {
@@ -102,6 +104,7 @@ export default function Dashboard() {
           {tab === "portfolio" && <PortfolioTab />}
           {tab === "social" && <SocialTab />}
           {tab === "media" && <MediaTab />}
+          {tab === "account" && <AccountTab />}
         </main>
       </div>
     </div>
