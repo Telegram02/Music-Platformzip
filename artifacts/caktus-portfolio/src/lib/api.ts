@@ -50,6 +50,12 @@ export const api = {
   updateService: (id: number, data: Partial<Service>) => req<Service>("PUT", `/services/${id}`, data),
   deleteService: (id: number) => req<void>("DELETE", `/services/${id}`),
 
+  // Testimonials
+  getTestimonials: (all = false) => req<Testimonial[]>("GET", all ? "/testimonials/all" : "/testimonials"),
+  createTestimonial: (data: Partial<Testimonial>) => req<Testimonial>("POST", "/testimonials", data),
+  updateTestimonial: (id: number, data: Partial<Testimonial>) => req<Testimonial>("PUT", `/testimonials/${id}`, data),
+  deleteTestimonial: (id: number) => req<void>("DELETE", `/testimonials/${id}`),
+
   // Contact messages
   submitContact: (data: { name: string; email: string; subject: string; message: string; _hp?: string }) =>
     req<{ ok: boolean }>("POST", "/contact", data),
@@ -99,6 +105,12 @@ export interface SocialLink {
 export interface Service {
   id: number; iconName: string; title: string; description: string;
   colorClass: string; sortOrder: number; active: boolean;
+  createdAt: string; updatedAt: string;
+}
+
+export interface Testimonial {
+  id: number; quote: string; authorName: string; authorTitle: string;
+  authorAvatar: string; rating: number; sortOrder: number; active: boolean;
   createdAt: string; updatedAt: string;
 }
 

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation, useSearch } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
-import { LogOut, Settings, Music, Film, Link2, Image, UserCog, Clapperboard, Inbox, ShieldCheck, ExternalLink, Menu, X } from "lucide-react";
+import { LogOut, Settings, Music, Film, Link2, Image, UserCog, Clapperboard, Inbox, ShieldCheck, ExternalLink, Menu, X, Star } from "lucide-react";
 import SiteTab from "./tabs/SiteTab";
 import TracksTab from "./tabs/TracksTab";
 import PortfolioTab from "./tabs/PortfolioTab";
@@ -12,16 +12,18 @@ import AccountTab from "./tabs/AccountTab";
 import ServicesTab from "./tabs/ServicesTab";
 import ContactTab from "./tabs/ContactTab";
 import ActivityTab from "./tabs/ActivityTab";
+import TestimonialsTab from "./tabs/TestimonialsTab";
 
-type Tab = "site" | "tracks" | "portfolio" | "services" | "social" | "media" | "messages" | "activity" | "account";
+type Tab = "site" | "tracks" | "portfolio" | "services" | "social" | "media" | "testimonials" | "messages" | "activity" | "account";
 
-const VALID_TABS: Tab[] = ["site", "tracks", "portfolio", "services", "social", "media", "messages", "activity", "account"];
+const VALID_TABS: Tab[] = ["site", "tracks", "portfolio", "services", "social", "media", "testimonials", "messages", "activity", "account"];
 
 const TABS: { id: Tab; label: string; icon: React.ReactNode; group: string }[] = [
   { id: "site", label: "Site Settings", icon: <Settings size={16} />, group: "Content" },
   { id: "services", label: "Services", icon: <Clapperboard size={16} />, group: "Content" },
   { id: "tracks", label: "Audio Tracks", icon: <Music size={16} />, group: "Content" },
   { id: "portfolio", label: "Portfolio", icon: <Film size={16} />, group: "Content" },
+  { id: "testimonials", label: "Testimonials", icon: <Star size={16} />, group: "Content" },
   { id: "social", label: "Social Links", icon: <Link2 size={16} />, group: "Content" },
   { id: "media", label: "Media Library", icon: <Image size={16} />, group: "Content" },
   { id: "messages", label: "Messages", icon: <Inbox size={16} />, group: "Inbox" },
@@ -120,11 +122,9 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0f] text-white">
-      {/* Main header */}
       <header className="border-b border-white/10 bg-black/30 backdrop-blur-sm sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            {/* Mobile hamburger */}
             <button
               onClick={() => setSidebarOpen(true)}
               className="lg:hidden flex items-center justify-center w-9 h-9 rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition-colors"
@@ -135,7 +135,6 @@ export default function Dashboard() {
             <span className="text-xl text-purple-400" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
               CAKTUS ADMIN
             </span>
-            {/* Current tab name on mobile */}
             <span className="lg:hidden text-white/30 text-sm truncate max-w-[120px]">
               / {currentTabLabel}
             </span>
@@ -159,7 +158,6 @@ export default function Dashboard() {
         </div>
       </header>
 
-      {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div
           className="lg:hidden fixed inset-0 bg-black/70 z-30 backdrop-blur-sm"
@@ -167,7 +165,6 @@ export default function Dashboard() {
         />
       )}
 
-      {/* Mobile sidebar drawer */}
       <div
         className={`lg:hidden fixed inset-y-0 left-0 z-40 w-72 bg-[#0d0d15] border-r border-white/10 overflow-y-auto transition-transform duration-300 ease-in-out ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
@@ -175,10 +172,7 @@ export default function Dashboard() {
       >
         <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
           <span className="text-white/60 text-xs font-mono uppercase tracking-widest">Navigation</span>
-          <button
-            onClick={() => setSidebarOpen(false)}
-            className="text-white/40 hover:text-white transition-colors"
-          >
+          <button onClick={() => setSidebarOpen(false)} className="text-white/40 hover:text-white transition-colors">
             <X size={18} />
           </button>
         </div>
@@ -187,21 +181,19 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Page layout */}
       <div className="max-w-6xl mx-auto px-4 py-6 sm:py-8 lg:flex lg:gap-8">
-        {/* Desktop sidebar */}
         <aside className="hidden lg:block w-52 flex-shrink-0">
           <div className="sticky top-24">
             <SidebarContent />
           </div>
         </aside>
 
-        {/* Main content */}
         <main className="flex-1 min-w-0 mt-2 lg:mt-0">
           {tab === "site" && <SiteTab />}
           {tab === "services" && <ServicesTab />}
           {tab === "tracks" && <TracksTab />}
           {tab === "portfolio" && <PortfolioTab />}
+          {tab === "testimonials" && <TestimonialsTab />}
           {tab === "social" && <SocialTab />}
           {tab === "media" && <MediaTab />}
           {tab === "messages" && <ContactTab />}

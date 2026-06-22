@@ -10,6 +10,7 @@ import credentialsRouter from "./credentials";
 import servicesRouter from "./services";
 import contactRouter from "./contact";
 import activityRouter from "./activity";
+import testimonialsRouter from "./testimonials";
 
 const router: IRouter = Router();
 
@@ -24,5 +25,6 @@ router.use(credentialsRouter);
 router.use(servicesRouter);
 router.use(contactRouter);
 router.use(activityRouter);
+router.use(testimonialsRouter);
 
 export default router;

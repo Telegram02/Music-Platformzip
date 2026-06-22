@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { api, type AudioTrack, type PortfolioItem, type SocialLink, type Service, type ContactMessage, type LoginActivity } from "@/lib/api";
+import { api, type AudioTrack, type PortfolioItem, type SocialLink, type Service, type ContactMessage, type LoginActivity, type Testimonial } from "@/lib/api";
 
 export function useSiteSettings() {
   return useQuery({
@@ -41,6 +41,14 @@ export function useServices() {
   });
 }
 
+export function useTestimonials() {
+  return useQuery({
+    queryKey: ["testimonials"],
+    queryFn: () => api.getTestimonials(false),
+    staleTime: 30_000,
+  });
+}
+
 export function useMessages() {
   return useQuery({
     queryKey: ["contact-messages"],
@@ -57,4 +65,4 @@ export function useActivity() {
   });
 }
 
-export type { AudioTrack, PortfolioItem, SocialLink, Service, ContactMessage, LoginActivity };
+export type { AudioTrack, PortfolioItem, SocialLink, Service, ContactMessage, LoginActivity, Testimonial };
