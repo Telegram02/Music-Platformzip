@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import { motion, useScroll, useSpring } from "framer-motion";
 import { useAdminStatus } from "@/hooks/useAdminStatus";
+import { useSiteSettings } from "@/hooks/useSiteData";
 
 interface NavbarProps {
   onCommissionOpen: () => void;
@@ -12,6 +13,8 @@ export function Navbar({ onCommissionOpen }: NavbarProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("home");
   const { isAdmin } = useAdminStatus();
+  const { data: settings } = useSiteSettings();
+  const pricingVisible = settings?.pricingVisible !== "false";
 
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30, restDelta: 0.001 });
@@ -39,12 +42,12 @@ export function Navbar({ onCommissionOpen }: NavbarProps) {
   }, []);
 
   const navLinks = [
-    { name: "About", href: "#about", id: "about" },
-    { name: "Services", href: "#services", id: "services" },
+    { name: "About",     href: "#about",     id: "about" },
+    { name: "Services",  href: "#services",  id: "services" },
     { name: "Portfolio", href: "#portfolio", id: "portfolio" },
-    { name: "Workflow", href: "#workflow", id: "workflow" },
-    { name: "Pricing", href: "#pricing", id: "pricing" },
-    { name: "Contact", href: "#contact", id: "contact" },
+    { name: "Workflow",  href: "#workflow",  id: "workflow" },
+    ...(pricingVisible ? [{ name: "Pricing", href: "#pricing", id: "pricing" }] : []),
+    { name: "Contact",   href: "#contact",   id: "contact" },
   ];
 
   const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
