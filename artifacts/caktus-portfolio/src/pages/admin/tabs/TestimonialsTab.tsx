@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api, type Testimonial } from "@/lib/api";
 import { FileUploader } from "../components/FileUploader";
 import { storageUrl } from "@/lib/api";
-import { Plus, Pencil, Trash2, Star, X, Check, ChevronUp, ChevronDown, Eye, EyeOff, User } from "lucide-react";
+import { Plus, Pencil, Trash2, Star, X, Check, ChevronUp, ChevronDown, Eye, EyeOff, User, Zap } from "lucide-react";
 
 const EMPTY_FORM = {
   quote: "", authorName: "", authorTitle: "", authorAvatar: "",
@@ -175,6 +175,140 @@ function TestimonialForm({
   );
 }
 
+function QuickAddPanel({
+  onSave, saving, totalCount,
+}: {
+  onSave: (data: typeof EMPTY_FORM) => void;
+  saving: boolean;
+  totalCount: number;
+}) {
+  const [open, setOpen] = useState(false);
+  const [quote, setQuote] = useState("");
+  const [name, setName] = useState("");
+  const [role, setRole] = useState("");
+  const [rating, setRating] = useState(5);
+  const [hover, setHover] = useState(0);
+
+  function handleSubmit() {
+    if (!quote.trim() || !name.trim()) return;
+    onSave({
+      quote: quote.trim(),
+      authorName: name.trim(),
+      authorTitle: role.trim(),
+      authorAvatar: "",
+      rating,
+      sortOrder: totalCount,
+      active: true,
+    });
+    setQuote(""); setName(""); setRole(""); setRating(5);
+    setOpen(false);
+  }
+
+  if (!open) {
+    return (
+      <button
+        onClick={() => setOpen(true)}
+        className="w-full flex items-center gap-3 px-4 py-3 bg-amber-500/8 hover:bg-amber-500/15 border border-amber-500/20 hover:border-amber-500/40 rounded-xl text-amber-400/80 hover:text-amber-300 text-sm transition-all group"
+      >
+        <Zap size={15} className="flex-shrink-0" />
+        <span className="font-medium">Quick Add from Email Reply</span>
+        <span className="text-amber-500/40 text-xs ml-auto group-hover:text-amber-400/60">Paste their text → publish instantly</span>
+      </button>
+    );
+  }
+
+  return (
+    <div className="p-5 bg-amber-500/5 border border-amber-500/25 rounded-xl space-y-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Zap size={15} className="text-amber-400" />
+          <span className="text-amber-300 text-sm font-semibold">Quick Add from Email Reply</span>
+        </div>
+        <button onClick={() => setOpen(false)} className="text-white/30 hover:text-white transition-colors">
+          <X size={15} />
+        </button>
+      </div>
+
+      <div>
+        <label className="block text-white/60 text-xs uppercase tracking-wider font-mono mb-1.5">Their Message *</label>
+        <textarea
+          value={quote}
+          onChange={(e) => setQuote(e.target.value)}
+          placeholder="Paste exactly what they wrote in their reply..."
+          rows={4}
+          maxLength={1000}
+          autoFocus
+          className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-white/20 outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/20 transition-all resize-none text-sm"
+        />
+        <p className="text-white/20 text-xs mt-0.5 text-right">{quote.length}/1000</p>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label className="block text-white/60 text-xs uppercase tracking-wider font-mono mb-1.5">Their Name *</label>
+          <input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Alex Johnson"
+            maxLength={100}
+            className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white placeholder-white/20 outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/20 transition-all text-sm"
+          />
+        </div>
+        <div>
+          <label className="block text-white/60 text-xs uppercase tracking-wider font-mono mb-1.5">Their Role / Context</label>
+          <input
+            value={role}
+            onChange={(e) => setRole(e.target.value)}
+            placeholder="Indie Game Developer"
+            maxLength={100}
+            className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white placeholder-white/20 outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/20 transition-all text-sm"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label className="block text-white/60 text-xs uppercase tracking-wider font-mono mb-2">Rating</label>
+        <div className="flex gap-1">
+          {Array.from({ length: 5 }, (_, i) => (
+            <button
+              key={i}
+              type="button"
+              onClick={() => setRating(i + 1)}
+              onMouseEnter={() => setHover(i + 1)}
+              onMouseLeave={() => setHover(0)}
+              className="transition-transform hover:scale-110"
+            >
+              <Star
+                size={22}
+                className={i < (hover || rating) ? "fill-amber-400 text-amber-400" : "fill-transparent text-white/20"}
+              />
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="flex gap-3 pt-1">
+        <button
+          type="button"
+          onClick={handleSubmit}
+          disabled={saving || !quote.trim() || !name.trim()}
+          className="flex items-center gap-2 px-5 py-2.5 bg-amber-500 hover:bg-amber-400 disabled:opacity-40 text-black font-semibold rounded-lg text-sm transition-colors"
+        >
+          <Check size={15} />
+          {saving ? "Publishing..." : "Publish Testimonial"}
+        </button>
+        <button
+          type="button"
+          onClick={() => setOpen(false)}
+          className="px-4 py-2.5 bg-white/5 border border-white/10 hover:bg-white/10 text-white/50 rounded-lg text-sm transition-colors"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function TestimonialsTab() {
   const qc = useQueryClient();
   const [creating, setCreating] = useState(false);
@@ -226,6 +360,15 @@ export default function TestimonialsTab() {
           </button>
         )}
       </div>
+
+      {/* Quick Add */}
+      {!creating && (
+        <QuickAddPanel
+          onSave={(data) => createMutation.mutate(data)}
+          saving={createMutation.isPending}
+          totalCount={testimonials.length}
+        />
+      )}
 
       {/* Create form */}
       {creating && (
