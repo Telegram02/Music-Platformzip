@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   Music2, Gamepad2, Radio, SlidersHorizontal, Film, Speaker,
   Headphones, Mic, Volume2, Zap, Star, Layers, Cpu, Waves,
   Disc3, BookOpen, Drum, Podcast, Guitar, Pencil, Trash2, Plus, GripVertical,
+  Eye, EyeOff,
   type LucideIcon
 } from "lucide-react";
 import { api, type Service } from "@/lib/api";
@@ -168,6 +169,8 @@ export default function ServicesTab() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [adding, setAdding] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [sectionVisible, setSectionVisible] = useState(true);
+  const [savingVisibility, setSavingVisibility] = useState(false);
 
   function refresh() {
     api.getServices(true)
@@ -176,7 +179,21 @@ export default function ServicesTab() {
       .finally(() => setLoading(false));
   }
 
-  useState(() => { refresh(); });
+  useEffect(() => {
+    refresh();
+    api.getSettings().then((s) => setSectionVisible(s.servicesVisible !== "false")).catch(() => {});
+  }, []);
+
+  async function toggleVisibility() {
+    const next = !sectionVisible;
+    setSectionVisible(next);
+    setSavingVisibility(true);
+    try {
+      await api.updateSettings({ servicesVisible: next ? "true" : "false" });
+      queryClient.invalidateQueries({ queryKey: ["site-settings"] });
+    } catch { setSectionVisible(!next); }
+    finally { setSavingVisibility(false); }
+  }
 
   async function handleCreate(data: Partial<Service>) {
     setSaving(true);
@@ -236,6 +253,25 @@ export default function ServicesTab() {
             <Plus size={15} /> Add Service
           </button>
         )}
+      </div>
+
+      {/* Visibility toggle */}
+      <div className="flex items-center justify-between p-4 bg-white/5 rounded-xl border border-white/10">
+        <div className="flex items-center gap-3">
+          {sectionVisible ? <Eye size={16} className="text-green-400" /> : <EyeOff size={16} className="text-white/30" />}
+          <div>
+            <p className="text-white text-sm font-medium">Services section on live site</p>
+            <p className="text-white/30 text-xs">{sectionVisible ? "Visible to visitors" : "Hidden from visitors"}</p>
+          </div>
+        </div>
+        <button onClick={toggleVisibility} disabled={savingVisibility}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all disabled:opacity-40 ${
+            sectionVisible
+              ? "bg-green-500/10 text-green-400 border border-green-500/30 hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/30"
+              : "bg-white/5 text-white/40 border border-white/10 hover:bg-green-500/10 hover:text-green-400 hover:border-green-500/30"
+          }`}>
+          {savingVisibility ? "Saving..." : sectionVisible ? "Hide Section" : "Show Section"}
+        </button>
       </div>
 
       {adding && (

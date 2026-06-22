@@ -14,7 +14,9 @@ export function Navbar({ onCommissionOpen }: NavbarProps) {
   const [activeSection, setActiveSection] = useState("home");
   const { isAdmin } = useAdminStatus();
   const { data: settings } = useSiteSettings();
-  const pricingVisible = settings?.pricingVisible !== "false";
+  const pricingVisible      = settings?.pricingVisible      !== "false";
+  const servicesVisible     = settings?.servicesVisible     !== "false";
+  const testimonialsVisible = settings?.testimonialsVisible !== "false";
 
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30, restDelta: 0.001 });
@@ -42,12 +44,12 @@ export function Navbar({ onCommissionOpen }: NavbarProps) {
   }, []);
 
   const navLinks = [
-    { name: "About",     href: "#about",     id: "about" },
-    { name: "Services",  href: "#services",  id: "services" },
-    { name: "Portfolio", href: "#portfolio", id: "portfolio" },
-    { name: "Workflow",  href: "#workflow",  id: "workflow" },
+    { name: "About",        href: "#about",        id: "about" },
+    ...(servicesVisible     ? [{ name: "Services",     href: "#services",     id: "services"     }] : []),
+    { name: "Portfolio",    href: "#portfolio",    id: "portfolio" },
+    { name: "Workflow",     href: "#workflow",     id: "workflow" },
     ...(pricingVisible ? [{ name: "Pricing", href: "#pricing", id: "pricing" }] : []),
-    { name: "Contact",   href: "#contact",   id: "contact" },
+    { name: "Contact", href: "#contact", id: "contact" },
   ];
 
   const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {

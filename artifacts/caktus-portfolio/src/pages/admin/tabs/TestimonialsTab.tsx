@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api, type Testimonial } from "@/lib/api";
 import { FileUploader } from "../components/FileUploader";
@@ -340,6 +340,24 @@ export default function TestimonialsTab() {
   const moveSort = (t: Testimonial, dir: -1 | 1) =>
     updateMutation.mutate({ id: t.id, data: { ...t, sortOrder: t.sortOrder + dir } });
 
+  const [sectionVisible, setSectionVisible] = useState(true);
+  const [savingVisibility, setSavingVisibility] = useState(false);
+
+  useEffect(() => {
+    api.getSettings().then((s) => setSectionVisible(s.testimonialsVisible !== "false")).catch(() => {});
+  }, []);
+
+  async function toggleVisibility() {
+    const next = !sectionVisible;
+    setSectionVisible(next);
+    setSavingVisibility(true);
+    try {
+      await api.updateSettings({ testimonialsVisible: next ? "true" : "false" });
+      qc.invalidateQueries({ queryKey: ["site-settings"] });
+    } catch { setSectionVisible(!next); }
+    finally { setSavingVisibility(false); }
+  }
+
   function toForm(t: Testimonial): FormState {
     return { quote: t.quote, authorName: t.authorName, authorTitle: t.authorTitle, authorAvatar: t.authorAvatar, rating: t.rating, sortOrder: t.sortOrder, active: t.active };
   }
@@ -359,6 +377,25 @@ export default function TestimonialsTab() {
             <Plus size={16} /> Add
           </button>
         )}
+      </div>
+
+      {/* Visibility toggle */}
+      <div className="flex items-center justify-between p-4 bg-white/5 rounded-xl border border-white/10">
+        <div className="flex items-center gap-3">
+          {sectionVisible ? <Eye size={16} className="text-green-400" /> : <EyeOff size={16} className="text-white/30" />}
+          <div>
+            <p className="text-white text-sm font-medium">Testimonials section on live site</p>
+            <p className="text-white/30 text-xs">{sectionVisible ? "Visible to visitors" : "Hidden from visitors"}</p>
+          </div>
+        </div>
+        <button onClick={toggleVisibility} disabled={savingVisibility}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all disabled:opacity-40 ${
+            sectionVisible
+              ? "bg-green-500/10 text-green-400 border border-green-500/30 hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/30"
+              : "bg-white/5 text-white/40 border border-white/10 hover:bg-green-500/10 hover:text-green-400 hover:border-green-500/30"
+          }`}>
+          {savingVisibility ? "Saving..." : sectionVisible ? "Hide Section" : "Show Section"}
+        </button>
       </div>
 
       {/* Quick Add */}

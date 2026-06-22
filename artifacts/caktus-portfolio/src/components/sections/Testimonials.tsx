@@ -78,6 +78,7 @@ export function Testimonials() {
   const { data: settings } = useSiteSettings();
   const bgImage = settings?.testimonialsBgImage ? storageUrl(settings.testimonialsBgImage) : "";
 
+  if (settings && settings.testimonialsVisible === "false") return null;
   if (!isLoading && testimonials.length === 0) return null;
 
   return (

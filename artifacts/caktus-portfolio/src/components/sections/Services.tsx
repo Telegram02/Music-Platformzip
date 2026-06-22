@@ -28,6 +28,8 @@ export function Services() {
   const bgImage = settings?.servicesBgImage ? storageUrl(settings.servicesBgImage) : "";
   const displayServices = services && services.length > 0 ? services : FALLBACK_SERVICES;
 
+  if (settings && settings.servicesVisible === "false") return null;
+
   return (
     <section
       id="services"
