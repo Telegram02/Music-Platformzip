@@ -1,21 +1,37 @@
 import { motion } from "framer-motion";
-import { Play, Pause, ExternalLink, Music2, type LucideIcon } from "lucide-react";
+import { Play, Pause, ExternalLink, Music2, Headphones, type LucideIcon } from "lucide-react";
 import { useRef, useState } from "react";
 import { useAudioTracks, usePortfolioItems, useSiteSettings, type AudioTrack, type PortfolioItem } from "@/hooks/useSiteData";
-import { storageUrl } from "@/lib/api";
+import { storageUrl, api } from "@/lib/api";
 import { GENRE_ICON_MAP } from "@/lib/genreIcons";
 
 const WAVEFORM_HEIGHTS = Array.from({ length: 40 }, (_, i) => Math.max(10, ((i * 37 + 13) % 90) + 10));
+
+function formatPlays(n: number): string {
+  if (n >= 1000) return `${(n / 1000).toFixed(1)}k`;
+  return String(n);
+}
 
 function LiveAudioCard({ track }: { track: AudioTrack }) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [localPlays, setLocalPlays] = useState(track.playCount ?? 0);
+  const playedOnce = useRef(false);
 
   function togglePlay() {
     const el = audioRef.current;
     if (!el) return;
-    if (isPlaying) { el.pause(); } else { el.play(); }
+    if (isPlaying) {
+      el.pause();
+    } else {
+      el.play();
+      if (!playedOnce.current && track.id > 0) {
+        playedOnce.current = true;
+        setLocalPlays((p) => p + 1);
+        api.recordPlay(track.id).catch(() => {});
+      }
+    }
     setIsPlaying(!isPlaying);
   }
 
@@ -78,7 +94,10 @@ function LiveAudioCard({ track }: { track: AudioTrack }) {
       </div>
 
       <div className="flex items-center justify-between pt-4 border-t border-border/50">
-        <span className="text-xs font-mono text-foreground/40 capitalize">{track.genre || "Audio"}</span>
+        <div className="flex items-center gap-1.5 text-xs font-mono text-foreground/35">
+          <Headphones size={11} />
+          <span>{formatPlays(localPlays)}</span>
+        </div>
         <button
           onClick={togglePlay}
           disabled={!track.audioUrl}
@@ -88,7 +107,7 @@ function LiveAudioCard({ track }: { track: AudioTrack }) {
             ? <Pause size={16} className="fill-black" />
             : <Play size={16} className="fill-black ml-0.5" />}
         </button>
-        <span className="text-xs font-mono text-foreground/40">{track.audioUrl ? "AUDIO" : "NO FILE"}</span>
+        <span className="text-xs font-mono text-foreground/35 capitalize">{track.genre || "Audio"}</span>
       </div>
     </div>
   );
@@ -141,9 +160,9 @@ function PortfolioCard({ item }: { item: PortfolioItem }) {
 }
 
 const PLACEHOLDER_TRACKS: AudioTrack[] = [
-  { id: -1, title: "Cyberpunk Cityscape", description: "", genre: "Game Soundtrack", audioUrl: "", coverUrl: "", sortOrder: 0, active: true, createdAt: "", updatedAt: "" },
-  { id: -2, title: "Void Walker", description: "", genre: "Metalcore", audioUrl: "", coverUrl: "", sortOrder: 1, active: true, createdAt: "", updatedAt: "" },
-  { id: -3, title: "Neon Shadows", description: "", genre: "Synthwave", audioUrl: "", coverUrl: "", sortOrder: 2, active: true, createdAt: "", updatedAt: "" },
+  { id: -1, title: "Cyberpunk Cityscape", description: "", genre: "Game Soundtrack", audioUrl: "", coverUrl: "", iconName: "Music2", playCount: 0, sortOrder: 0, active: true, createdAt: "", updatedAt: "" },
+  { id: -2, title: "Void Walker", description: "", genre: "Metalcore", audioUrl: "", coverUrl: "", iconName: "Music2", playCount: 0, sortOrder: 1, active: true, createdAt: "", updatedAt: "" },
+  { id: -3, title: "Neon Shadows", description: "", genre: "Synthwave", audioUrl: "", coverUrl: "", iconName: "Music2", playCount: 0, sortOrder: 2, active: true, createdAt: "", updatedAt: "" },
 ];
 
 export function Portfolio() {

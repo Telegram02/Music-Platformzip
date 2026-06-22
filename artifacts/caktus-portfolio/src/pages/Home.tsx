@@ -3,6 +3,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { AdminBar } from "@/components/AdminBar";
 import { Hero } from "@/components/sections/Hero";
 import { About } from "@/components/sections/About";
+import { Stats } from "@/components/sections/Stats";
 import { Services } from "@/components/sections/Services";
 import { Portfolio } from "@/components/sections/Portfolio";
 import { Industries } from "@/components/sections/Industries";
@@ -11,6 +12,7 @@ import { Testimonials } from "@/components/sections/Testimonials";
 import { Pricing } from "@/components/sections/Pricing";
 import { CommissionModal } from "@/components/sections/CommissionModal";
 import { Contact } from "@/components/sections/Contact";
+import { ScrollToTop } from "@/components/ScrollToTop";
 import { Mail } from "lucide-react";
 import { useAdminStatus } from "@/hooks/useAdminStatus";
 
@@ -31,6 +33,7 @@ export default function Home() {
 
       <main className={`flex-grow${isAdmin ? " pt-10" : ""}`}>
         <Hero />
+        <Stats />
         <About />
         <Services />
         <Portfolio />
@@ -58,6 +61,8 @@ export default function Home() {
         <Mail size={18} />
         <span className="hidden sm:inline">Hire Me</span>
       </a>
+
+      <ScrollToTop />
 
       <CommissionModal
         open={commissionOpen}

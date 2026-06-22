@@ -10,6 +10,7 @@ export const audioTracksTable = pgTable("audio_tracks", {
   iconName: text("icon_name").notNull().default("Music2"),
   audioUrl: text("audio_url").notNull().default(""),
   coverUrl: text("cover_url").notNull().default(""),
+  playCount: integer("play_count").notNull().default(0),
   sortOrder: integer("sort_order").notNull().default(0),
   active: boolean("active").notNull().default(true),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { eq, asc } from "drizzle-orm";
+import { eq, asc, sql } from "drizzle-orm";
 import { db, audioTracksTable } from "@workspace/db";
 import { requireAdmin } from "../lib/auth";
 
@@ -38,6 +38,16 @@ router.put("/tracks/:id", requireAdmin, async (req, res): Promise<void> => {
     .returning();
   if (!track) { res.status(404).json({ error: "Not found" }); return; }
   res.json(track);
+});
+
+router.post("/tracks/:id/play", async (req, res): Promise<void> => {
+  const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+  const id = parseInt(raw, 10);
+  await db
+    .update(audioTracksTable)
+    .set({ playCount: sql`${audioTracksTable.playCount} + 1` })
+    .where(eq(audioTracksTable.id, id));
+  res.json({ ok: true });
 });
 
 router.delete("/tracks/:id", requireAdmin, async (req, res): Promise<void> => {

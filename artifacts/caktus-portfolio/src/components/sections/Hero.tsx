@@ -3,12 +3,23 @@ import { Play, ArrowRight, Mail } from "lucide-react";
 import { useSiteSettings } from "@/hooks/useSiteData";
 import { storageUrl } from "@/lib/api";
 
+function availabilityStatus(text: string): { color: string; pulse: string; label: string } {
+  const t = text.toLowerCase();
+  if (/busy|unavailable|not accept|closed|full/.test(t))
+    return { color: "bg-red-500", pulse: "bg-red-500/40", label: "Unavailable" };
+  if (/limited|selective|winding|few spots|one spot/.test(t))
+    return { color: "bg-amber-400", pulse: "bg-amber-400/40", label: "Limited" };
+  return { color: "bg-emerald-400", pulse: "bg-emerald-400/40", label: "Accepting Projects" };
+}
+
 export function Hero() {
   const { data: settings } = useSiteSettings();
   const heroBadge = settings?.heroBadge ?? "Music Producer | Composer | Sound Designer";
   const tagline = settings?.tagline ?? "Cinematic soundtracks, game audio, and professional music production for artists and studios. Emotional storytelling through sound.";
   const introVideoUrl = settings?.introVideoUrl ? storageUrl(settings.introVideoUrl) : "";
   const heroImageUrl = settings?.heroImageUrl ? storageUrl(settings.heroImageUrl) : "";
+  const availText = settings?.availability ?? "";
+  const status = availText ? availabilityStatus(availText) : null;
 
   const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
@@ -61,8 +72,19 @@ export function Hero() {
           transition={{ duration: 0.8, ease: "easeOut" }}
           className="max-w-4xl mx-auto w-full"
         >
-          <div className="inline-block mb-6 px-4 py-1.5 rounded-full border border-primary/30 bg-primary/5 text-primary text-xs sm:text-sm font-medium tracking-widest uppercase backdrop-blur-sm shadow-[0_0_15px_rgba(147,51,234,0.15)]">
-            {heroBadge}
+          <div className="flex flex-col items-center gap-3 mb-6">
+            <div className="inline-block px-4 py-1.5 rounded-full border border-primary/30 bg-primary/5 text-primary text-xs sm:text-sm font-medium tracking-widest uppercase backdrop-blur-sm shadow-[0_0_15px_rgba(147,51,234,0.15)]">
+              {heroBadge}
+            </div>
+            {status && (
+              <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-black/30 border border-white/10 backdrop-blur-sm">
+                <span className="relative flex h-2 w-2">
+                  <span className={`animate-ping absolute inline-flex h-full w-full rounded-full ${status.pulse} opacity-75`} />
+                  <span className={`relative inline-flex rounded-full h-2 w-2 ${status.color}`} />
+                </span>
+                <span className="text-[10px] font-mono uppercase tracking-widest text-white/60">{status.label}</span>
+              </div>
+            )}
           </div>
 
           <h1

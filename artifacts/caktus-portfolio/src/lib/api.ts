@@ -31,6 +31,7 @@ export const api = {
   createTrack: (data: Partial<AudioTrack>) => req<AudioTrack>("POST", "/tracks", data),
   updateTrack: (id: number, data: Partial<AudioTrack>) => req<AudioTrack>("PUT", `/tracks/${id}`, data),
   deleteTrack: (id: number) => req<void>("DELETE", `/tracks/${id}`),
+  recordPlay: (id: number) => req<{ ok: boolean }>("POST", `/tracks/${id}/play`, {}),
 
   // Portfolio
   getPortfolio: (all = false) => req<PortfolioItem[]>("GET", all ? "/portfolio/all" : "/portfolio"),
@@ -93,7 +94,8 @@ export function storageUrl(objectPath: string): string {
 
 export interface AudioTrack {
   id: number; title: string; description: string; genre: string;
-  iconName: string; audioUrl: string; coverUrl: string; sortOrder: number; active: boolean;
+  iconName: string; audioUrl: string; coverUrl: string;
+  playCount: number; sortOrder: number; active: boolean;
   createdAt: string; updatedAt: string;
 }
 

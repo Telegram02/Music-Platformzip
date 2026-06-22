@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Mail, ArrowRight, Send, CheckCircle, AlertCircle } from "lucide-react";
+import { Mail, ArrowRight, Send, CheckCircle, AlertCircle, Copy, Check } from "lucide-react";
 import { useState } from "react";
 import { FaYoutube, FaInstagram, FaSoundcloud, FaDiscord, FaTiktok, FaTwitter, FaSpotify, FaTwitch } from "react-icons/fa";
 import { useSiteSettings, useSocialLinks } from "@/hooks/useSiteData";
@@ -39,6 +39,14 @@ export function Contact() {
   const email = settings?.contactEmail ?? "caktusaudio@gmail.com";
   const discord = settings?.discord ?? "caktus";
   const availability = settings?.availability ?? "Currently accepting projects for Q4. Reach out to discuss your vision, rates, and availability.";
+
+  const [copied, setCopied] = useState(false);
+  function copyEmail() {
+    navigator.clipboard.writeText(email).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }
 
   const discordLink = socialLinks.find((l) => l.platform === "discord");
   const otherLinks = socialLinks.filter((l) => l.platform !== "discord" && l.url);
@@ -95,14 +103,27 @@ export function Contact() {
             >
               <div>
                 <p className="text-white/40 text-xs uppercase tracking-widest mb-4 font-mono">Direct Contact</p>
-                <a
-                  href={`mailto:${email}`}
-                  className="inline-flex items-center gap-3 px-6 sm:px-8 py-4 bg-white text-black font-bold uppercase tracking-widest rounded-sm hover:bg-primary hover:text-white transition-all duration-300 hover:shadow-[0_0_30px_rgba(147,51,234,0.6)] hover:-translate-y-1 group w-full justify-center text-sm sm:text-base"
-                >
-                  <Mail size={18} />
-                  <span className="truncate">{email}</span>
-                  <ArrowRight size={18} className="group-hover:translate-x-2 transition-transform flex-shrink-0" />
-                </a>
+                <div className="flex gap-2">
+                  <a
+                    href={`mailto:${email}`}
+                    className="inline-flex items-center gap-3 px-6 sm:px-8 py-4 bg-white text-black font-bold uppercase tracking-widest rounded-sm hover:bg-primary hover:text-white transition-all duration-300 hover:shadow-[0_0_30px_rgba(147,51,234,0.6)] hover:-translate-y-1 group flex-1 justify-center text-sm sm:text-base"
+                  >
+                    <Mail size={18} />
+                    <span className="truncate">{email}</span>
+                    <ArrowRight size={18} className="group-hover:translate-x-2 transition-transform flex-shrink-0" />
+                  </a>
+                  <button
+                    onClick={copyEmail}
+                    title="Copy email"
+                    className={`flex-shrink-0 w-14 rounded-sm border transition-all duration-200 flex items-center justify-center ${
+                      copied
+                        ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-400"
+                        : "border-white/20 bg-white/5 text-white/50 hover:text-white hover:border-white/40"
+                    }`}
+                  >
+                    {copied ? <Check size={16} /> : <Copy size={16} />}
+                  </button>
+                </div>
               </div>
 
               <div className="p-6 bg-background/50 border border-border/30 rounded-sm">
