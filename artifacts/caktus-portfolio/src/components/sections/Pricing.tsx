@@ -6,7 +6,7 @@ import {
   Disc3, Drum, Guitar, Skull, Flame, Compass, type LucideIcon,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { api, storageUrl, type PricingItem } from "@/lib/api";
+import { api, type PricingItem } from "@/lib/api";
 import { useSiteSettings } from "@/hooks/useSiteData";
 
 const ICON_MAP: Record<string, LucideIcon> = {
@@ -14,33 +14,6 @@ const ICON_MAP: Record<string, LucideIcon> = {
   Headphones, Mic, Volume2, Zap, Layers, Cpu, Waves,
   Disc3, Drum, Guitar, Skull, Flame, Compass,
 };
-
-const FALLBACK_PRICING: PricingItem[] = [
-  {
-    id: -1, iconName: "Music2", title: "Single Track", subtitle: "Perfect for artists",
-    price: "$150", priceUnit: "per track",
-    description: "Full production of one original track from concept to delivery.",
-    features: JSON.stringify(["Up to 4 minutes", "Stems included", "2 revisions", "WAV + MP3 delivery"]),
-    colorClass: "from-purple-500/20 to-primary/5", popular: false,
-    sortOrder: 1, active: true, createdAt: "", updatedAt: "",
-  },
-  {
-    id: -2, iconName: "Disc3", title: "EP Bundle", subtitle: "Best value",
-    price: "$400", priceUnit: "for 3 tracks",
-    description: "Three fully produced tracks with cohesive sound design and mastering.",
-    features: JSON.stringify(["3 original tracks", "Stems for all tracks", "4 revisions", "Mastering included", "Commercial license"]),
-    colorClass: "from-blue-500/20 to-accent/5", popular: true,
-    sortOrder: 2, active: true, createdAt: "", updatedAt: "",
-  },
-  {
-    id: -3, iconName: "Gamepad2", title: "Game Soundtrack", subtitle: "For developers",
-    price: "Custom", priceUnit: "project-based",
-    description: "Adaptive music system and full soundtrack for indie and AA game projects.",
-    features: JSON.stringify(["Unlimited tracks", "Adaptive/layered audio", "Sound design FX", "Unlimited revisions", "Full source files", "Dedicated support"]),
-    colorClass: "from-cyan-500/20 to-cyan-900/5", popular: false,
-    sortOrder: 3, active: true, createdAt: "", updatedAt: "",
-  },
-];
 
 function parsedFeatures(raw: string): string[] {
   try {
@@ -64,8 +37,7 @@ export function Pricing({ onRequestCommission }: PricingProps) {
   const { data: settings } = useSiteSettings();
 
   if (settings && settings.pricingVisible === "false") return null;
-
-  const display = items && items.length > 0 ? items : FALLBACK_PRICING;
+  if (!items || items.length === 0) return null;
 
   return (
     <section id="pricing" className="py-24 relative bg-background overflow-hidden">
@@ -102,7 +74,7 @@ export function Pricing({ onRequestCommission }: PricingProps) {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
-          {display.map((item, index) => {
+          {items.map((item, index) => {
             const Icon = ICON_MAP[item.iconName] ?? Music2;
             const features = parsedFeatures(item.features);
             return (
