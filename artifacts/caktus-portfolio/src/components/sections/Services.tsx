@@ -4,7 +4,8 @@ import {
   Headphones, Mic, Volume2, Zap, Star, Layers, Cpu, Waves,
   Disc3, BookOpen, Drum, Podcast, Guitar, type LucideIcon
 } from "lucide-react";
-import { useServices } from "@/hooks/useSiteData";
+import { useServices, useSiteSettings } from "@/hooks/useSiteData";
+import { storageUrl } from "@/lib/api";
 
 export const ICON_MAP: Record<string, LucideIcon> = {
   Music2, Gamepad2, Radio, SlidersHorizontal, Film, Speaker,
@@ -23,10 +24,17 @@ const FALLBACK_SERVICES = [
 
 export function Services() {
   const { data: services, isLoading } = useServices();
+  const { data: settings } = useSiteSettings();
+  const bgImage = settings?.servicesBgImage ? storageUrl(settings.servicesBgImage) : "";
   const displayServices = services && services.length > 0 ? services : FALLBACK_SERVICES;
 
   return (
-    <section id="services" className="py-24 relative bg-card/30 border-y border-border/30">
+    <section
+      id="services"
+      className="py-24 relative bg-card/30 border-y border-border/30 overflow-hidden"
+      style={bgImage ? { backgroundImage: `url(${bgImage})`, backgroundSize: "cover", backgroundPosition: "center" } : {}}
+    >
+      {bgImage && <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" />}
       <div className="container mx-auto px-6 relative z-10">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <motion.h2

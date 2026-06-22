@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { Play, Pause, ExternalLink } from "lucide-react";
 import { useRef, useState } from "react";
-import { useAudioTracks, usePortfolioItems, type AudioTrack, type PortfolioItem } from "@/hooks/useSiteData";
+import { useAudioTracks, usePortfolioItems, useSiteSettings, type AudioTrack, type PortfolioItem } from "@/hooks/useSiteData";
 import { storageUrl } from "@/lib/api";
 
 const WAVEFORM_HEIGHTS = Array.from({ length: 40 }, (_, i) => Math.max(10, ((i * 37 + 13) % 90) + 10));
@@ -144,13 +144,20 @@ const PLACEHOLDER_TRACKS: AudioTrack[] = [
 export function Portfolio() {
   const { data: tracks = [] } = useAudioTracks();
   const { data: portfolioItems = [] } = usePortfolioItems();
+  const { data: settings } = useSiteSettings();
+  const bgImage = settings?.portfolioBgImage ? storageUrl(settings.portfolioBgImage) : "";
 
   const showTracks = tracks.length > 0 ? tracks : PLACEHOLDER_TRACKS;
   const hasRealTracks = tracks.length > 0;
 
   return (
-    <section id="portfolio" className="py-24 relative bg-background">
-      <div className="container mx-auto px-6">
+    <section
+      id="portfolio"
+      className="py-24 relative bg-background overflow-hidden"
+      style={bgImage ? { backgroundImage: `url(${bgImage})`, backgroundSize: "cover", backgroundPosition: "center" } : {}}
+    >
+      {bgImage && <div className="absolute inset-0 bg-background/85 backdrop-blur-sm" />}
+      <div className="container mx-auto px-6 relative z-10">
         <div className="mb-16">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
@@ -171,7 +178,6 @@ export function Portfolio() {
           </motion.p>
         </div>
 
-        {/* Audio Tracks */}
         {showTracks.length > 0 && (
           <div className="mb-16">
             <h3 className="text-sm uppercase tracking-widest text-foreground/40 font-mono mb-6 flex items-center gap-3">
@@ -196,7 +202,6 @@ export function Portfolio() {
           </div>
         )}
 
-        {/* Portfolio Items */}
         {portfolioItems.length > 0 && (
           <div>
             <h3 className="text-sm uppercase tracking-widest text-foreground/40 font-mono mb-6 flex items-center gap-3">

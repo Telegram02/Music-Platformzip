@@ -8,20 +8,28 @@ export function Hero() {
   const heroBadge = settings?.heroBadge ?? "Music Producer | Composer | Sound Designer";
   const tagline = settings?.tagline ?? "Cinematic soundtracks, game audio, and professional music production for artists and studios. Emotional storytelling through sound.";
   const introVideoUrl = settings?.introVideoUrl ? storageUrl(settings.introVideoUrl) : "";
+  const heroImageUrl = settings?.heroImageUrl ? storageUrl(settings.heroImageUrl) : "";
 
   const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
     const element = document.querySelector(href);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-    }
+    if (element) element.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
     <section id="home" className="relative min-h-[100dvh] flex items-center justify-center overflow-hidden pt-20">
-      {/* Animated Background */}
+      {/* Background layers */}
       <div className="absolute inset-0 z-0">
-        {introVideoUrl ? (
+        {/* Static image background */}
+        {heroImageUrl && !introVideoUrl && (
+          <img
+            src={heroImageUrl}
+            alt=""
+            className="absolute inset-0 w-full h-full object-cover opacity-40"
+          />
+        )}
+        {/* Video background */}
+        {introVideoUrl && (
           <video
             src={introVideoUrl}
             autoPlay
@@ -30,9 +38,19 @@ export function Hero() {
             playsInline
             className="absolute inset-0 w-full h-full object-cover opacity-30"
           />
-        ) : null}
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-[120px] mix-blend-screen animate-float" />
-        <div className="absolute bottom-1/4 right-1/4 w-[30rem] h-[30rem] bg-accent/10 rounded-full blur-[150px] mix-blend-screen animate-float" style={{ animationDelay: "2s" }} />
+        )}
+        {/* Dark overlay when custom bg is set */}
+        {(heroImageUrl || introVideoUrl) && (
+          <div className="absolute inset-0 bg-background/50" />
+        )}
+        {/* Ambient glows — always shown, slightly reduced when custom bg is active */}
+        <div
+          className={`absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-[120px] mix-blend-screen animate-float ${heroImageUrl || introVideoUrl ? "opacity-60" : ""}`}
+        />
+        <div
+          className={`absolute bottom-1/4 right-1/4 w-[30rem] h-[30rem] bg-accent/10 rounded-full blur-[150px] mix-blend-screen animate-float ${heroImageUrl || introVideoUrl ? "opacity-60" : ""}`}
+          style={{ animationDelay: "2s" }}
+        />
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjZmZmIiBmaWxsLW9wYWNpdHk9IjAuMDIiLz4KPC9zdmc+')] opacity-20 pointer-events-none" />
       </div>
 
@@ -68,7 +86,6 @@ export function Hero() {
               <Play size={18} className="fill-white" />
               Listen to My Work
             </a>
-
             <a
               href="#services"
               onClick={(e) => scrollToSection(e, "#services")}
@@ -77,7 +94,6 @@ export function Hero() {
               View Services
               <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
             </a>
-
             <a
               href="#contact"
               onClick={(e) => scrollToSection(e, "#contact")}
@@ -90,7 +106,6 @@ export function Hero() {
         </motion.div>
       </div>
 
-      {/* Scroll Indicator */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
