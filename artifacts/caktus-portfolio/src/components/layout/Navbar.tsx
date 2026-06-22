@@ -3,7 +3,11 @@ import { Menu, X } from "lucide-react";
 import { motion, useScroll, useSpring } from "framer-motion";
 import { useAdminStatus } from "@/hooks/useAdminStatus";
 
-export function Navbar() {
+interface NavbarProps {
+  onCommissionOpen: () => void;
+}
+
+export function Navbar({ onCommissionOpen }: NavbarProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("home");
@@ -19,7 +23,7 @@ export function Navbar() {
   }, []);
 
   useEffect(() => {
-    const sectionIds = ["contact", "commission", "pricing", "workflow", "portfolio", "services", "about", "home"];
+    const sectionIds = ["contact", "pricing", "workflow", "portfolio", "services", "about", "home"];
     const observers: IntersectionObserver[] = [];
     sectionIds.forEach((id) => {
       const el = document.getElementById(id);
@@ -40,7 +44,6 @@ export function Navbar() {
     { name: "Portfolio", href: "#portfolio", id: "portfolio" },
     { name: "Workflow", href: "#workflow", id: "workflow" },
     { name: "Pricing", href: "#pricing", id: "pricing" },
-    { name: "Commission", href: "#commission", id: "commission" },
     { name: "Contact", href: "#contact", id: "contact" },
   ];
 
@@ -63,7 +66,6 @@ export function Navbar() {
           : "bg-transparent py-6"
       }`}
     >
-      {/* Scroll progress bar */}
       <motion.div
         className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-primary to-accent origin-left z-10"
         style={{ scaleX }}
@@ -78,7 +80,6 @@ export function Navbar() {
           CAKTUS
         </a>
 
-        {/* Desktop Nav */}
         <div className="hidden md:flex items-center space-x-8">
           {navLinks.map((link) => (
             <a
@@ -98,6 +99,13 @@ export function Navbar() {
               )}
             </a>
           ))}
+          <button
+            type="button"
+            onClick={() => { onCommissionOpen(); setIsMobileMenuOpen(false); }}
+            className="px-5 py-2.5 bg-primary/10 text-primary border border-primary/30 hover:bg-primary hover:text-white transition-all duration-300 rounded-sm font-medium uppercase tracking-wider text-sm hover:shadow-[0_0_15px_rgba(147,51,234,0.5)]"
+          >
+            Commission
+          </button>
           <a
             href="#contact"
             onClick={(e) => scrollToSection(e, "#contact")}
@@ -107,7 +115,6 @@ export function Navbar() {
           </a>
         </div>
 
-        {/* Mobile Toggle */}
         <button
           className="md:hidden p-1 text-foreground hover:text-primary transition-colors"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -117,7 +124,6 @@ export function Navbar() {
         </button>
       </div>
 
-      {/* Mobile Menu */}
       {isMobileMenuOpen && (
         <motion.div
           initial={{ opacity: 0, y: -8 }}
@@ -140,7 +146,14 @@ export function Navbar() {
               )}
             </a>
           ))}
-          <div className="pt-4">
+          <div className="pt-4 flex flex-col gap-3">
+            <button
+              type="button"
+              onClick={() => { onCommissionOpen(); setIsMobileMenuOpen(false); }}
+              className="block text-center px-6 py-3 border border-primary/40 text-primary rounded-sm font-medium uppercase tracking-wider text-sm hover:bg-primary/10 transition-colors"
+            >
+              Commission
+            </button>
             <a
               href="#contact"
               onClick={(e) => scrollToSection(e, "#contact")}

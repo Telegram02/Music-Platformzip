@@ -50,7 +50,11 @@ function parsedFeatures(raw: string): string[] {
   }
 }
 
-export function Pricing() {
+interface PricingProps {
+  onRequestCommission: (packageTitle?: string) => void;
+}
+
+export function Pricing({ onRequestCommission }: PricingProps) {
   const { data: items } = useQuery<PricingItem[]>({
     queryKey: ["pricing"],
     queryFn: () => api.getPricing(),
@@ -157,12 +161,9 @@ export function Pricing() {
                     </ul>
                   )}
 
-                  <a
-                    href="#commission"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      document.getElementById("commission")?.scrollIntoView({ behavior: "smooth" });
-                    }}
+                  <button
+                    type="button"
+                    onClick={() => onRequestCommission(item.title)}
                     className={`mt-auto w-full flex items-center justify-center py-3 rounded-sm font-medium text-sm uppercase tracking-wider transition-all duration-300 ${
                       item.popular
                         ? "bg-primary text-white hover:bg-primary/90 hover:shadow-[0_0_20px_rgba(147,51,234,0.5)]"
@@ -170,7 +171,7 @@ export function Pricing() {
                     }`}
                   >
                     Request This
-                  </a>
+                  </button>
                 </div>
               </motion.div>
             );

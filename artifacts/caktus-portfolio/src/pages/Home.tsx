@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { AdminBar } from "@/components/AdminBar";
 import { Hero } from "@/components/sections/Hero";
@@ -8,18 +9,25 @@ import { Industries } from "@/components/sections/Industries";
 import { Workflow } from "@/components/sections/Workflow";
 import { Testimonials } from "@/components/sections/Testimonials";
 import { Pricing } from "@/components/sections/Pricing";
-import { Commission } from "@/components/sections/Commission";
+import { CommissionModal } from "@/components/sections/CommissionModal";
 import { Contact } from "@/components/sections/Contact";
 import { Mail } from "lucide-react";
 import { useAdminStatus } from "@/hooks/useAdminStatus";
 
 export default function Home() {
   const { isAdmin } = useAdminStatus();
+  const [commissionOpen, setCommissionOpen] = useState(false);
+  const [selectedPackage, setSelectedPackage] = useState<string | undefined>();
+
+  function openCommission(packageTitle?: string) {
+    setSelectedPackage(packageTitle);
+    setCommissionOpen(true);
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground selection:bg-primary/30 selection:text-white flex flex-col">
       <AdminBar />
-      <Navbar />
+      <Navbar onCommissionOpen={() => openCommission()} />
 
       <main className={`flex-grow${isAdmin ? " pt-10" : ""}`}>
         <Hero />
@@ -29,8 +37,7 @@ export default function Home() {
         <Industries />
         <Workflow />
         <Testimonials />
-        <Pricing />
-        <Commission />
+        <Pricing onRequestCommission={openCommission} />
         <Contact />
       </main>
 
@@ -46,11 +53,17 @@ export default function Home() {
           e.preventDefault();
           document.querySelector("#contact")?.scrollIntoView({ behavior: "smooth" });
         }}
-        className="fixed bottom-6 right-6 z-50 flex items-center justify-center gap-2 px-6 py-3 bg-primary text-white rounded-full font-medium shadow-[0_0_20px_rgba(147,51,234,0.4)] hover:shadow-[0_0_30px_rgba(147,51,234,0.6)] hover:-translate-y-1 hover:bg-primary/90 transition-all duration-300"
+        className="fixed bottom-6 right-6 z-40 flex items-center justify-center gap-2 px-6 py-3 bg-primary text-white rounded-full font-medium shadow-[0_0_20px_rgba(147,51,234,0.4)] hover:shadow-[0_0_30px_rgba(147,51,234,0.6)] hover:-translate-y-1 hover:bg-primary/90 transition-all duration-300"
       >
         <Mail size={18} />
         <span className="hidden sm:inline">Hire Me</span>
       </a>
+
+      <CommissionModal
+        open={commissionOpen}
+        onClose={() => setCommissionOpen(false)}
+        preselectedPackage={selectedPackage}
+      />
     </div>
   );
 }
