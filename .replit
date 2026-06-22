@@ -37,6 +37,7 @@ externalPort = 80
 GMAIL_USER = "madebycaktus@gmail.com"
 ADMIN_EMAIL = "eric2277@icloud.com"
 ADMIN_USERNAME = "admin"
+ADMIN_PASSWORD = "Darksouls2!"
 
 [objectStorage]
 defaultBucketID = "replit-objstore-5dcaa79b-0a44-4e94-8413-3577515f521e"
