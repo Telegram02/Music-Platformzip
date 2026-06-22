@@ -3,7 +3,7 @@ import { eq, desc, count } from "drizzle-orm";
 import rateLimit from "express-rate-limit";
 import { db, contactMessagesTable } from "@workspace/db";
 import { requireAdmin } from "../lib/auth";
-import { sendContactNotification, isEmailConfigured } from "../lib/email";
+import { sendContactNotification, sendAutoReply, isEmailConfigured } from "../lib/email";
 import { logger } from "../lib/logger";
 
 const router: IRouter = Router();
@@ -67,6 +67,12 @@ router.post("/contact", contactLimiter, async (req, res): Promise<void> => {
       subject: subjectStr,
       message: messageStr,
     }).catch((err) => logger.error({ err }, "Contact notification failed"));
+
+    sendAutoReply({
+      name: nameStr,
+      email: emailStr,
+      subject: subjectStr,
+    }).catch((err) => logger.error({ err }, "Auto-reply failed"));
   }
 
   res.json({ ok: true });

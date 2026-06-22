@@ -146,6 +146,50 @@ export async function sendContactNotification(opts: {
   logger.info({ to: adminEmail, from: opts.email }, "Contact notification sent");
 }
 
+export async function sendAutoReply(opts: {
+  name: string;
+  email: string;
+  subject: string;
+}): Promise<void> {
+  const transporter = getTransporter();
+  const isCommission = opts.subject.startsWith("[Commission]");
+  const replySubject = `Re: ${opts.subject || "Your message to Caktus Productions"}`;
+
+  await transporter.sendMail({
+    from: `"Caktus Productions" <${GMAIL_USER}>`,
+    to: opts.email,
+    subject: replySubject,
+    html: `
+      <div style="font-family:monospace;background:#0a0a0f;color:#fff;padding:32px;max-width:560px;border-radius:8px">
+        <h2 style="color:#a855f7;margin:0 0 4px;font-size:20px;letter-spacing:2px">CAKTUS PRODUCTIONS</h2>
+        <p style="color:#666;margin:0 0 28px;font-size:11px;letter-spacing:1px;text-transform:uppercase">Message Received</p>
+
+        <p style="color:#ddd;font-size:15px;line-height:1.7;margin:0 0 16px">
+          Hey ${opts.name},
+        </p>
+        <p style="color:#aaa;font-size:14px;line-height:1.8;margin:0 0 16px">
+          ${isCommission
+            ? "Thanks for reaching out about a commission — I'll review the details and get back to you within <strong style=\"color:#fff\">1–3 business days</strong> to discuss your project."
+            : "Thanks for your message — I've received it and will get back to you within <strong style=\"color:#fff\">1–3 business days</strong>."
+          }
+        </p>
+        <p style="color:#aaa;font-size:14px;line-height:1.8;margin:0 0 28px">
+          In the meantime, feel free to check out my work or connect with me on social media.
+        </p>
+
+        <div style="border-top:1px solid #1a1a2e;padding-top:20px">
+          <p style="color:#555;font-size:12px;margin:0;line-height:1.6">
+            — Caktus Productions<br>
+            <span style="color:#333">Do not reply directly to this email — use the address you contacted me from.</span>
+          </p>
+        </div>
+      </div>
+    `,
+  });
+
+  logger.info({ to: opts.email }, "Auto-reply sent");
+}
+
 export function isEmailConfigured(): boolean {
   return !!(GMAIL_USER && GMAIL_APP_PASSWORD);
 }
