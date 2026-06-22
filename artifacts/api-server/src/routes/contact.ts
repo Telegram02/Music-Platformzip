@@ -14,7 +14,6 @@ const contactLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: "Too many messages sent. Please wait before trying again." },
-  keyGenerator: (req) => req.ip ?? "unknown",
 });
 
 router.post("/contact", contactLimiter, async (req, res): Promise<void> => {
