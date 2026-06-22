@@ -64,6 +64,7 @@ export const api = {
   markMessageRead: (id: number, read = true) =>
     req<{ ok: boolean }>("PUT", `/contact/messages/${id}/read`, { read }),
   deleteMessage: (id: number) => req<void>("DELETE", `/contact/messages/${id}`),
+  requestTestimonial: (id: number) => req<{ ok: boolean }>("POST", `/contact/messages/${id}/request-testimonial`, {}),
 
   // Login activity
   getActivity: () => req<LoginActivity[]>("GET", "/activity"),

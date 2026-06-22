@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { Mail, Trash2, MailOpen, MailCheck, RefreshCw } from "lucide-react";
+import { Mail, Trash2, MailOpen, MailCheck, RefreshCw, Star, CheckCircle } from "lucide-react";
 import { useMessages } from "@/hooks/useSiteData";
 import { api, type ContactMessage } from "@/lib/api";
 
@@ -20,8 +20,24 @@ export default function ContactTab() {
   const queryClient = useQueryClient();
   const { data: messages = [], isLoading, refetch } = useMessages();
   const [selected, setSelected] = useState<ContactMessage | null>(null);
+  const [testimonialSent, setTestimonialSent] = useState<Set<number>>(new Set());
+  const [sendingTestimonial, setSendingTestimonial] = useState(false);
+  const [testimonialError, setTestimonialError] = useState("");
 
   const unread = messages.filter((m) => !m.read).length;
+
+  async function handleRequestTestimonial(id: number) {
+    setSendingTestimonial(true);
+    setTestimonialError("");
+    try {
+      await api.requestTestimonial(id);
+      setTestimonialSent((prev) => new Set(prev).add(id));
+    } catch (err) {
+      setTestimonialError((err as Error).message ?? "Failed to send. Is email configured?");
+    } finally {
+      setSendingTestimonial(false);
+    }
+  }
 
   async function markRead(msg: ContactMessage, read: boolean) {
     await api.markMessageRead(msg.id, read);
@@ -126,7 +142,7 @@ export default function ContactTab() {
               <p className="text-white/40 text-xs uppercase tracking-wider font-mono mb-2">Message</p>
               <p className="text-white/80 text-sm leading-relaxed whitespace-pre-wrap">{selected.message}</p>
             </div>
-            <div className="pt-4 border-t border-white/10">
+            <div className="pt-4 border-t border-white/10 flex flex-wrap gap-3">
               <a
                 href={`mailto:${selected.email}?subject=Re: ${encodeURIComponent(selected.subject || "Your message")}`}
                 className="inline-flex items-center gap-2 px-5 py-2.5 bg-purple-600/20 hover:bg-purple-600/40 text-purple-300 border border-purple-500/30 rounded-lg text-sm transition-colors"
@@ -134,6 +150,30 @@ export default function ContactTab() {
                 <Mail size={14} />
                 Reply via Email
               </a>
+
+              {testimonialSent.has(selected.id) ? (
+                <span className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 rounded-lg text-sm">
+                  <CheckCircle size={14} />
+                  Testimonial Request Sent
+                </span>
+              ) : (
+                <button
+                  onClick={() => handleRequestTestimonial(selected.id)}
+                  disabled={sendingTestimonial}
+                  title="Send this person an email asking for a testimonial"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded-lg text-sm transition-colors disabled:opacity-50"
+                >
+                  {sendingTestimonial
+                    ? <span className="w-3.5 h-3.5 rounded-full border-2 border-amber-400 border-t-transparent animate-spin" />
+                    : <Star size={14} />
+                  }
+                  Request Testimonial
+                </button>
+              )}
+
+              {testimonialError && (
+                <p className="w-full text-red-400 text-xs mt-1">{testimonialError}</p>
+              )}
             </div>
           </div>
         </div>

@@ -3,7 +3,7 @@ import { eq, desc, count } from "drizzle-orm";
 import rateLimit from "express-rate-limit";
 import { db, contactMessagesTable } from "@workspace/db";
 import { requireAdmin } from "../lib/auth";
-import { sendContactNotification, sendAutoReply, isEmailConfigured } from "../lib/email";
+import { sendContactNotification, sendAutoReply, sendTestimonialRequest, isEmailConfigured } from "../lib/email";
 import { logger } from "../lib/logger";
 
 const router: IRouter = Router();
@@ -101,6 +101,15 @@ router.put("/contact/messages/:id/read", requireAdmin, async (req, res): Promise
   await db.update(contactMessagesTable)
     .set({ read: read ?? true })
     .where(eq(contactMessagesTable.id, id));
+  res.json({ ok: true });
+});
+
+router.post("/contact/messages/:id/request-testimonial", requireAdmin, async (req, res): Promise<void> => {
+  const id = Number(req.params.id);
+  const [msg] = await db.select().from(contactMessagesTable).where(eq(contactMessagesTable.id, id)).limit(1);
+  if (!msg) { res.status(404).json({ error: "Message not found" }); return; }
+  if (!isEmailConfigured()) { res.status(503).json({ error: "Email not configured" }); return; }
+  await sendTestimonialRequest({ name: msg.name, email: msg.email });
   res.json({ ok: true });
 });
 

@@ -146,6 +146,44 @@ export async function sendContactNotification(opts: {
   logger.info({ to: adminEmail, from: opts.email }, "Contact notification sent");
 }
 
+export async function sendTestimonialRequest(opts: {
+  name: string;
+  email: string;
+}): Promise<void> {
+  const transporter = getTransporter();
+
+  await transporter.sendMail({
+    from: `"Caktus Productions" <${GMAIL_USER}>`,
+    to: opts.email,
+    subject: "Would you leave me a testimonial?",
+    html: `
+      <div style="font-family:monospace;background:#0a0a0f;color:#fff;padding:32px;max-width:560px;border-radius:8px">
+        <h2 style="color:#a855f7;margin:0 0 4px;font-size:20px;letter-spacing:2px">CAKTUS PRODUCTIONS</h2>
+        <p style="color:#666;margin:0 0 28px;font-size:11px;letter-spacing:1px;text-transform:uppercase">Testimonial Request</p>
+
+        <p style="color:#ddd;font-size:15px;line-height:1.7;margin:0 0 16px">
+          Hey ${opts.name},
+        </p>
+        <p style="color:#aaa;font-size:14px;line-height:1.8;margin:0 0 16px">
+          It was great working with you! If you enjoyed what we created together, I'd really appreciate a short testimonial — even just a sentence or two about your experience.
+        </p>
+        <p style="color:#aaa;font-size:14px;line-height:1.8;margin:0 0 28px">
+          Just reply to this email with your thoughts and I'll add it to the site. It means a lot and helps other artists know what to expect.
+        </p>
+        <p style="color:#aaa;font-size:14px;line-height:1.8;margin:0 0 28px">
+          Thank you in advance — I really appreciate the support.
+        </p>
+
+        <div style="border-top:1px solid #1a1a2e;padding-top:20px">
+          <p style="color:#555;font-size:12px;margin:0;line-height:1.6">— Caktus Productions</p>
+        </div>
+      </div>
+    `,
+  });
+
+  logger.info({ to: opts.email }, "Testimonial request sent");
+}
+
 export async function sendAutoReply(opts: {
   name: string;
   email: string;
