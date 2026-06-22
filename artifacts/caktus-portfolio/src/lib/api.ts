@@ -87,7 +87,7 @@ export function storageUrl(objectPath: string): string {
 
 export interface AudioTrack {
   id: number; title: string; description: string; genre: string;
-  audioUrl: string; coverUrl: string; sortOrder: number; active: boolean;
+  iconName: string; audioUrl: string; coverUrl: string; sortOrder: number; active: boolean;
   createdAt: string; updatedAt: string;
 }
 

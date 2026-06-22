@@ -1,8 +1,9 @@
 import { motion } from "framer-motion";
-import { Play, Pause, ExternalLink } from "lucide-react";
+import { Play, Pause, ExternalLink, Music2, type LucideIcon } from "lucide-react";
 import { useRef, useState } from "react";
 import { useAudioTracks, usePortfolioItems, useSiteSettings, type AudioTrack, type PortfolioItem } from "@/hooks/useSiteData";
 import { storageUrl } from "@/lib/api";
+import { GENRE_ICON_MAP } from "@/pages/admin/tabs/TracksTab";
 
 const WAVEFORM_HEIGHTS = Array.from({ length: 40 }, (_, i) => Math.max(10, ((i * 37 + 13) % 90) + 10));
 
@@ -49,11 +50,15 @@ function LiveAudioCard({ track }: { track: AudioTrack }) {
             alt={track.title}
             className="w-14 h-14 rounded-sm object-cover flex-shrink-0 border border-border/50"
           />
-        ) : (
-          <div className="w-14 h-14 rounded-sm bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
-            <span className="text-primary text-xl">♪</span>
-          </div>
-        )}
+        ) : (() => {
+          const entry = GENRE_ICON_MAP[(track as AudioTrack).iconName ?? "Music2"] ?? GENRE_ICON_MAP["Music2"];
+          const Icon: LucideIcon = entry?.icon ?? Music2;
+          return (
+            <div className="w-14 h-14 rounded-sm bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
+              <Icon size={28} className="text-primary" />
+            </div>
+          );
+        })()}
         <div className="flex-1 min-w-0">
           <h4 className="text-base font-bold text-white mb-0.5 group-hover:text-primary transition-colors truncate">{track.title}</h4>
           <p className="text-xs text-foreground/50 uppercase tracking-widest truncate">{track.genre || track.description}</p>

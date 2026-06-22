@@ -2,11 +2,36 @@ import { useState, useEffect } from "react";
 import { api, uploadFile, storageUrl, type AudioTrack } from "@/lib/api";
 import { FileUploader } from "../components/FileUploader";
 import { Trash2, Edit2, Plus, X, Check } from "lucide-react";
+import {
+  Music2, Mic, Cpu, Gamepad2, Skull, Flame, Compass, Guitar,
+  Waves, Radio, Drum, Zap, Film, Star, Headphones, Volume2,
+  type LucideIcon,
+} from "lucide-react";
+
+export const GENRE_ICON_MAP: Record<string, { icon: LucideIcon; label: string }> = {
+  Music2:     { icon: Music2,     label: "General" },
+  Guitar:     { icon: Guitar,     label: "Rock / Metal" },
+  Mic:        { icon: Mic,        label: "Rap / Hip-Hop" },
+  Cpu:        { icon: Cpu,        label: "Electronic" },
+  Gamepad2:   { icon: Gamepad2,   label: "Video Games" },
+  Skull:      { icon: Skull,      label: "Horror" },
+  Flame:      { icon: Flame,      label: "Action" },
+  Compass:    { icon: Compass,    label: "Adventure" },
+  Film:       { icon: Film,       label: "Cinematic" },
+  Waves:      { icon: Waves,      label: "Ambient" },
+  Radio:      { icon: Radio,      label: "Synthwave" },
+  Drum:       { icon: Drum,       label: "Percussion" },
+  Zap:        { icon: Zap,        label: "Industrial" },
+  Headphones: { icon: Headphones, label: "Lo-fi" },
+  Volume2:    { icon: Volume2,    label: "Sound Design" },
+  Star:       { icon: Star,       label: "Featured" },
+};
 
 const empty = (): Partial<AudioTrack> => ({
   title: "",
   description: "",
   genre: "",
+  iconName: "Music2",
   audioUrl: "",
   coverUrl: "",
   sortOrder: 0,
@@ -92,7 +117,7 @@ export default function TracksTab() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {([
               ["title", "Title", "text"],
-              ["genre", "Genre", "text"],
+              ["genre", "Genre Label", "text"],
               ["sortOrder", "Sort Order", "number"],
             ] as [keyof AudioTrack, string, string][]).map(([key, label, type]) => (
               <div key={key}>
@@ -116,6 +141,30 @@ export default function TracksTab() {
             </div>
           </div>
 
+          <div>
+            <label className="block text-white/50 text-xs mb-2">
+              Genre Icon <span className="text-white/25">(shown when no cover art is set)</span>
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {Object.entries(GENRE_ICON_MAP).map(([name, { icon: Icon, label }]) => (
+                <button
+                  key={name}
+                  type="button"
+                  onClick={() => set("iconName", name)}
+                  title={label}
+                  className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs transition-all ${
+                    editing.iconName === name
+                      ? "border-purple-500 bg-purple-500/20 text-purple-300"
+                      : "border-white/10 bg-white/5 text-white/50 hover:border-white/30 hover:text-white"
+                  }`}
+                >
+                  <Icon size={14} />
+                  <span>{label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
               <label className="block text-white/50 text-xs mb-2">Audio File</label>
@@ -129,7 +178,7 @@ export default function TracksTab() {
               )}
             </div>
             <div>
-              <label className="block text-white/50 text-xs mb-2">Cover Image</label>
+              <label className="block text-white/50 text-xs mb-2">Cover Art <span className="text-white/25">(optional — icon used if empty)</span></label>
               <FileUploader
                 accept="image/*"
                 label="Upload cover art"
@@ -174,38 +223,46 @@ export default function TracksTab() {
         {tracks.length === 0 && (
           <p className="text-white/30 text-sm text-center py-8">No tracks yet. Add your first track.</p>
         )}
-        {tracks.map((t) => (
-          <div
-            key={t.id}
-            className="flex items-center gap-4 bg-white/5 border border-white/10 rounded-xl px-5 py-4"
-          >
-            {t.coverUrl && (
-              <img
-                src={storageUrl(t.coverUrl)}
-                alt={t.title}
-                className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
-              />
-            )}
-            <div className="flex-1 min-w-0">
-              <p className="text-white font-medium text-sm truncate">{t.title}</p>
-              <p className="text-white/40 text-xs">{t.genre} {!t.active && "· Hidden"}</p>
+        {tracks.map((t) => {
+          const entry = GENRE_ICON_MAP[t.iconName ?? "Music2"] ?? GENRE_ICON_MAP["Music2"];
+          const Icon = entry.icon;
+          return (
+            <div
+              key={t.id}
+              className="flex items-center gap-4 bg-white/5 border border-white/10 rounded-xl px-5 py-4"
+            >
+              {t.coverUrl ? (
+                <img
+                  src={storageUrl(t.coverUrl)}
+                  alt={t.title}
+                  className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
+                />
+              ) : (
+                <div className="w-12 h-12 rounded-lg bg-purple-500/20 border border-purple-500/30 flex items-center justify-center flex-shrink-0">
+                  <Icon size={20} className="text-purple-300" />
+                </div>
+              )}
+              <div className="flex-1 min-w-0">
+                <p className="text-white font-medium text-sm truncate">{t.title}</p>
+                <p className="text-white/40 text-xs">{t.genre} {!t.active && "· Hidden"}</p>
+              </div>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <button
+                  onClick={() => startEdit(t)}
+                  className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-colors"
+                >
+                  <Edit2 size={15} />
+                </button>
+                <button
+                  onClick={() => handleDelete(t.id)}
+                  className="p-2 rounded-lg bg-white/5 hover:bg-red-500/20 text-white/60 hover:text-red-400 transition-colors"
+                >
+                  <Trash2 size={15} />
+                </button>
+              </div>
             </div>
-            <div className="flex items-center gap-2 flex-shrink-0">
-              <button
-                onClick={() => startEdit(t)}
-                className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-colors"
-              >
-                <Edit2 size={15} />
-              </button>
-              <button
-                onClick={() => handleDelete(t.id)}
-                className="p-2 rounded-lg bg-white/5 hover:bg-red-500/20 text-white/60 hover:text-red-400 transition-colors"
-              >
-                <Trash2 size={15} />
-              </button>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

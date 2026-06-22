@@ -7,6 +7,7 @@ export const audioTracksTable = pgTable("audio_tracks", {
   title: text("title").notNull(),
   description: text("description").notNull().default(""),
   genre: text("genre").notNull().default(""),
+  iconName: text("icon_name").notNull().default("Music2"),
   audioUrl: text("audio_url").notNull().default(""),
   coverUrl: text("cover_url").notNull().default(""),
   sortOrder: integer("sort_order").notNull().default(0),
