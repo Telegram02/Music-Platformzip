@@ -3,7 +3,7 @@ import { eq, desc, count } from "drizzle-orm";
 import rateLimit from "express-rate-limit";
 import { db, contactMessagesTable } from "@workspace/db";
 import { requireAdmin } from "../lib/auth";
-import { sendCommissionNotification, isEmailConfigured } from "../lib/email";
+import { sendContactNotification, isEmailConfigured } from "../lib/email";
 import { logger } from "../lib/logger";
 
 const router: IRouter = Router();
@@ -60,13 +60,13 @@ router.post("/contact", contactLimiter, async (req, res): Promise<void> => {
     message: messageStr.slice(0, 5000),
   });
 
-  if (isEmailConfigured() && subjectStr.startsWith("[Commission]")) {
-    sendCommissionNotification({
+  if (isEmailConfigured()) {
+    sendContactNotification({
       name: nameStr,
       email: emailStr,
       subject: subjectStr,
       message: messageStr,
-    }).catch((err) => logger.error({ err }, "Commission notification failed"));
+    }).catch((err) => logger.error({ err }, "Contact notification failed"));
   }
 
   res.json({ ok: true });
