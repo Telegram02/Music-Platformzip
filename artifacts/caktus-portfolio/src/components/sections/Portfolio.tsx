@@ -1,26 +1,42 @@
 import { motion } from "framer-motion";
 import { Play, Pause, ExternalLink, Music2, type LucideIcon } from "lucide-react";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useAudioTracks, usePortfolioItems, useSiteSettings, type AudioTrack, type PortfolioItem } from "@/hooks/useSiteData";
 import { storageUrl } from "@/lib/api";
 import { GENRE_ICON_MAP } from "@/lib/genreIcons";
 
 const WAVEFORM_HEIGHTS = Array.from({ length: 40 }, (_, i) => Math.max(10, ((i * 37 + 13) % 90) + 10));
 
-function LiveAudioCard({ track }: { track: AudioTrack }) {
+interface LiveAudioCardProps {
+  track: AudioTrack;
+  activeId: number | null;
+  onPlay: (id: number) => void;
+  onStop: () => void;
+}
+
+function LiveAudioCard({ track, activeId, onPlay, onStop }: LiveAudioCardProps) {
   const audioRef = useRef<HTMLAudioElement>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
 
-  function togglePlay() {
+  const isPlaying = activeId === track.id;
+
+  useEffect(() => {
     const el = audioRef.current;
     if (!el) return;
     if (isPlaying) {
-      el.pause();
+      el.play().catch(() => {});
     } else {
-      el.play();
+      el.pause();
     }
-    setIsPlaying(!isPlaying);
+  }, [isPlaying]);
+
+  function togglePlay() {
+    if (!track.audioUrl) return;
+    if (isPlaying) {
+      onStop();
+    } else {
+      onPlay(track.id);
+    }
   }
 
   function handleTimeUpdate() {
@@ -29,13 +45,20 @@ function LiveAudioCard({ track }: { track: AudioTrack }) {
     setProgress(el.currentTime / el.duration);
   }
 
-  function handleEnded() { setIsPlaying(false); setProgress(0); }
+  function handleEnded() { onStop(); setProgress(0); }
 
   const played = Math.round(progress * 40);
 
   return (
-    <div className="bg-background/80 border border-border/50 p-6 rounded-sm backdrop-blur-sm group-hover:border-primary/40 transition-colors relative overflow-hidden flex flex-col h-full">
-      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+    <div className={`bg-background/80 border p-6 rounded-sm backdrop-blur-sm transition-colors relative overflow-hidden flex flex-col h-full ${
+      isPlaying ? "border-primary/60 shadow-[0_0_20px_rgba(147,51,234,0.15)]" : "border-border/50 group-hover:border-primary/40"
+    }`}>
+      {isPlaying && (
+        <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-primary to-transparent" />
+      )}
+      {!isPlaying && (
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+      )}
 
       {track.audioUrl && (
         <audio
@@ -48,24 +71,42 @@ function LiveAudioCard({ track }: { track: AudioTrack }) {
       )}
 
       <div className="flex items-start gap-4 mb-5">
-        {track.coverUrl ? (
-          <img
-            src={storageUrl(track.coverUrl)}
-            alt={track.title}
-            className="w-14 h-14 rounded-sm object-cover flex-shrink-0 border border-border/50"
-          />
-        ) : (() => {
-          const entry = GENRE_ICON_MAP[(track as AudioTrack).iconName ?? "Music2"] ?? GENRE_ICON_MAP["Music2"];
-          const Icon: LucideIcon = entry?.icon ?? Music2;
-          return (
-            <div className="w-14 h-14 rounded-sm bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
-              <Icon size={28} className="text-primary" />
+        <div className="relative flex-shrink-0">
+          {track.coverUrl ? (
+            <img
+              src={storageUrl(track.coverUrl)}
+              alt={track.title}
+              className="w-14 h-14 rounded-sm object-cover border border-border/50"
+            />
+          ) : (() => {
+            const entry = GENRE_ICON_MAP[(track as AudioTrack).iconName ?? "Music2"] ?? GENRE_ICON_MAP["Music2"];
+            const Icon: LucideIcon = entry?.icon ?? Music2;
+            return (
+              <div className="w-14 h-14 rounded-sm bg-primary/10 border border-primary/20 flex items-center justify-center">
+                <Icon size={28} className="text-primary" />
+              </div>
+            );
+          })()}
+          {isPlaying && (
+            <div className="absolute -bottom-1 -right-1 flex gap-[2px] items-end h-4 px-1 py-0.5 bg-primary rounded-sm">
+              {[3, 5, 4, 6, 3].map((h, i) => (
+                <div
+                  key={i}
+                  className="w-[2px] bg-white rounded-full animate-bounce"
+                  style={{ height: `${h * 2}px`, animationDelay: `${i * 0.1}s`, animationDuration: "0.6s" }}
+                />
+              ))}
             </div>
-          );
-        })()}
+          )}
+        </div>
         <div className="flex-1 min-w-0">
-          <h4 className="text-base font-bold text-white mb-0.5 group-hover:text-primary transition-colors truncate">{track.title}</h4>
+          <h4 className={`text-base font-bold mb-0.5 truncate transition-colors ${isPlaying ? "text-primary" : "text-white group-hover:text-primary"}`}>
+            {track.title}
+          </h4>
           <p className="text-xs text-foreground/50 uppercase tracking-widest truncate">{track.genre || track.description}</p>
+          {isPlaying && (
+            <p className="text-[10px] font-mono text-primary/70 uppercase tracking-widest mt-1 animate-pulse">Now playing</p>
+          )}
         </div>
       </div>
 
@@ -86,10 +127,14 @@ function LiveAudioCard({ track }: { track: AudioTrack }) {
         <button
           onClick={togglePlay}
           disabled={!track.audioUrl}
-          className="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center hover:scale-105 transition-transform hover:shadow-[0_0_15px_rgba(255,255,255,0.3)] disabled:opacity-40 disabled:cursor-not-allowed"
+          className={`w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-105 disabled:opacity-40 disabled:cursor-not-allowed ${
+            isPlaying
+              ? "bg-primary text-white hover:shadow-[0_0_20px_rgba(147,51,234,0.5)]"
+              : "bg-white text-black hover:shadow-[0_0_15px_rgba(255,255,255,0.3)]"
+          }`}
         >
           {isPlaying
-            ? <Pause size={16} className="fill-black" />
+            ? <Pause size={16} className="fill-white" />
             : <Play size={16} className="fill-black ml-0.5" />}
         </button>
         <span className="text-xs font-mono text-foreground/35 invisible">—</span>
@@ -155,6 +200,7 @@ export function Portfolio() {
   const { data: portfolioItems = [] } = usePortfolioItems();
   const { data: settings } = useSiteSettings();
   const bgImage = settings?.portfolioBgImage ? storageUrl(settings.portfolioBgImage) : "";
+  const [activeId, setActiveId] = useState<number | null>(null);
 
   const showTracks = tracks.length > 0 ? tracks : PLACEHOLDER_TRACKS;
   const hasRealTracks = tracks.length > 0;
@@ -204,7 +250,12 @@ export function Portfolio() {
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                   className="group"
                 >
-                  <LiveAudioCard track={track} />
+                  <LiveAudioCard
+                    track={track}
+                    activeId={activeId}
+                    onPlay={setActiveId}
+                    onStop={() => setActiveId(null)}
+                  />
                 </motion.div>
               ))}
             </div>
