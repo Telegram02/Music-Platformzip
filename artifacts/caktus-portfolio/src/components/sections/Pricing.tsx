@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { api, storageUrl, type PricingItem } from "@/lib/api";
+import { useSiteSettings } from "@/hooks/useSiteData";
 
 const ICON_MAP: Record<string, LucideIcon> = {
   Music2, Gamepad2, Radio, SlidersHorizontal, Film, Speaker,
@@ -60,6 +61,9 @@ export function Pricing({ onRequestCommission }: PricingProps) {
     queryFn: () => api.getPricing(),
     staleTime: 30_000,
   });
+  const { data: settings } = useSiteSettings();
+
+  if (settings && settings.pricingVisible === "false") return null;
 
   const display = items && items.length > 0 ? items : FALLBACK_PRICING;
 

@@ -323,6 +323,32 @@ export default function SiteTab() {
         </div>
       </div>
 
+      {/* ── Section Visibility ─────────────────────────── */}
+      <div className="space-y-4">
+        <h3 className="text-xs font-mono uppercase tracking-widest text-purple-400/80 border-b border-white/5 pb-2">
+          Section Visibility
+        </h3>
+        <p className="text-white/30 text-xs">Toggle sections on or off for public visitors.</p>
+        <div className="p-4 bg-white/3 rounded-lg border border-white/5 flex items-center justify-between">
+          <div>
+            <p className="text-white/80 text-sm font-medium">Pricing Section</p>
+            <p className="text-white/30 text-xs mt-0.5">Hide to remove it from your public site</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => handleChange("pricingVisible", settings.pricingVisible === "false" ? "true" : "false")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border transition-all ${
+              settings.pricingVisible !== "false"
+                ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20"
+                : "bg-white/5 border-white/10 text-white/40 hover:bg-white/10 hover:text-white/60"
+            }`}
+          >
+            {settings.pricingVisible !== "false" ? <Eye size={14} /> : <EyeOff size={14} />}
+            {settings.pricingVisible !== "false" ? "Visible" : "Hidden"}
+          </button>
+        </div>
+      </div>
+
       {/* ── Save ───────────────────────────────────────── */}
       <div className="pt-4 border-t border-white/10">
         <button
