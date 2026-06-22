@@ -40,7 +40,7 @@ ADMIN_USERNAME = "admin"
 ADMIN_PASSWORD = "Darksouls2!"
 
 [objectStorage]
-defaultBucketID = "replit-objstore-b2787dd4-10ce-4e4d-b10c-b80d5356d953"
+defaultBucketID = "replit-objstore-960534c7-a1d2-41b1-92f9-77595e6a5678"
 
 [nix]
 channel = "stable-25_05"
