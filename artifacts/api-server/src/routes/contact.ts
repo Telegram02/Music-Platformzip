@@ -1,30 +1,70 @@
 import { Router, type IRouter } from "express";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, count } from "drizzle-orm";
+import rateLimit from "express-rate-limit";
 import { db, contactMessagesTable } from "@workspace/db";
 import { requireAdmin } from "../lib/auth";
 
 const router: IRouter = Router();
 
-router.post("/contact", async (req, res): Promise<void> => {
-  const { name, email, subject, message } = req.body as {
-    name?: string; email?: string; subject?: string; message?: string;
+const contactLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Too many messages sent. Please wait before trying again." },
+  keyGenerator: (req) => req.ip ?? "unknown",
+});
+
+router.post("/contact", contactLimiter, async (req, res): Promise<void> => {
+  const { name, email, subject, message, _hp } = req.body as {
+    name?: string; email?: string; subject?: string; message?: string; _hp?: string;
   };
+
+  if (_hp && _hp.length > 0) {
+    res.json({ ok: true });
+    return;
+  }
+
   if (!name || !email || !message) {
     res.status(400).json({ error: "Name, email, and message are required" });
     return;
   }
+
+  const nameStr = name.trim();
+  const emailStr = email.trim();
+  const messageStr = message.trim();
+
+  if (nameStr.length < 2 || nameStr.length > 100) {
+    res.status(400).json({ error: "Name must be between 2 and 100 characters" });
+    return;
+  }
+  if (messageStr.length < 10 || messageStr.length > 5000) {
+    res.status(400).json({ error: "Message must be between 10 and 5000 characters" });
+    return;
+  }
+
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) {
+  if (!emailRegex.test(emailStr)) {
     res.status(400).json({ error: "Invalid email address" });
     return;
   }
+
   await db.insert(contactMessagesTable).values({
-    name: name.slice(0, 200),
-    email: email.slice(0, 200),
-    subject: (subject ?? "").slice(0, 300),
-    message: message.slice(0, 5000),
+    name: nameStr.slice(0, 100),
+    email: emailStr.slice(0, 200),
+    subject: (subject ?? "").trim().slice(0, 300),
+    message: messageStr.slice(0, 5000),
   });
+
   res.json({ ok: true });
+});
+
+router.get("/contact/unread-count", requireAdmin, async (_req, res): Promise<void> => {
+  const result = await db
+    .select({ count: count() })
+    .from(contactMessagesTable)
+    .where(eq(contactMessagesTable.read, false));
+  res.json({ count: result[0]?.count ?? 0 });
 });
 
 router.get("/contact/messages", requireAdmin, async (_req, res): Promise<void> => {

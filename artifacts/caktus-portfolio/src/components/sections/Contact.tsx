@@ -31,7 +31,7 @@ export function Contact() {
   const { data: settings } = useSiteSettings();
   const { data: socialLinks = [] } = useSocialLinks();
 
-  const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
+  const [form, setForm] = useState({ name: "", email: "", subject: "", message: "", _hp: "" });
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
@@ -55,7 +55,7 @@ export function Contact() {
     try {
       await api.submitContact(form);
       setSubmitted(true);
-      setForm({ name: "", email: "", subject: "", message: "" });
+      setForm({ name: "", email: "", subject: "", message: "", _hp: "" });
     } catch (err) {
       setError((err as Error).message ?? "Failed to send. Please try again.");
     } finally {
@@ -64,7 +64,7 @@ export function Contact() {
   }
 
   return (
-    <section id="contact" className="py-32 relative bg-card border-t border-border/30 overflow-hidden">
+    <section id="contact" className="py-20 sm:py-32 relative bg-card border-t border-border/30 overflow-hidden">
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-primary/10 blur-[120px] rounded-t-full pointer-events-none" />
 
       <div className="container mx-auto px-6 relative z-10">
@@ -74,17 +74,17 @@ export function Contact() {
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
-            className="text-center mb-16"
+            className="text-center mb-12 sm:mb-16"
           >
-            <h2 className="text-5xl md:text-7xl font-display font-bold text-white mb-6">
+            <h2 className="text-4xl sm:text-5xl md:text-7xl font-display font-bold text-white mb-6">
               Let's build something <span className="text-primary italic">massive.</span>
             </h2>
-            <p className="text-xl text-foreground/70 font-light max-w-2xl mx-auto">
+            <p className="text-lg sm:text-xl text-foreground/70 font-light max-w-2xl mx-auto">
               {availability}
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 gap-12 mb-16">
+          <div className="grid md:grid-cols-2 gap-10 md:gap-12 mb-16">
             {/* Direct contact */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
@@ -97,11 +97,11 @@ export function Contact() {
                 <p className="text-white/40 text-xs uppercase tracking-widest mb-4 font-mono">Direct Contact</p>
                 <a
                   href={`mailto:${email}`}
-                  className="inline-flex items-center gap-3 px-8 py-4 bg-white text-black font-bold uppercase tracking-widest rounded-sm hover:bg-primary hover:text-white transition-all duration-300 hover:shadow-[0_0_30px_rgba(147,51,234,0.6)] hover:-translate-y-1 group w-full justify-center"
+                  className="inline-flex items-center gap-3 px-6 sm:px-8 py-4 bg-white text-black font-bold uppercase tracking-widest rounded-sm hover:bg-primary hover:text-white transition-all duration-300 hover:shadow-[0_0_30px_rgba(147,51,234,0.6)] hover:-translate-y-1 group w-full justify-center text-sm sm:text-base"
                 >
                   <Mail size={18} />
-                  {email}
-                  <ArrowRight size={18} className="group-hover:translate-x-2 transition-transform" />
+                  <span className="truncate">{email}</span>
+                  <ArrowRight size={18} className="group-hover:translate-x-2 transition-transform flex-shrink-0" />
                 </a>
               </div>
 
@@ -158,34 +158,43 @@ export function Contact() {
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <input
-                        name="name"
-                        value={form.name}
-                        onChange={handleChange}
-                        placeholder="Your name *"
-                        required
-                        className="w-full bg-white/5 border border-white/10 rounded-sm px-4 py-3 text-white placeholder-white/30 outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all text-sm"
-                      />
-                    </div>
-                    <div>
-                      <input
-                        name="email"
-                        type="email"
-                        value={form.email}
-                        onChange={handleChange}
-                        placeholder="Your email *"
-                        required
-                        className="w-full bg-white/5 border border-white/10 rounded-sm px-4 py-3 text-white placeholder-white/30 outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all text-sm"
-                      />
-                    </div>
+                  {/* Honeypot — hidden from real users, bots fill it in */}
+                  <input
+                    name="_hp"
+                    value={form._hp}
+                    onChange={handleChange}
+                    tabIndex={-1}
+                    autoComplete="off"
+                    aria-hidden="true"
+                    className="absolute opacity-0 pointer-events-none -z-10 w-0 h-0"
+                  />
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <input
+                      name="name"
+                      value={form.name}
+                      onChange={handleChange}
+                      placeholder="Your name *"
+                      required
+                      maxLength={100}
+                      className="w-full bg-white/5 border border-white/10 rounded-sm px-4 py-3 text-white placeholder-white/30 outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all text-sm"
+                    />
+                    <input
+                      name="email"
+                      type="email"
+                      value={form.email}
+                      onChange={handleChange}
+                      placeholder="Your email *"
+                      required
+                      className="w-full bg-white/5 border border-white/10 rounded-sm px-4 py-3 text-white placeholder-white/30 outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all text-sm"
+                    />
                   </div>
                   <input
                     name="subject"
                     value={form.subject}
                     onChange={handleChange}
                     placeholder="Subject (optional)"
+                    maxLength={300}
                     className="w-full bg-white/5 border border-white/10 rounded-sm px-4 py-3 text-white placeholder-white/30 outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all text-sm"
                   />
                   <textarea
@@ -195,6 +204,7 @@ export function Contact() {
                     placeholder="Tell me about your project *"
                     required
                     rows={5}
+                    maxLength={5000}
                     className="w-full bg-white/5 border border-white/10 rounded-sm px-4 py-3 text-white placeholder-white/30 outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all text-sm resize-none"
                   />
                   {error && (

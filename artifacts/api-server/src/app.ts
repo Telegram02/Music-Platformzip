@@ -29,15 +29,19 @@ app.use(
   }),
 );
 
+const productionOrigins = process.env.REPLIT_DOMAINS
+  ? process.env.REPLIT_DOMAINS.split(",").map((d) => `https://${d.trim()}`)
+  : null;
+
 app.use(
   cors({
-    origin: true,
+    origin: productionOrigins ?? true,
     credentials: true,
   }),
 );
 
-app.use(express.json({ limit: "10mb" }));
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: "2mb" }));
+app.use(express.urlencoded({ extended: true, limit: "2mb" }));
 
 app.use(
   session({

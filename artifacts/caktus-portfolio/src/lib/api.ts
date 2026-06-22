@@ -51,9 +51,10 @@ export const api = {
   deleteService: (id: number) => req<void>("DELETE", `/services/${id}`),
 
   // Contact messages
-  submitContact: (data: { name: string; email: string; subject: string; message: string }) =>
+  submitContact: (data: { name: string; email: string; subject: string; message: string; _hp?: string }) =>
     req<{ ok: boolean }>("POST", "/contact", data),
   getMessages: () => req<ContactMessage[]>("GET", "/contact/messages"),
+  getUnreadCount: () => req<{ count: number }>("GET", "/contact/unread-count"),
   markMessageRead: (id: number, read = true) =>
     req<{ ok: boolean }>("PUT", `/contact/messages/${id}/read`, { read }),
   deleteMessage: (id: number) => req<void>("DELETE", `/contact/messages/${id}`),
