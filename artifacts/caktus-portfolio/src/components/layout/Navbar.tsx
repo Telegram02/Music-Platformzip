@@ -19,7 +19,7 @@ export function Navbar() {
   }, []);
 
   useEffect(() => {
-    const sectionIds = ["contact", "commission", "workflow", "portfolio", "services", "about", "home"];
+    const sectionIds = ["contact", "commission", "pricing", "workflow", "portfolio", "services", "about", "home"];
     const observers: IntersectionObserver[] = [];
     sectionIds.forEach((id) => {
       const el = document.getElementById(id);
@@ -39,6 +39,7 @@ export function Navbar() {
     { name: "Services", href: "#services", id: "services" },
     { name: "Portfolio", href: "#portfolio", id: "portfolio" },
     { name: "Workflow", href: "#workflow", id: "workflow" },
+    { name: "Pricing", href: "#pricing", id: "pricing" },
     { name: "Commission", href: "#commission", id: "commission" },
     { name: "Contact", href: "#contact", id: "contact" },
   ];

@@ -3,7 +3,7 @@ import { Play, Pause, ExternalLink, Music2, type LucideIcon } from "lucide-react
 import { useRef, useState } from "react";
 import { useAudioTracks, usePortfolioItems, useSiteSettings, type AudioTrack, type PortfolioItem } from "@/hooks/useSiteData";
 import { storageUrl } from "@/lib/api";
-import { GENRE_ICON_MAP } from "@/pages/admin/tabs/TracksTab";
+import { GENRE_ICON_MAP } from "@/lib/genreIcons";
 
 const WAVEFORM_HEIGHTS = Array.from({ length: 40 }, (_, i) => Math.max(10, ((i * 37 + 13) % 90) + 10));
 

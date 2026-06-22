@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation, useSearch } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
-import { LogOut, Settings, Music, Film, Link2, Image, UserCog, Clapperboard, Inbox, ShieldCheck, ExternalLink, Menu, X, Star } from "lucide-react";
+import { LogOut, Settings, Music, Film, Link2, Image, UserCog, Clapperboard, Inbox, ShieldCheck, ExternalLink, Menu, X, Star, DollarSign } from "lucide-react";
 import SiteTab from "./tabs/SiteTab";
 import TracksTab from "./tabs/TracksTab";
 import PortfolioTab from "./tabs/PortfolioTab";
@@ -13,16 +13,18 @@ import ServicesTab from "./tabs/ServicesTab";
 import ContactTab from "./tabs/ContactTab";
 import ActivityTab from "./tabs/ActivityTab";
 import TestimonialsTab from "./tabs/TestimonialsTab";
+import PricingTab from "./tabs/PricingTab";
 
-type Tab = "site" | "tracks" | "portfolio" | "services" | "social" | "media" | "testimonials" | "messages" | "activity" | "account";
+type Tab = "site" | "tracks" | "portfolio" | "services" | "pricing" | "social" | "media" | "testimonials" | "messages" | "activity" | "account";
 
-const VALID_TABS: Tab[] = ["site", "tracks", "portfolio", "services", "social", "media", "testimonials", "messages", "activity", "account"];
+const VALID_TABS: Tab[] = ["site", "tracks", "portfolio", "services", "pricing", "social", "media", "testimonials", "messages", "activity", "account"];
 
 const TABS: { id: Tab; label: string; icon: React.ReactNode; group: string }[] = [
   { id: "site", label: "Site Settings", icon: <Settings size={16} />, group: "Content" },
   { id: "services", label: "Services", icon: <Clapperboard size={16} />, group: "Content" },
   { id: "tracks", label: "Audio Tracks", icon: <Music size={16} />, group: "Content" },
   { id: "portfolio", label: "Portfolio", icon: <Film size={16} />, group: "Content" },
+  { id: "pricing", label: "Pricing", icon: <DollarSign size={16} />, group: "Content" },
   { id: "testimonials", label: "Testimonials", icon: <Star size={16} />, group: "Content" },
   { id: "social", label: "Social Links", icon: <Link2 size={16} />, group: "Content" },
   { id: "media", label: "Media Library", icon: <Image size={16} />, group: "Content" },
@@ -193,6 +195,7 @@ export default function Dashboard() {
           {tab === "services" && <ServicesTab />}
           {tab === "tracks" && <TracksTab />}
           {tab === "portfolio" && <PortfolioTab />}
+          {tab === "pricing" && <PricingTab />}
           {tab === "testimonials" && <TestimonialsTab />}
           {tab === "social" && <SocialTab />}
           {tab === "media" && <MediaTab />}

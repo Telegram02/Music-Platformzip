@@ -1,4 +1,4 @@
-modules = ["nodejs-24"]
+modules = ["nodejs-24", "postgresql-16"]
 
 [deployment]
 router = "application"
@@ -40,3 +40,6 @@ ADMIN_USERNAME = "admin"
 
 [objectStorage]
 defaultBucketID = "replit-objstore-5dcaa79b-0a44-4e94-8413-3577515f521e"
+
+[nix]
+channel = "stable-25_05"

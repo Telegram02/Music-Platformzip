@@ -11,6 +11,7 @@ import servicesRouter from "./services";
 import contactRouter from "./contact";
 import activityRouter from "./activity";
 import testimonialsRouter from "./testimonials";
+import pricingRouter from "./pricing";
 
 const router: IRouter = Router();
 
@@ -26,5 +27,6 @@ router.use(servicesRouter);
 router.use(contactRouter);
 router.use(activityRouter);
 router.use(testimonialsRouter);
+router.use(pricingRouter);
 
 export default router;

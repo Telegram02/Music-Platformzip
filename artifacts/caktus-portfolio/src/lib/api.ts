@@ -68,6 +68,12 @@ export const api = {
   // Login activity
   getActivity: () => req<LoginActivity[]>("GET", "/activity"),
 
+  // Pricing
+  getPricing: (all = false) => req<PricingItem[]>("GET", all ? "/pricing/all" : "/pricing"),
+  createPricingItem: (data: Partial<PricingItem>) => req<PricingItem>("POST", "/pricing", data),
+  updatePricingItem: (id: number, data: Partial<PricingItem>) => req<PricingItem>("PUT", `/pricing/${id}`, data),
+  deletePricingItem: (id: number) => req<void>("DELETE", `/pricing/${id}`),
+
   // Upload
   requestUploadUrl: (name: string, size: number, contentType: string) =>
     req<{ uploadURL: string; objectPath: string }>("POST", "/storage/uploads/request-url", { name, size, contentType }),
@@ -122,4 +128,11 @@ export interface ContactMessage {
 export interface LoginActivity {
   id: number; username: string; success: boolean;
   ipAddress: string; createdAt: string;
+}
+
+export interface PricingItem {
+  id: number; iconName: string; title: string; subtitle: string;
+  price: string; priceUnit: string; description: string; features: string;
+  colorClass: string; popular: boolean; sortOrder: number; active: boolean;
+  createdAt: string; updatedAt: string;
 }

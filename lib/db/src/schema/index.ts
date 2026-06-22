@@ -7,3 +7,4 @@ export * from "./services";
 export * from "./contactMessages";
 export * from "./loginActivity";
 export * from "./testimonials";
+export * from "./pricing";
