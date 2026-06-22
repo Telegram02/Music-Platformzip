@@ -7,6 +7,7 @@ import { Portfolio } from "@/components/sections/Portfolio";
 import { Industries } from "@/components/sections/Industries";
 import { Workflow } from "@/components/sections/Workflow";
 import { Testimonials } from "@/components/sections/Testimonials";
+import { Commission } from "@/components/sections/Commission";
 import { Contact } from "@/components/sections/Contact";
 import { Mail } from "lucide-react";
 import { useAdminStatus } from "@/hooks/useAdminStatus";
@@ -27,6 +28,7 @@ export default function Home() {
         <Industries />
         <Workflow />
         <Testimonials />
+        <Commission />
         <Contact />
       </main>
 
