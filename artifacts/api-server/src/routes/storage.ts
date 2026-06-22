@@ -128,4 +128,51 @@ router.get("/storage/objects/*path", async (req: Request, res: Response) => {
   }
 });
 
+/**
+ * GET /storage/bucket/list
+ *
+ * List objects in the private bucket dir (uploads/).
+ * Returns an array of { objectPath, name, size, contentType, updatedAt }.
+ */
+router.get("/storage/bucket/list", async (req: Request, res: Response) => {
+  try {
+    const { objectStorageClient } = await import("../lib/objectStorage");
+    const privateDir = objectStorageService.getPrivateObjectDir();
+
+    // parseObjectPath expects a leading slash
+    const normalized = privateDir.startsWith("/") ? privateDir : `/${privateDir}`;
+    const parts = normalized.split("/").filter(Boolean);
+    const bucketName = parts[0];
+    const prefix = parts.slice(1).join("/") + (parts.length > 1 ? "/" : "");
+
+    const bucket = objectStorageClient.bucket(bucketName);
+    const [files] = await bucket.getFiles({ prefix });
+
+    const items = await Promise.all(
+      files.map(async (file) => {
+        const [meta] = await file.getMetadata();
+        const objectName = file.name;
+        const relativePath = objectName.startsWith(prefix)
+          ? objectName.slice(prefix.length)
+          : objectName;
+        return {
+          objectPath: `/objects/${relativePath}`,
+          name: relativePath.replace(/^uploads\/[^/]+\//, "").replace(/^uploads\//, ""),
+          size: Number(meta.size ?? 0),
+          contentType: (meta.contentType as string) || "application/octet-stream",
+          updatedAt: meta.updated || meta.timeCreated || "",
+        };
+      })
+    );
+
+    // Sort newest first
+    items.sort((a, b) => (a.updatedAt < b.updatedAt ? 1 : -1));
+
+    res.json({ items });
+  } catch (error) {
+    req.log.error({ err: error }, "Error listing bucket objects");
+    res.status(500).json({ error: "Failed to list bucket objects" });
+  }
+});
+
 export default router;
