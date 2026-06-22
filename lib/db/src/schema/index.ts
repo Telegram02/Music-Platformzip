@@ -8,3 +8,4 @@ export * from "./contactMessages";
 export * from "./loginActivity";
 export * from "./testimonials";
 export * from "./pricing";
+export * from "./siteVisits";

@@ -12,6 +12,7 @@ import contactRouter from "./contact";
 import activityRouter from "./activity";
 import testimonialsRouter from "./testimonials";
 import pricingRouter from "./pricing";
+import analyticsRouter from "./analytics";
 
 const router: IRouter = Router();
 
@@ -28,5 +29,6 @@ router.use(contactRouter);
 router.use(activityRouter);
 router.use(testimonialsRouter);
 router.use(pricingRouter);
+router.use(analyticsRouter);
 
 export default router;

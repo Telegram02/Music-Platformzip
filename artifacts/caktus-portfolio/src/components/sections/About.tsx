@@ -27,39 +27,28 @@ function AudioWidget({ audioUrl, coverUrl, title }: { audioUrl: string; coverUrl
         <audio ref={audioRef} src={audioUrl} onTimeUpdate={onTimeUpdate} onEnded={() => { setPlaying(false); setProgress(0); }} />
       )}
       {coverUrl ? (
-        <img
-          src={coverUrl}
-          alt={title}
-          className="w-28 h-28 sm:w-36 sm:h-36 rounded-sm object-cover border border-border/50 shadow-2xl shadow-black/50"
-        />
+        <img src={coverUrl} alt={title}
+          className="w-28 h-28 sm:w-36 sm:h-36 rounded-sm object-cover border border-border/50 shadow-2xl shadow-black/50" />
       ) : (
         <div className="w-28 h-28 sm:w-36 sm:h-36 rounded-sm bg-primary/10 border border-primary/20 flex items-center justify-center">
           <Music size={44} className="text-primary/50" />
         </div>
       )}
       <p className="text-white font-semibold text-sm text-center max-w-[80%] truncate">{title}</p>
-      {/* Mini waveform progress */}
       <div className="w-32 flex items-center gap-[2px] h-6">
         {Array.from({ length: 24 }, (_, i) => {
           const h = ((i * 17 + 7) % 70) + 15;
           const filled = i < Math.round(progress * 24);
           return (
-            <div
-              key={i}
+            <div key={i}
               className={`flex-1 rounded-full transition-colors ${filled ? "bg-primary" : "bg-white/10"} ${playing && !filled ? "animate-pulse" : ""}`}
-              style={{ height: `${h}%`, animationDelay: `${i * 0.04}s` }}
-            />
+              style={{ height: `${h}%`, animationDelay: `${i * 0.04}s` }} />
           );
         })}
       </div>
-      <button
-        onClick={toggle}
-        disabled={!audioUrl}
-        className="w-12 h-12 rounded-full bg-white text-black flex items-center justify-center hover:scale-110 transition-transform hover:shadow-[0_0_20px_rgba(255,255,255,0.3)] disabled:opacity-30 disabled:cursor-not-allowed"
-      >
-        {playing
-          ? <Pause size={18} className="fill-black" />
-          : <Play size={18} className="fill-black ml-0.5" />}
+      <button onClick={toggle} disabled={!audioUrl}
+        className="w-12 h-12 rounded-full bg-white text-black flex items-center justify-center hover:scale-110 transition-transform hover:shadow-[0_0_20px_rgba(255,255,255,0.3)] disabled:opacity-30 disabled:cursor-not-allowed">
+        {playing ? <Pause size={18} className="fill-black" /> : <Play size={18} className="fill-black ml-0.5" />}
       </button>
     </div>
   );
@@ -79,11 +68,7 @@ export function About() {
   const aboutAudioCover = settings?.aboutAudioCover ? storageUrl(settings.aboutAudioCover) : "";
   const aboutAudioTitle = settings?.aboutAudioTitle ?? "Featured Track";
 
-  const statusLabel =
-    widgetType === "audio" ? aboutAudioTitle.slice(0, 16).toUpperCase()
-    : widgetType === "video" ? "VIDEO.LOOP"
-    : widgetType === "photo" && photoUrl && photoVisible ? "PHOTO.LIVE"
-    : "SYS.ONLINE";
+  const isPhoto = widgetType === "photo" && photoUrl && photoVisible;
 
   return (
     <section
@@ -106,8 +91,7 @@ export function About() {
                 <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 to-accent/20 opacity-50 mix-blend-overlay group-hover:opacity-100 transition-opacity duration-700 z-10 pointer-events-none" />
                 <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjZmZmIiBmaWxsLW9wYWNpdHk9IjAuMDUiLz4KPC9zdmc+')] pointer-events-none z-10" />
 
-                {/* Widget content */}
-                {widgetType === "photo" && photoUrl && photoVisible ? (
+                {isPhoto ? (
                   <motion.img
                     key="photo"
                     src={photoUrl}
@@ -118,20 +102,10 @@ export function About() {
                     className="absolute inset-0 w-full h-full object-cover object-top"
                   />
                 ) : widgetType === "video" && aboutVideoUrl ? (
-                  <video
-                    src={aboutVideoUrl}
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    className="absolute inset-0 w-full h-full object-cover"
-                  />
+                  <video src={aboutVideoUrl} autoPlay loop muted playsInline
+                    className="absolute inset-0 w-full h-full object-cover" />
                 ) : widgetType === "audio" ? (
-                  <AudioWidget
-                    audioUrl={aboutAudioUrl}
-                    coverUrl={aboutAudioCover}
-                    title={aboutAudioTitle}
-                  />
+                  <AudioWidget audioUrl={aboutAudioUrl} coverUrl={aboutAudioCover} title={aboutAudioTitle} />
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="w-48 h-48 rounded-full border border-primary/30 flex items-center justify-center animate-[spin_20s_linear_infinite]">
@@ -142,19 +116,24 @@ export function About() {
                   </div>
                 )}
 
-                {/* Bottom status bar */}
-                <div className="absolute bottom-4 left-4 right-4 h-12 border-t border-border/50 flex items-end justify-between px-2 pb-2 z-20">
-                  <div className="flex gap-1">
-                    {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-                      <div
-                        key={i}
-                        className="w-1 bg-primary/40 animate-pulse"
-                        style={{ height: `${(i % 4) * 6 + 5}px`, animationDelay: `${i * 0.1}s` }}
-                      />
-                    ))}
+                {/* Status bar — only shown for non-photo modes */}
+                {!isPhoto && (
+                  <div className="absolute bottom-4 left-4 right-4 h-12 border-t border-border/50 flex items-end justify-between px-2 pb-2 z-20">
+                    <div className="flex gap-1">
+                      {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+                        <div key={i} className="w-1 bg-primary/40 animate-pulse"
+                          style={{ height: `${(i % 4) * 6 + 5}px`, animationDelay: `${i * 0.1}s` }} />
+                      ))}
+                    </div>
+                    <span className="text-[10px] text-foreground/40 font-mono">
+                      {widgetType === "audio"
+                        ? aboutAudioTitle.slice(0, 16).toUpperCase()
+                        : widgetType === "video"
+                        ? "VIDEO.LOOP"
+                        : "SYS.ONLINE"}
+                    </span>
                   </div>
-                  <span className="text-[10px] text-foreground/40 font-mono">{statusLabel}</span>
-                </div>
+                )}
               </div>
 
               <div className="absolute -inset-4 bg-gradient-to-r from-primary/20 to-accent/20 blur-3xl -z-10 rounded-full opacity-50" />

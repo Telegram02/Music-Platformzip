@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation, useSearch } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
-import { LogOut, Settings, Music, Film, Link2, Image, UserCog, Clapperboard, Inbox, ShieldCheck, ExternalLink, Menu, X, Star, DollarSign } from "lucide-react";
+import { LogOut, Settings, Music, Film, Link2, Image, UserCog, Clapperboard, Inbox, ShieldCheck, ExternalLink, Menu, X, Star, DollarSign, BarChart2 } from "lucide-react";
 import SiteTab from "./tabs/SiteTab";
 import TracksTab from "./tabs/TracksTab";
 import PortfolioTab from "./tabs/PortfolioTab";
@@ -14,10 +14,11 @@ import ContactTab from "./tabs/ContactTab";
 import ActivityTab from "./tabs/ActivityTab";
 import TestimonialsTab from "./tabs/TestimonialsTab";
 import PricingTab from "./tabs/PricingTab";
+import TrafficTab from "./tabs/TrafficTab";
 
-type Tab = "site" | "tracks" | "portfolio" | "services" | "pricing" | "social" | "media" | "testimonials" | "messages" | "activity" | "account";
+type Tab = "site" | "tracks" | "portfolio" | "services" | "pricing" | "social" | "media" | "testimonials" | "messages" | "traffic" | "activity" | "account";
 
-const VALID_TABS: Tab[] = ["site", "tracks", "portfolio", "services", "pricing", "social", "media", "testimonials", "messages", "activity", "account"];
+const VALID_TABS: Tab[] = ["site", "tracks", "portfolio", "services", "pricing", "social", "media", "testimonials", "messages", "traffic", "activity", "account"];
 
 const TABS: { id: Tab; label: string; icon: React.ReactNode; group: string }[] = [
   { id: "site", label: "Site Settings", icon: <Settings size={16} />, group: "Content" },
@@ -29,11 +30,12 @@ const TABS: { id: Tab; label: string; icon: React.ReactNode; group: string }[] =
   { id: "social", label: "Social Links", icon: <Link2 size={16} />, group: "Content" },
   { id: "media", label: "Media Library", icon: <Image size={16} />, group: "Content" },
   { id: "messages", label: "Messages", icon: <Inbox size={16} />, group: "Inbox" },
+  { id: "traffic",  label: "Traffic",       icon: <BarChart2 size={16} />, group: "Analytics" },
   { id: "activity", label: "Login Activity", icon: <ShieldCheck size={16} />, group: "Security" },
-  { id: "account", label: "Account", icon: <UserCog size={16} />, group: "Security" },
+  { id: "account",  label: "Account",        icon: <UserCog size={16} />, group: "Security" },
 ];
 
-const GROUPS = ["Content", "Inbox", "Security"];
+const GROUPS = ["Content", "Inbox", "Analytics", "Security"];
 
 export default function Dashboard() {
   const [, navigate] = useLocation();
@@ -200,6 +202,7 @@ export default function Dashboard() {
           {tab === "social" && <SocialTab />}
           {tab === "media" && <MediaTab />}
           {tab === "messages" && <ContactTab />}
+          {tab === "traffic"  && <TrafficTab />}
           {tab === "activity" && <ActivityTab />}
           {tab === "account" && <AccountTab />}
         </main>
