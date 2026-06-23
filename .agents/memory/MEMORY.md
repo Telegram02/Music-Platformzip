@@ -1,1 +1,2 @@
 - [Vercel serverless seed fix](vercel-seed-fix.md) — seedDefaults() must be called in api/index.ts on cold start, not just in app.listen()
+- [Vercel pnpm duplicate deps](vercel-pnpm-dedupe.md) — pnpm workspace packages get duplicate copies on Vercel; pre-build with esbuild to fix

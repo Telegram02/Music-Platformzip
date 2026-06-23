@@ -1,0 +1,227 @@
+00:50:27.529 src/components/ui/tooltip.tsx (2:0): Error when using sourcemap for reporting an error: Can't resolve original location of error.
+00:50:39.378 artifacts/api-server/src/lib/seed.ts(38,72): error TS2345: Argument of type 'SQL<unknown>' is not assignable to parameter of type 'SQL<unknown> | ((aliases: { id: PgColumn<{ name: "id"; tableName: "site_settings"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; ... 5 more ...; generated: undefined; }, {}, {}>; key: PgColumn<...>; value: PgColumn<...>; updatedAt:...'.
+00:50:39.380 artifacts/api-server/src/lib/seed.ts(38,75): error TS2769: No overload matches this call.
+00:50:39.437 artifacts/api-server/src/routes/index.ts(19,8): error TS2339: Property 'use' does not exist on type 'IRouter'.
+00:50:39.437 artifacts/api-server/src/routes/index.ts(20,8): error TS2339: Property 'use' does not exist on type 'IRouter'.
+00:50:39.438 artifacts/api-server/src/routes/index.ts(21,8): error TS2339: Property 'use' does not exist on type 'IRouter'.
+00:50:39.438 artifacts/api-server/src/routes/index.ts(22,8): error TS2339: Property 'use' does not exist on type 'IRouter'.
+00:50:39.438 artifacts/api-server/src/routes/index.ts(23,8): error TS2339: Property 'use' does not exist on type 'IRouter'.
+00:50:39.438 artifacts/api-server/src/routes/index.ts(24,8): error TS2339: Property 'use' does not exist on type 'IRouter'.
+00:50:39.439 artifacts/api-server/src/routes/index.ts(25,8): error TS2339: Property 'use' does not exist on type 'IRouter'.
+00:50:39.439 artifacts/api-server/src/routes/index.ts(26,8): error TS2339: Property 'use' does not exist on type 'IRouter'.
+00:50:39.439 artifacts/api-server/src/routes/index.ts(27,8): error TS2339: Property 'use' does not exist on type 'IRouter'.
+00:50:39.439 artifacts/api-server/src/routes/index.ts(28,8): error TS2339: Property 'use' does not exist on type 'IRouter'.
+00:50:39.440 artifacts/api-server/src/routes/index.ts(29,8): error TS2339: Property 'use' does not exist on type 'IRouter'.
+00:50:39.440 artifacts/api-server/src/routes/index.ts(30,8): error TS2339: Property 'use' does not exist on type 'IRouter'.
+00:50:39.441 artifacts/api-server/src/routes/index.ts(31,8): error TS2339: Property 'use' does not exist on type 'IRouter'.
+00:50:39.441 artifacts/api-server/src/routes/index.ts(32,8): error TS2339: Property 'use' does not exist on type 'IRouter'.
+00:50:39.460 artifacts/api-server/src/routes/health.ts(6,8): error TS2339: Property 'get' does not exist on type 'IRouter'.
+00:50:39.641 artifacts/api-server/src/routes/auth.ts(34,8): error TS2339: Property 'post' does not exist on type 'IRouter'.
+00:50:39.641 artifacts/api-server/src/routes/auth.ts(40,70): error TS2769: No overload matches this call.
+00:50:39.644 artifacts/api-server/src/routes/auth.ts(40,75): error TS2345: Argument of type 'PgColumn<{ name: "id"; tableName: "admin_credentials"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'SQLWrapper | AnyColumn'.
+00:50:39.646 artifacts/api-server/src/routes/auth.ts(62,8): error TS2339: Property 'post' does not exist on type 'IRouter'.
+00:50:39.647 artifacts/api-server/src/routes/auth.ts(73,65): error TS2769: No overload matches this call.
+00:50:39.648 artifacts/api-server/src/routes/auth.ts(73,70): error TS2345: Argument of type 'PgColumn<{ name: "id"; tableName: "admin_otp"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'SQLWrapper | AnyColumn'.
+00:50:39.650 artifacts/api-server/src/routes/auth.ts(77,62): error TS2345: Argument of type 'import("/vercel/path0/artifacts/api-server/node_modules/drizzle-orm/sql/sql").SQL<unknown>' is not assignable to parameter of type 'import("/vercel/path0/artifacts/api-server/node_modules/@workspace/db/node_modules/drizzle-orm/sql/sql").SQL<unknown>'.
+00:50:39.651 artifacts/api-server/src/routes/auth.ts(77,65): error TS2769: No overload matches this call.
+00:50:39.666 artifacts/api-server/src/routes/auth.ts(98,8): error TS2339: Property 'post' does not exist on type 'IRouter'.
+00:50:39.667 artifacts/api-server/src/routes/auth.ts(107,70): error TS2769: No overload matches this call.
+00:50:39.690 artifacts/api-server/src/routes/auth.ts(107,75): error TS2345: Argument of type 'PgColumn<{ name: "id"; tableName: "admin_credentials"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'SQLWrapper | AnyColumn'.
+00:50:39.692 artifacts/api-server/src/routes/auth.ts(164,8): error TS2339: Property 'post' does not exist on type 'IRouter'.
+00:50:39.692 artifacts/api-server/src/routes/auth.ts(169,8): error TS2339: Property 'get' does not exist on type 'IRouter'.
+00:50:39.694 artifacts/api-server/src/routes/settings.ts(8,8): error TS2339: Property 'get' does not exist on type 'IRouter'.
+00:50:39.694 artifacts/api-server/src/routes/settings.ts(17,8): error TS2339: Property 'put' does not exist on type 'IRouter'.
+00:50:39.804 artifacts/api-server/src/routes/tracks.ts(8,8): error TS2339: Property 'get' does not exist on type 'IRouter'.
+00:50:39.805 artifacts/api-server/src/routes/tracks.ts(12,12): error TS2345: Argument of type 'SQL<unknown>' is not assignable to parameter of type 'SQL<unknown> | ((aliases: { id: PgColumn<{ name: "id"; tableName: "audio_tracks"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; ... 5 more ...; generated: undefined; }, {}, {}>; ... 9 more ...; updatedAt: PgColumn<...>; }) => SQL<....'.
+00:50:39.806 artifacts/api-server/src/routes/tracks.ts(12,15): error TS2769: No overload matches this call.
+00:50:39.809 artifacts/api-server/src/routes/tracks.ts(13,14): error TS2769: No overload matches this call.
+00:50:39.810 artifacts/api-server/src/routes/tracks.ts(13,18): error TS2345: Argument of type 'PgColumn<{ name: "sort_order"; tableName: "audio_tracks"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: true; hasDefault: true; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'SQLWrapper | AnyColumn'.
+00:50:39.811 artifacts/api-server/src/routes/tracks.ts(17,8): error TS2339: Property 'get' does not exist on type 'IRouter'.
+00:50:39.811 artifacts/api-server/src/routes/tracks.ts(18,67): error TS2769: No overload matches this call.
+00:50:39.813 artifacts/api-server/src/routes/tracks.ts(18,71): error TS2345: Argument of type 'PgColumn<{ name: "sort_order"; tableName: "audio_tracks"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: true; hasDefault: true; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'SQLWrapper | AnyColumn'.
+00:50:39.814 artifacts/api-server/src/routes/tracks.ts(22,8): error TS2339: Property 'post' does not exist on type 'IRouter'.
+00:50:39.814 artifacts/api-server/src/routes/tracks.ts(27,8): error TS2339: Property 'put' does not exist on type 'IRouter'.
+00:50:39.814 artifacts/api-server/src/routes/tracks.ts(31,69): error TS2345: Argument of type 'import("/vercel/path0/artifacts/api-server/node_modules/drizzle-orm/sql/sql").SQL<unknown>' is not assignable to parameter of type 'import("/vercel/path0/artifacts/api-server/node_modules/@workspace/db/node_modules/drizzle-orm/sql/sql").SQL<unknown>'.
+00:50:39.814 artifacts/api-server/src/routes/tracks.ts(31,72): error TS2769: No overload matches this call.
+00:50:39.828 artifacts/api-server/src/routes/tracks.ts(36,8): error TS2339: Property 'delete' does not exist on type 'IRouter'.
+00:50:39.835 artifacts/api-server/src/routes/tracks.ts(39,43): error TS2345: Argument of type 'import("/vercel/path0/artifacts/api-server/node_modules/drizzle-orm/sql/sql").SQL<unknown>' is not assignable to parameter of type 'import("/vercel/path0/artifacts/api-server/node_modules/@workspace/db/node_modules/drizzle-orm/sql/sql").SQL<unknown>'.
+00:50:39.836 artifacts/api-server/src/routes/tracks.ts(39,46): error TS2769: No overload matches this call.
+00:50:39.924 artifacts/api-server/src/routes/portfolio.ts(8,8): error TS2339: Property 'get' does not exist on type 'IRouter'.
+00:50:39.924 artifacts/api-server/src/routes/portfolio.ts(12,12): error TS2345: Argument of type 'SQL<unknown>' is not assignable to parameter of type 'SQL<unknown> | ((aliases: { id: PgColumn<{ name: "id"; tableName: "portfolio_items"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; ... 5 more ...; generated: undefined; }, {}, {}>; ... 9 more ...; updatedAt: PgColumn<...>; }) => SQ...'.
+00:50:39.925 artifacts/api-server/src/routes/portfolio.ts(12,15): error TS2769: No overload matches this call.
+00:50:39.928 artifacts/api-server/src/routes/portfolio.ts(13,14): error TS2769: No overload matches this call.
+00:50:39.930 artifacts/api-server/src/routes/portfolio.ts(13,18): error TS2345: Argument of type 'PgColumn<{ name: "sort_order"; tableName: "portfolio_items"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: true; hasDefault: true; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'SQLWrapper | AnyColumn'.
+00:50:39.931 artifacts/api-server/src/routes/portfolio.ts(17,8): error TS2339: Property 'get' does not exist on type 'IRouter'.
+00:50:39.931 artifacts/api-server/src/routes/portfolio.ts(18,69): error TS2769: No overload matches this call.
+00:50:39.933 artifacts/api-server/src/routes/portfolio.ts(18,73): error TS2345: Argument of type 'PgColumn<{ name: "sort_order"; tableName: "portfolio_items"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: true; hasDefault: true; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'SQLWrapper | AnyColumn'.
+00:50:39.934 artifacts/api-server/src/routes/portfolio.ts(22,8): error TS2339: Property 'post' does not exist on type 'IRouter'.
+00:50:39.934 artifacts/api-server/src/routes/portfolio.ts(27,8): error TS2339: Property 'put' does not exist on type 'IRouter'.
+00:50:39.934 artifacts/api-server/src/routes/portfolio.ts(31,71): error TS2345: Argument of type 'import("/vercel/path0/artifacts/api-server/node_modules/drizzle-orm/sql/sql").SQL<unknown>' is not assignable to parameter of type 'import("/vercel/path0/artifacts/api-server/node_modules/@workspace/db/node_modules/drizzle-orm/sql/sql").SQL<unknown>'.
+00:50:39.935 artifacts/api-server/src/routes/portfolio.ts(31,74): error TS2769: No overload matches this call.
+00:50:39.938 artifacts/api-server/src/routes/portfolio.ts(36,8): error TS2339: Property 'delete' does not exist on type 'IRouter'.
+00:50:39.938 artifacts/api-server/src/routes/portfolio.ts(39,46): error TS2345: Argument of type 'import("/vercel/path0/artifacts/api-server/node_modules/drizzle-orm/sql/sql").SQL<unknown>' is not assignable to parameter of type 'import("/vercel/path0/artifacts/api-server/node_modules/@workspace/db/node_modules/drizzle-orm/sql/sql").SQL<unknown>'.
+00:50:39.939 artifacts/api-server/src/routes/portfolio.ts(39,49): error TS2769: No overload matches this call.
+00:50:40.015 artifacts/api-server/src/routes/social.ts(8,8): error TS2339: Property 'get' does not exist on type 'IRouter'.
+00:50:40.016 artifacts/api-server/src/routes/social.ts(12,12): error TS2345: Argument of type 'SQL<unknown>' is not assignable to parameter of type 'SQL<unknown> | ((aliases: { id: PgColumn<{ name: "id"; tableName: "social_links"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; ... 5 more ...; generated: undefined; }, {}, {}>; ... 4 more ...; updatedAt: PgColumn<...>; }) => SQL<....'.
+00:50:40.016 artifacts/api-server/src/routes/social.ts(12,15): error TS2769: No overload matches this call.
+00:50:40.020 artifacts/api-server/src/routes/social.ts(13,14): error TS2769: No overload matches this call.
+00:50:40.021 artifacts/api-server/src/routes/social.ts(13,18): error TS2345: Argument of type 'PgColumn<{ name: "sort_order"; tableName: "social_links"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: true; hasDefault: true; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'SQLWrapper | AnyColumn'.
+00:50:40.023 artifacts/api-server/src/routes/social.ts(17,8): error TS2339: Property 'get' does not exist on type 'IRouter'.
+00:50:40.023 artifacts/api-server/src/routes/social.ts(18,66): error TS2769: No overload matches this call.
+00:50:40.024 artifacts/api-server/src/routes/social.ts(18,70): error TS2345: Argument of type 'PgColumn<{ name: "sort_order"; tableName: "social_links"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: true; hasDefault: true; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'SQLWrapper | AnyColumn'.
+00:50:40.026 artifacts/api-server/src/routes/social.ts(22,8): error TS2339: Property 'post' does not exist on type 'IRouter'.
+00:50:40.026 artifacts/api-server/src/routes/social.ts(27,8): error TS2339: Property 'put' does not exist on type 'IRouter'.
+00:50:40.026 artifacts/api-server/src/routes/social.ts(31,68): error TS2345: Argument of type 'import("/vercel/path0/artifacts/api-server/node_modules/drizzle-orm/sql/sql").SQL<unknown>' is not assignable to parameter of type 'import("/vercel/path0/artifacts/api-server/node_modules/@workspace/db/node_modules/drizzle-orm/sql/sql").SQL<unknown>'.
+00:50:40.026 artifacts/api-server/src/routes/social.ts(31,71): error TS2769: No overload matches this call.
+00:50:40.029 artifacts/api-server/src/routes/social.ts(36,8): error TS2339: Property 'delete' does not exist on type 'IRouter'.
+00:50:40.029 artifacts/api-server/src/routes/social.ts(39,43): error TS2345: Argument of type 'import("/vercel/path0/artifacts/api-server/node_modules/drizzle-orm/sql/sql").SQL<unknown>' is not assignable to parameter of type 'import("/vercel/path0/artifacts/api-server/node_modules/@workspace/db/node_modules/drizzle-orm/sql/sql").SQL<unknown>'.
+00:50:40.030 artifacts/api-server/src/routes/social.ts(39,46): error TS2769: No overload matches this call.
+00:50:40.406 artifacts/api-server/src/routes/storage.ts(22,8): error TS2339: Property 'post' does not exist on type 'IRouter'.
+00:50:40.407 artifacts/api-server/src/routes/storage.ts(23,53): error TS2339: Property 'body' does not exist on type 'Request<core.ParamsDictionary, any, any, core.Query, Record<string, any>>'.
+00:50:40.407 artifacts/api-server/src/routes/storage.ts(25,9): error TS2339: Property 'status' does not exist on type 'Response<any, Record<string, any>>'.
+00:50:40.407 artifacts/api-server/src/routes/storage.ts(33,9): error TS2339: Property 'json' does not exist on type 'Response<any, Record<string, any>>'.
+00:50:40.407 artifacts/api-server/src/routes/storage.ts(35,9): error TS2339: Property 'log' does not exist on type 'Request<core.ParamsDictionary, any, any, core.Query, Record<string, any>>'.
+00:50:40.407 artifacts/api-server/src/routes/storage.ts(37,11): error TS2339: Property 'status' does not exist on type 'Response<any, Record<string, any>>'.
+00:50:40.408 artifacts/api-server/src/routes/storage.ts(39,11): error TS2339: Property 'status' does not exist on type 'Response<any, Record<string, any>>'.
+00:50:40.408 artifacts/api-server/src/routes/storage.ts(44,8): error TS2339: Property 'get' does not exist on type 'IRouter'.
+00:50:40.408 artifacts/api-server/src/routes/storage.ts(46,21): error TS2339: Property 'params' does not exist on type 'Request<core.ParamsDictionary, any, any, core.Query, Record<string, any>>'.
+00:50:40.408 artifacts/api-server/src/routes/storage.ts(49,22): error TS2339: Property 'status' does not exist on type 'Response<any, Record<string, any>>'.
+00:50:40.408 artifacts/api-server/src/routes/storage.ts(52,9): error TS2339: Property 'status' does not exist on type 'Response<any, Record<string, any>>'.
+00:50:40.408 artifacts/api-server/src/routes/storage.ts(53,50): error TS2339: Property 'setHeader' does not exist on type 'Response<any, Record<string, any>>'.
+00:50:40.409 artifacts/api-server/src/routes/storage.ts(56,23): error TS2345: Argument of type 'Response<any, Record<string, any>>' is not assignable to parameter of type 'WritableStream'.
+00:50:40.409 artifacts/api-server/src/routes/storage.ts(58,11): error TS2339: Property 'end' does not exist on type 'Response<any, Record<string, any>>'.
+00:50:40.409 artifacts/api-server/src/routes/storage.ts(61,9): error TS2339: Property 'log' does not exist on type 'Request<core.ParamsDictionary, any, any, core.Query, Record<string, any>>'.
+00:50:40.409 artifacts/api-server/src/routes/storage.ts(62,9): error TS2339: Property 'status' does not exist on type 'Response<any, Record<string, any>>'.
+00:50:40.409 artifacts/api-server/src/routes/storage.ts(66,8): error TS2339: Property 'get' does not exist on type 'IRouter'.
+00:50:40.410 artifacts/api-server/src/routes/storage.ts(68,21): error TS2339: Property 'params' does not exist on type 'Request<core.ParamsDictionary, any, any, core.Query, Record<string, any>>'.
+00:50:40.410 artifacts/api-server/src/routes/storage.ts(74,9): error TS2339: Property 'status' does not exist on type 'Response<any, Record<string, any>>'.
+00:50:40.410 artifacts/api-server/src/routes/storage.ts(75,50): error TS2339: Property 'setHeader' does not exist on type 'Response<any, Record<string, any>>'.
+00:50:40.410 artifacts/api-server/src/routes/storage.ts(78,23): error TS2345: Argument of type 'Response<any, Record<string, any>>' is not assignable to parameter of type 'WritableStream'.
+00:50:40.411 artifacts/api-server/src/routes/storage.ts(80,11): error TS2339: Property 'end' does not exist on type 'Response<any, Record<string, any>>'.
+00:50:40.411 artifacts/api-server/src/routes/storage.ts(84,11): error TS2339: Property 'status' does not exist on type 'Response<any, Record<string, any>>'.
+00:50:40.411 artifacts/api-server/src/routes/storage.ts(87,9): error TS2339: Property 'log' does not exist on type 'Request<core.ParamsDictionary, any, any, core.Query, Record<string, any>>'.
+00:50:40.411 artifacts/api-server/src/routes/storage.ts(88,9): error TS2339: Property 'status' does not exist on type 'Response<any, Record<string, any>>'.
+00:50:40.412 artifacts/api-server/src/routes/storage.ts(92,8): error TS2339: Property 'get' does not exist on type 'IRouter'.
+00:50:40.412 artifacts/api-server/src/routes/storage.ts(95,9): error TS2339: Property 'json' does not exist on type 'Response<any, Record<string, any>>'.
+00:50:40.412 artifacts/api-server/src/routes/storage.ts(97,9): error TS2339: Property 'log' does not exist on type 'Request<core.ParamsDictionary, any, any, core.Query, Record<string, any>>'.
+00:50:40.412 artifacts/api-server/src/routes/storage.ts(99,11): error TS2339: Property 'status' does not exist on type 'Response<any, Record<string, any>>'.
+00:50:40.412 artifacts/api-server/src/routes/storage.ts(101,11): error TS2339: Property 'status' does not exist on type 'Response<any, Record<string, any>>'.
+00:50:40.476 artifacts/api-server/src/routes/credentials.ts(16,70): error TS2769: No overload matches this call.
+00:50:40.478 artifacts/api-server/src/routes/credentials.ts(16,75): error TS2345: Argument of type 'PgColumn<{ name: "id"; tableName: "admin_credentials"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'SQLWrapper | AnyColumn'.
+00:50:40.480 artifacts/api-server/src/routes/credentials.ts(21,70): error TS2769: No overload matches this call.
+00:50:40.481 artifacts/api-server/src/routes/credentials.ts(21,75): error TS2345: Argument of type 'PgColumn<{ name: "id"; tableName: "admin_credentials"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'SQLWrapper | AnyColumn'.
+00:50:40.483 artifacts/api-server/src/routes/credentials.ts(25,8): error TS2339: Property 'get' does not exist on type 'IRouter'.
+00:50:40.483 artifacts/api-server/src/routes/credentials.ts(31,8): error TS2339: Property 'post' does not exist on type 'IRouter'.
+00:50:40.483 artifacts/api-server/src/routes/credentials.ts(74,8): error TS2339: Property 'post' does not exist on type 'IRouter'.
+00:50:40.483 artifacts/api-server/src/routes/credentials.ts(85,65): error TS2769: No overload matches this call.
+00:50:40.486 artifacts/api-server/src/routes/credentials.ts(85,70): error TS2345: Argument of type 'PgColumn<{ name: "id"; tableName: "admin_otp"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'SQLWrapper | AnyColumn'.
+00:50:40.488 artifacts/api-server/src/routes/credentials.ts(89,62): error TS2345: Argument of type 'import("/vercel/path0/artifacts/api-server/node_modules/drizzle-orm/sql/sql").SQL<unknown>' is not assignable to parameter of type 'import("/vercel/path0/artifacts/api-server/node_modules/@workspace/db/node_modules/drizzle-orm/sql/sql").SQL<unknown>'.
+00:50:40.488 artifacts/api-server/src/routes/credentials.ts(89,65): error TS2769: No overload matches this call.
+00:50:40.585 artifacts/api-server/src/routes/services.ts(8,8): error TS2339: Property 'get' does not exist on type 'IRouter'.
+00:50:40.586 artifacts/api-server/src/routes/services.ts(9,60): error TS2345: Argument of type 'SQL<unknown>' is not assignable to parameter of type 'SQL<unknown> | ((aliases: { id: PgColumn<{ name: "id"; tableName: "services"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; ... 5 more ...; generated: undefined; }, {}, {}>; ... 7 more ...; updatedAt: PgColumn<...>; }) => SQL<...>)'.
+00:50:40.587 artifacts/api-server/src/routes/services.ts(9,63): error TS2769: No overload matches this call.
+00:50:40.590 artifacts/api-server/src/routes/services.ts(9,100): error TS2769: No overload matches this call.
+00:50:40.593 artifacts/api-server/src/routes/services.ts(9,104): error TS2345: Argument of type 'PgColumn<{ name: "sort_order"; tableName: "services"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: true; hasDefault: true; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'SQLWrapper | AnyColumn'.
+00:50:40.594 artifacts/api-server/src/routes/services.ts(13,8): error TS2339: Property 'get' does not exist on type 'IRouter'.
+00:50:40.595 artifacts/api-server/src/routes/services.ts(14,62): error TS2769: No overload matches this call.
+00:50:40.596 artifacts/api-server/src/routes/services.ts(14,66): error TS2345: Argument of type 'PgColumn<{ name: "sort_order"; tableName: "services"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: true; hasDefault: true; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'SQLWrapper | AnyColumn'.
+00:50:40.598 artifacts/api-server/src/routes/services.ts(18,8): error TS2339: Property 'post' does not exist on type 'IRouter'.
+00:50:40.598 artifacts/api-server/src/routes/services.ts(32,8): error TS2339: Property 'put' does not exist on type 'IRouter'.
+00:50:40.598 artifacts/api-server/src/routes/services.ts(47,12): error TS2345: Argument of type 'import("/vercel/path0/artifacts/api-server/node_modules/drizzle-orm/sql/sql").SQL<unknown>' is not assignable to parameter of type 'import("/vercel/path0/artifacts/api-server/node_modules/@workspace/db/node_modules/drizzle-orm/sql/sql").SQL<unknown>'.
+00:50:40.598 artifacts/api-server/src/routes/services.ts(47,15): error TS2769: No overload matches this call.
+00:50:40.602 artifacts/api-server/src/routes/services.ts(53,8): error TS2339: Property 'delete' does not exist on type 'IRouter'.
+00:50:40.602 artifacts/api-server/src/routes/services.ts(55,40): error TS2345: Argument of type 'import("/vercel/path0/artifacts/api-server/node_modules/drizzle-orm/sql/sql").SQL<unknown>' is not assignable to parameter of type 'import("/vercel/path0/artifacts/api-server/node_modules/@workspace/db/node_modules/drizzle-orm/sql/sql").SQL<unknown>'.
+00:50:40.603 artifacts/api-server/src/routes/services.ts(55,43): error TS2769: No overload matches this call.
+00:50:40.736 artifacts/api-server/src/routes/contact.ts(19,8): error TS2339: Property 'post' does not exist on type 'IRouter'.
+00:50:40.736 artifacts/api-server/src/routes/contact.ts(64,8): error TS2339: Property 'get' does not exist on type 'IRouter'.
+00:50:40.736 artifacts/api-server/src/routes/contact.ts(65,36): error TS2322: Type 'SQL<number>' is not assignable to type 'SQL<unknown> | Aliased<unknown> | Subquery<string, Record<string, unknown>> | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | PgTable<...> | SelectedFieldsFlat<...>'.
+00:50:40.737 artifacts/api-server/src/routes/contact.ts(65,87): error TS2345: Argument of type 'SQL<unknown>' is not assignable to parameter of type 'SQL<unknown> | ((aliases: SelectedFields) => SQL<unknown>)'.
+00:50:40.737 artifacts/api-server/src/routes/contact.ts(65,90): error TS2769: No overload matches this call.
+00:50:40.738 artifacts/api-server/src/routes/contact.ts(69,8): error TS2339: Property 'get' does not exist on type 'IRouter'.
+00:50:40.738 artifacts/api-server/src/routes/contact.ts(70,69): error TS2769: No overload matches this call.
+00:50:40.739 artifacts/api-server/src/routes/contact.ts(70,74): error TS2345: Argument of type 'PgColumn<{ name: "created_at"; tableName: "contact_messages"; dataType: "date"; columnType: "PgTimestamp"; data: Date; driverParam: string; notNull: true; hasDefault: true; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'SQLWrapper | AnyColumn'.
+00:50:40.740 artifacts/api-server/src/routes/contact.ts(74,8): error TS2339: Property 'put' does not exist on type 'IRouter'.
+00:50:40.740 artifacts/api-server/src/routes/contact.ts(77,75): error TS2345: Argument of type 'import("/vercel/path0/artifacts/api-server/node_modules/drizzle-orm/sql/sql").SQL<unknown>' is not assignable to parameter of type 'import("/vercel/path0/artifacts/api-server/node_modules/@workspace/db/node_modules/drizzle-orm/sql/sql").SQL<unknown>'.
+00:50:40.740 artifacts/api-server/src/routes/contact.ts(77,78): error TS2769: No overload matches this call.
+00:50:40.742 artifacts/api-server/src/routes/contact.ts(81,8): error TS2339: Property 'post' does not exist on type 'IRouter'.
+00:50:40.742 artifacts/api-server/src/routes/contact.ts(83,68): error TS2345: Argument of type 'SQL<unknown>' is not assignable to parameter of type 'SQL<unknown> | ((aliases: { id: PgColumn<{ name: "id"; tableName: "contact_messages"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; ... 5 more ...; generated: undefined; }, {}, {}>; ... 5 more ...; createdAt: PgColumn<...>; }) => S...'.
+00:50:40.742 artifacts/api-server/src/routes/contact.ts(83,71): error TS2769: No overload matches this call.
+00:50:40.750 artifacts/api-server/src/routes/contact.ts(90,8): error TS2339: Property 'delete' does not exist on type 'IRouter'.
+00:50:40.750 artifacts/api-server/src/routes/contact.ts(92,47): error TS2345: Argument of type 'import("/vercel/path0/artifacts/api-server/node_modules/drizzle-orm/sql/sql").SQL<unknown>' is not assignable to parameter of type 'import("/vercel/path0/artifacts/api-server/node_modules/@workspace/db/node_modules/drizzle-orm/sql/sql").SQL<unknown>'.
+00:50:40.750 artifacts/api-server/src/routes/contact.ts(92,50): error TS2769: No overload matches this call.
+00:50:40.797 artifacts/api-server/src/routes/activity.ts(8,8): error TS2339: Property 'get' does not exist on type 'IRouter'.
+00:50:40.798 artifacts/api-server/src/routes/activity.ts(9,67): error TS2769: No overload matches this call.
+00:50:40.800 artifacts/api-server/src/routes/activity.ts(9,72): error TS2345: Argument of type 'PgColumn<{ name: "created_at"; tableName: "login_activity"; dataType: "date"; columnType: "PgTimestamp"; data: Date; driverParam: string; notNull: true; hasDefault: true; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'SQLWrapper | AnyColumn'.
+00:50:40.954 artifacts/api-server/src/routes/testimonials.ts(8,8): error TS2339: Property 'get' does not exist on type 'IRouter'.
+00:50:40.955 artifacts/api-server/src/routes/testimonials.ts(9,64): error TS2345: Argument of type 'SQL<unknown>' is not assignable to parameter of type 'SQL<unknown> | ((aliases: { id: PgColumn<{ name: "id"; tableName: "testimonials"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; ... 5 more ...; generated: undefined; }, {}, {}>; ... 8 more ...; updatedAt: PgColumn<...>; }) => SQL<....'.
+00:50:40.955 artifacts/api-server/src/routes/testimonials.ts(9,67): error TS2769: No overload matches this call.
+00:50:40.959 artifacts/api-server/src/routes/testimonials.ts(9,108): error TS2345: Argument of type 'SQL<unknown>' is not assignable to parameter of type 'SQL<unknown> | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | Aliased<unknown>'.
+00:50:40.959 artifacts/api-server/src/routes/testimonials.ts(9,112): error TS2345: Argument of type 'PgColumn<{ name: "sort_order"; tableName: "testimonials"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: true; hasDefault: true; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'SQLWrapper | AnyColumn'.
+00:50:40.960 artifacts/api-server/src/routes/testimonials.ts(9,146): error TS2345: Argument of type 'PgColumn<{ name: "id"; tableName: "testimonials"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'SQLWrapper | AnyColumn'.
+00:50:40.962 artifacts/api-server/src/routes/testimonials.ts(13,8): error TS2339: Property 'get' does not exist on type 'IRouter'.
+00:50:40.962 artifacts/api-server/src/routes/testimonials.ts(14,66): error TS2345: Argument of type 'SQL<unknown>' is not assignable to parameter of type 'SQL<unknown> | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | Aliased<unknown>'.
+00:50:40.963 artifacts/api-server/src/routes/testimonials.ts(14,70): error TS2345: Argument of type 'PgColumn<{ name: "sort_order"; tableName: "testimonials"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: true; hasDefault: true; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'SQLWrapper | AnyColumn'.
+00:50:40.964 artifacts/api-server/src/routes/testimonials.ts(14,104): error TS2345: Argument of type 'PgColumn<{ name: "id"; tableName: "testimonials"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'SQLWrapper | AnyColumn'.
+00:50:40.965 artifacts/api-server/src/routes/testimonials.ts(18,8): error TS2339: Property 'post' does not exist on type 'IRouter'.
+00:50:40.965 artifacts/api-server/src/routes/testimonials.ts(38,8): error TS2339: Property 'put' does not exist on type 'IRouter'.
+00:50:40.966 artifacts/api-server/src/routes/testimonials.ts(53,71): error TS2345: Argument of type 'import("/vercel/path0/artifacts/api-server/node_modules/drizzle-orm/sql/sql").SQL<unknown>' is not assignable to parameter of type 'import("/vercel/path0/artifacts/api-server/node_modules/@workspace/db/node_modules/drizzle-orm/sql/sql").SQL<unknown>'.
+00:50:40.966 artifacts/api-server/src/routes/testimonials.ts(53,74): error TS2769: No overload matches this call.
+00:50:40.973 artifacts/api-server/src/routes/testimonials.ts(58,8): error TS2339: Property 'delete' does not exist on type 'IRouter'.
+00:50:40.973 artifacts/api-server/src/routes/testimonials.ts(60,44): error TS2345: Argument of type 'import("/vercel/path0/artifacts/api-server/node_modules/drizzle-orm/sql/sql").SQL<unknown>' is not assignable to parameter of type 'import("/vercel/path0/artifacts/api-server/node_modules/@workspace/db/node_modules/drizzle-orm/sql/sql").SQL<unknown>'.
+00:50:40.974 artifacts/api-server/src/routes/testimonials.ts(60,47): error TS2769: No overload matches this call.
+00:50:41.111 artifacts/api-server/src/routes/pricing.ts(8,8): error TS2339: Property 'get' does not exist on type 'IRouter'.
+00:50:41.111 artifacts/api-server/src/routes/pricing.ts(9,59): error TS2345: Argument of type 'SQL<unknown>' is not assignable to parameter of type 'SQL<unknown> | ((aliases: { id: PgColumn<{ name: "id"; tableName: "pricing"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; ... 5 more ...; generated: undefined; }, {}, {}>; ... 12 more ...; updatedAt: PgColumn<...>; }) => SQL<...>)'.
+00:50:41.112 artifacts/api-server/src/routes/pricing.ts(9,62): error TS2769: No overload matches this call.
+00:50:41.116 artifacts/api-server/src/routes/pricing.ts(9,98): error TS2769: No overload matches this call.
+00:50:41.118 artifacts/api-server/src/routes/pricing.ts(9,102): error TS2345: Argument of type 'PgColumn<{ name: "sort_order"; tableName: "pricing"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: true; hasDefault: true; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'SQLWrapper | AnyColumn'.
+00:50:41.122 artifacts/api-server/src/routes/pricing.ts(13,8): error TS2339: Property 'get' does not exist on type 'IRouter'.
+00:50:41.123 artifacts/api-server/src/routes/pricing.ts(14,61): error TS2769: No overload matches this call.
+00:50:41.136 artifacts/api-server/src/routes/pricing.ts(14,65): error TS2345: Argument of type 'PgColumn<{ name: "sort_order"; tableName: "pricing"; dataType: "number"; columnType: "PgInteger"; data: number; driverParam: string | number; notNull: true; hasDefault: true; isPrimaryKey: false; ... 5 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'SQLWrapper | AnyColumn'.
+00:50:41.138 artifacts/api-server/src/routes/pricing.ts(18,8): error TS2339: Property 'post' does not exist on type 'IRouter'.
+00:50:41.138 artifacts/api-server/src/routes/pricing.ts(23,8): error TS2339: Property 'put' does not exist on type 'IRouter'.
+00:50:41.139 artifacts/api-server/src/routes/pricing.ts(26,63): error TS2345: Argument of type 'import("/vercel/path0/artifacts/api-server/node_modules/drizzle-orm/sql/sql").SQL<unknown>' is not assignable to parameter of type 'import("/vercel/path0/artifacts/api-server/node_modules/@workspace/db/node_modules/drizzle-orm/sql/sql").SQL<unknown>'.
+00:50:41.139 artifacts/api-server/src/routes/pricing.ts(26,66): error TS2769: No overload matches this call.
+00:50:41.148 artifacts/api-server/src/routes/pricing.ts(31,8): error TS2339: Property 'delete' does not exist on type 'IRouter'.
+00:50:41.148 artifacts/api-server/src/routes/pricing.ts(33,39): error TS2345: Argument of type 'import("/vercel/path0/artifacts/api-server/node_modules/drizzle-orm/sql/sql").SQL<unknown>' is not assignable to parameter of type 'import("/vercel/path0/artifacts/api-server/node_modules/@workspace/db/node_modules/drizzle-orm/sql/sql").SQL<unknown>'.
+00:50:41.149 artifacts/api-server/src/routes/pricing.ts(33,42): error TS2769: No overload matches this call.
+00:50:41.245 artifacts/api-server/src/routes/analytics.ts(9,8): error TS2339: Property 'post' does not exist on type 'IRouter'.
+00:50:41.245 artifacts/api-server/src/routes/analytics.ts(11,29): error TS2339: Property 'body' does not exist on type 'Request<core.ParamsDictionary, any, any, core.Query, Record<string, any>>'.
+00:50:41.245 artifacts/api-server/src/routes/analytics.ts(12,33): error TS2339: Property 'body' does not exist on type 'Request<core.ParamsDictionary, any, any, core.Query, Record<string, any>>'.
+00:50:41.246 artifacts/api-server/src/routes/analytics.ts(13,34): error TS2339: Property 'headers' does not exist on type 'Request<core.ParamsDictionary, any, any, core.Query, Record<string, any>>'.
+00:50:41.246 artifacts/api-server/src/routes/analytics.ts(14,27): error TS2339: Property 'ip' does not exist on type 'Request<core.ParamsDictionary, any, any, core.Query, Record<string, any>>'.
+00:50:41.246 artifacts/api-server/src/routes/analytics.ts(17,9): error TS2339: Property 'json' does not exist on type 'Response<any, Record<string, any>>'.
+00:50:41.246 artifacts/api-server/src/routes/analytics.ts(19,9): error TS2339: Property 'status' does not exist on type 'Response<any, Record<string, any>>'.
+00:50:41.246 artifacts/api-server/src/routes/analytics.ts(23,8): error TS2339: Property 'get' does not exist on type 'IRouter'.
+00:50:41.247 artifacts/api-server/src/routes/analytics.ts(32,19): error TS2322: Type 'SQL<number>' is not assignable to type 'SQL<unknown> | Aliased<unknown> | Subquery<string, Record<string, unknown>> | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | PgTable<...> | SelectedFieldsFlat<...>'.
+00:50:41.247 artifacts/api-server/src/routes/analytics.ts(33,19): error TS2322: Type 'SQL<number>' is not assignable to type 'SQL<unknown> | Aliased<unknown> | Subquery<string, Record<string, unknown>> | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | PgTable<...> | SelectedFieldsFlat<...>'.
+00:50:41.248 artifacts/api-server/src/routes/analytics.ts(33,65): error TS2345: Argument of type 'SQL<unknown>' is not assignable to parameter of type 'SQL<unknown> | ((aliases: SelectedFields) => SQL<unknown>)'.
+00:50:41.248 artifacts/api-server/src/routes/analytics.ts(33,69): error TS2769: No overload matches this call.
+00:50:41.251 artifacts/api-server/src/routes/analytics.ts(34,19): error TS2322: Type 'SQL<number>' is not assignable to type 'SQL<unknown> | Aliased<unknown> | Subquery<string, Record<string, unknown>> | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | PgTable<...> | SelectedFieldsFlat<...>'.
+00:50:41.252 artifacts/api-server/src/routes/analytics.ts(34,65): error TS2345: Argument of type 'SQL<unknown>' is not assignable to parameter of type 'SQL<unknown> | ((aliases: SelectedFields) => SQL<unknown>)'.
+00:50:41.252 artifacts/api-server/src/routes/analytics.ts(34,69): error TS2769: No overload matches this call.
+00:50:41.255 artifacts/api-server/src/routes/analytics.ts(35,19): error TS2322: Type 'SQL<number>' is not assignable to type 'SQL<unknown> | Aliased<unknown> | Subquery<string, Record<string, unknown>> | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | PgTable<...> | SelectedFieldsFlat<...>'.
+00:50:41.255 artifacts/api-server/src/routes/analytics.ts(35,65): error TS2345: Argument of type 'SQL<unknown>' is not assignable to parameter of type 'SQL<unknown> | ((aliases: SelectedFields) => SQL<unknown>)'.
+00:50:41.258 artifacts/api-server/src/routes/analytics.ts(35,69): error TS2769: No overload matches this call.
+00:50:41.260 artifacts/api-server/src/routes/analytics.ts(36,19): error TS2322: Type 'SQL<number>' is not assignable to type 'SQL<unknown> | Aliased<unknown> | Subquery<string, Record<string, unknown>> | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | PgTable<...> | SelectedFieldsFlat<...>'.
+00:50:41.260 artifacts/api-server/src/routes/analytics.ts(36,94): error TS2345: Argument of type 'SQL<unknown>' is not assignable to parameter of type 'SQL<unknown> | ((aliases: SelectedFields) => SQL<unknown>)'.
+00:50:41.261 artifacts/api-server/src/routes/analytics.ts(36,98): error TS2769: No overload matches this call.
+00:50:41.263 artifacts/api-server/src/routes/analytics.ts(37,47): error TS2322: Type 'SQL<number>' is not assignable to type 'SQL<unknown> | Aliased<unknown> | Subquery<string, Record<string, unknown>> | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | PgTable<...> | SelectedFieldsFlat<...>'.
+00:50:41.264 artifacts/api-server/src/routes/analytics.ts(37,125): error TS2769: No overload matches this call.
+00:50:41.265 artifacts/api-server/src/routes/analytics.ts(38,19): error TS2322: Type 'SQL<string>' is not assignable to type 'SQL<unknown> | Aliased<unknown> | Subquery<string, Record<string, unknown>> | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | PgTable<...> | SelectedFieldsFlat<...>'.
+00:50:41.265 artifacts/api-server/src/routes/analytics.ts(38,55): error TS2322: Type 'SQL<number>' is not assignable to type 'SQL<unknown> | Aliased<unknown> | Subquery<string, Record<string, unknown>> | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | PgTable<...> | SelectedFieldsFlat<...>'.
+00:50:41.266 artifacts/api-server/src/routes/analytics.ts(38,101): error TS2345: Argument of type 'SQL<unknown>' is not assignable to parameter of type 'SQL<unknown> | ((aliases: SelectedFields) => SQL<unknown>)'.
+00:50:41.266 artifacts/api-server/src/routes/analytics.ts(38,105): error TS2769: No overload matches this call.
+00:50:41.268 artifacts/api-server/src/routes/analytics.ts(38,154): error TS2769: No overload matches this call.
+00:50:41.269 artifacts/api-server/src/routes/analytics.ts(38,185): error TS2769: No overload matches this call.
+00:50:41.271 artifacts/api-server/src/routes/analytics.ts(41,9): error TS2339: Property 'json' does not exist on type 'Response<any, Record<string, any>>'.
+00:50:41.271 artifacts/api-server/src/routes/analytics.ts(43,9): error TS2339: Property 'status' does not exist on type 'Response<any, Record<string, any>>'.
+00:50:41.334 artifacts/api-server/src/lib/auth.ts(20,16): error TS2769: No overload matches this call.
+00:50:41.336 artifacts/api-server/src/lib/auth.ts(20,21): error TS2345: Argument of type 'PgColumn<{ name: "id"; tableName: "admin_credentials"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'SQLWrapper | AnyColumn'.
+00:50:41.338 artifacts/api-server/src/lib/auth.ts(42,16): error TS2769: No overload matches this call.
+00:50:41.339 artifacts/api-server/src/lib/auth.ts(42,21): error TS2345: Argument of type 'PgColumn<{ name: "id"; tableName: "admin_credentials"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; hasDefault: true; isPrimaryKey: true; isAutoincrement: false; ... 4 more ...; generated: undefined; }, {}, {}>' is not assignable to parameter of type 'SQLWrapper | AnyColumn'.
+00:50:41.340 artifacts/api-server/src/lib/auth.ts(70,9): error TS2339: Property 'status' does not exist on type 'Response<any, Record<string, any>>'.
+00:50:41.340 artifacts/api-server/src/lib/auth.ts(73,3): error TS2349: This expression is not callable.
+00:50:41.519 artifacts/api-server/src/lib/objectStorage.ts(90,20): error TS2339: Property 'send' does not exist on type 'S3Client'.
+00:50:41.519 artifacts/api-server/src/lib/objectStorage.ts(100,35): error TS2339: Property 'send' does not exist on type 'S3Client'.
+00:50:41.520 artifacts/api-server/src/lib/objectStorage.ts(123,20): error TS2339: Property 'send' does not exist on type 'S3Client'.
+00:50:41.520 artifacts/api-server/src/lib/objectStorage.ts(143,35): error TS2339: Property 'send' does not exist on type 'S3Client'.
