@@ -1,4 +1,4 @@
-import express, { type Express } from "express";
+import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
@@ -7,7 +7,8 @@ import type { IncomingMessage, ServerResponse } from "node:http";
 import router from "./routes";
 import { logger } from "./lib/logger";
 
-const app: Express = express();
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const app: any = express();
 
 app.set("trust proxy", 1);
 
@@ -18,19 +19,20 @@ app.use(
   }),
 );
 
-app.use(
-  pinoHttp({
-    logger,
-    serializers: {
-      req(req: IncomingMessage & { id?: string | number }) {
-        return { id: req.id, method: req.method, url: req.url?.split("?")[0] };
-      },
-      res(res: ServerResponse) {
-        return { statusCode: res.statusCode };
-      },
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const httpLogger = (pinoHttp as any)({
+  logger,
+  serializers: {
+    req(req: IncomingMessage & { id?: string | number }) {
+      return { id: req.id, method: req.method, url: req.url?.split("?")[0] };
     },
-  }),
-);
+    res(res: ServerResponse) {
+      return { statusCode: res.statusCode };
+    },
+  },
+});
+
+app.use(httpLogger);
 
 function getAllowedOrigins(): string[] | true {
   const origins: string[] = [];
