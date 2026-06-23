@@ -124,7 +124,7 @@ router.post("/auth/login", loginLimiter, async (req, res): Promise<void> => {
   res.cookie("caktus.tok", token, {
     httpOnly: true,
     secure: isProd,
-    sameSite: isProd ? "none" : "lax",
+    sameSite: "lax",
     maxAge,
     path: "/",
   });
