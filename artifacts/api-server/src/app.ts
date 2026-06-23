@@ -55,10 +55,15 @@ app.use(express.urlencoded({ extended: true, limit: "2mb" }));
 
 const isProd = process.env.NODE_ENV === "production";
 
+const sessionSecret = process.env.SESSION_SECRET;
+if (!sessionSecret) {
+  throw new Error("SESSION_SECRET environment variable is required but was not provided.");
+}
+
 app.use(
   session({
     name: "caktus.sid",
-    secret: process.env.SESSION_SECRET ?? "caktus-dev-secret",
+    secret: sessionSecret,
     resave: false,
     saveUninitialized: false,
     store: process.env.DATABASE_URL

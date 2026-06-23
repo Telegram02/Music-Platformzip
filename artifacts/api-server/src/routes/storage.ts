@@ -2,6 +2,7 @@ import { Router, type IRouter, type Request, type Response } from "express";
 import { Readable } from "stream";
 import { z } from "zod";
 import { ObjectStorageService, ObjectNotFoundError } from "../lib/objectStorage";
+import { requireAdmin } from "../lib/auth";
 
 const RequestUploadUrlBody = z.object({
   name: z.string(),
@@ -18,7 +19,7 @@ const RequestUploadUrlResponse = z.object({
 const router: IRouter = Router();
 const objectStorageService = new ObjectStorageService();
 
-router.post("/storage/uploads/request-url", async (req: Request, res: Response) => {
+router.post("/storage/uploads/request-url", requireAdmin, async (req: Request, res: Response) => {
   const parsed = RequestUploadUrlBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: "Missing or invalid required fields" });
@@ -58,7 +59,7 @@ router.get("/storage/public-objects/*filePath", async (req: Request, res: Respon
   }
 });
 
-router.get("/storage/objects/*path", async (req: Request, res: Response) => {
+router.get("/storage/objects/*path", requireAdmin, async (req: Request, res: Response) => {
   try {
     const raw = req.params.path;
     const wildcardPath = Array.isArray(raw) ? raw.join("/") : raw;
@@ -85,7 +86,7 @@ router.get("/storage/objects/*path", async (req: Request, res: Response) => {
   }
 });
 
-router.get("/storage/bucket/list", async (req: Request, res: Response) => {
+router.get("/storage/bucket/list", requireAdmin, async (req: Request, res: Response) => {
   try {
     const { objectStorageClient } = await import("../lib/objectStorage");
     const privateDir = objectStorageService.getPrivateObjectDir();
