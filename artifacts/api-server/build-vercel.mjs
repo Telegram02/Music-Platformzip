@@ -7,15 +7,18 @@ import esbuildPluginPino from "esbuild-plugin-pino";
 globalThis.require = createRequire(import.meta.url);
 
 const artifactDir = path.dirname(fileURLToPath(import.meta.url));
-const distDir = path.resolve(artifactDir, "dist");
+// Output directly into api/ at the project root so pino worker files
+// land alongside the handler — Vercel auto-includes all files in api/.
+const apiDir = path.resolve(artifactDir, "../../api");
 
 async function buildVercel() {
   await esbuild({
-    entryPoints: [path.resolve(artifactDir, "src/vercel-handler.ts")],
+    // Named entry so output file is api/index.mjs (not api/vercel-handler.mjs)
+    entryPoints: [{ in: path.resolve(artifactDir, "src/vercel-handler.ts"), out: "index" }],
     platform: "node",
     bundle: true,
     format: "esm",
-    outdir: distDir,
+    outdir: apiDir,
     outExtension: { ".js": ".mjs" },
     logLevel: "info",
     // @aws-sdk and nodemailer are intentionally bundled here so Vercel gets

@@ -1,17 +1,37 @@
 ---
-name: Vercel pnpm duplicate deps
-description: Why drizzle-orm (and other shared workspace packages) cause type errors on Vercel and the fix
+name: Vercel pnpm duplicate deps + pino worker crash
+description: Two bugs that caused FUNCTION_INVOCATION_FAILED on Vercel and how they were fixed
 ---
 
-When Vercel bundles a serverless function from a pnpm workspace (api/index.ts), it does NOT deduplicate across workspace packages the way local pnpm does. Result: @workspace/api-server and @workspace/db each get their own copy of drizzle-orm nested in their respective node_modules. This creates incompatible types (SQL<unknown> from one copy ≠ SQL<unknown> from another copy), producing 100+ TS errors on Vercel while local typecheck passes.
+## Bug 1: Duplicate drizzle-orm from pnpm workspace
 
-**Fix:** Pre-build the entire Express API into a single esbuild bundle (build-vercel.mjs → dist/vercel-handler.mjs). api/index.ts becomes a thin @ts-nocheck re-export from the pre-built file. esbuild deduplicates all imports internally so there's only one drizzle-orm instance.
+Vercel's @vercel/node bundler doesn't deduplicate across pnpm workspace packages.
+@workspace/api-server and @workspace/db each got their own drizzle-orm, making
+SQL<unknown> types incompatible → 126 TS errors on Vercel, none locally.
 
-**Why:** Vercel's @vercel/node bundler resolves imports independently without honoring pnpm's workspace hoisting/deduplication. Pre-building sidesteps this entirely.
+**Fix:** Pre-build the entire Express API into a single esbuild bundle via
+`build-vercel.mjs`. Output goes to `api/` directory as `api/index.mjs`.
+esbuild deduplicates all imports internally.
 
-**How to apply:** Any time a workspace package is shared between a serverless function entry and a lib package, pre-build the entry with esbuild rather than letting Vercel bundle the TypeScript source directly. Remove the offending package from externals list in the vercel build script so it gets bundled.
+## Bug 2: Pino worker thread files not deployed (FUNCTION_INVOCATION_FAILED)
+
+esbuild-plugin-pino generates 4 sibling worker files alongside the main bundle:
+- pino-worker.mjs, pino-file.mjs, pino-pretty.mjs, thread-stream-worker.mjs
+
+When the bundle was in `artifacts/api-server/dist/` and `api/index.ts` re-exported
+it, Vercel only bundled `index.ts` + `vercel-handler.mjs` — the pino worker files
+were left behind. Pino crashed on cold start trying to spawn worker threads → FUNCTION_INVOCATION_FAILED.
+
+**Fix:** Output esbuild bundle DIRECTLY into `api/` (project root). All 5 files
+(index.mjs + 4 pino workers) land in api/ together. Vercel auto-includes the entire
+api/ directory when deploying the serverless function.
+
+**How to apply:** Any time you use esbuild-plugin-pino for a Vercel function,
+ensure outdir is the same directory as the function entry point. Never have the
+main bundle in one directory with the function entry point importing it from another.
 
 **Key config:**
-- artifacts/api-server/build-vercel.mjs — esbuild config, @aws-sdk bundled (not external), no entryNames
-- api/index.ts — // @ts-nocheck + export { default } from "../artifacts/api-server/dist/vercel-handler.mjs"
-- vercel.json buildCommand — runs build:vercel before frontend build; no functions.includeFiles
+- `build-vercel.mjs`: outdir = `path.resolve(artifactDir, "../../api")`
+- entryPoints uses named entry: `{ in: "src/vercel-handler.ts", out: "index" }`
+- `api/index.ts` deleted — replaced by generated `api/index.mjs`
+- `.gitignore`: api/index.mjs + all api/pino-*.mjs + api/thread-stream-worker.mjs
