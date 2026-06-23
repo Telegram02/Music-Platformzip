@@ -103,20 +103,38 @@ router.post("/auth/login", loginLimiter, async (req, res): Promise<void> => {
     res.status(400).json({ error: "Username and password required" }); return;
   }
 
-  const valid = await verifyCredentials(username, password);
+  // Check what specifically went wrong so we can give a useful error
+  const rows = await db.select().from(adminCredentialsTable).orderBy(desc(adminCredentialsTable.id)).limit(1).catch(() => []);
+
+  let loginError: string | null = null;
+
+  if (rows.length === 0) {
+    loginError = "No admin account exists yet — set ADMIN_PASSWORD and restart the server.";
+  } else if (rows[0].username !== username) {
+    loginError = `Username "${username}" not found. The admin username is "${rows[0].username}".`;
+  } else {
+    const passwordOk = await bcrypt.compare(password, rows[0].passwordHash);
+    if (!passwordOk) loginError = "Password is incorrect.";
+  }
 
   await db.insert(loginActivityTable).values({
     username,
-    success: valid,
+    success: loginError === null,
     ipAddress: (req.ip ?? "").slice(0, 100),
   }).catch(() => {});
 
-  if (!valid) {
-    req.log.warn("Failed admin login attempt");
-    res.status(401).json({ error: "Invalid username or password" }); return;
+  if (loginError) {
+    req.log.warn({ loginError }, "Failed admin login attempt");
+    res.status(401).json({ error: loginError }); return;
   }
 
-  const token = signAdminToken(!!rememberMe);
+  let token: string;
+  try {
+    token = signAdminToken(!!rememberMe);
+  } catch (err) {
+    req.log.error({ err }, "JWT signing failed");
+    res.status(500).json({ error: "Server config error: JWT_SECRET is not set." }); return;
+  }
   const maxAge = rememberMe
     ? 30 * 24 * 60 * 60 * 1000
     : 24 * 60 * 60 * 1000;

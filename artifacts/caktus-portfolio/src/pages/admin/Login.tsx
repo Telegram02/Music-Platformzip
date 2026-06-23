@@ -17,8 +17,8 @@ export default function AdminLogin() {
     try {
       await api.login(username, password, rememberMe);
       navigate("/admin");
-    } catch {
-      setError("Invalid username or password. Try again.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Login failed. Try again.");
     } finally {
       setLoading(false);
     }
