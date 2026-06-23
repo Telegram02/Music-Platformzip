@@ -109,7 +109,18 @@ router.post("/auth/login", loginLimiter, async (req, res): Promise<void> => {
   let loginError: string | null = null;
 
   if (rows.length === 0) {
-    loginError = "No admin account exists yet — set ADMIN_PASSWORD and restart the server.";
+    // No DB row yet (tables may not exist or db:push not run).
+    // Fall back to env-var credentials so Vercel works before db:push.
+    const envUsername = process.env.ADMIN_USERNAME ?? "admin";
+    const envPassword = process.env.ADMIN_PASSWORD;
+    if (!envPassword) {
+      loginError = "No admin account exists. Set ADMIN_PASSWORD in environment variables.";
+    } else if (username !== envUsername) {
+      loginError = `Username "${username}" not found. Try "${envUsername}".`;
+    } else if (password !== envPassword) {
+      loginError = "Password is incorrect.";
+    }
+    // If loginError is still null here, env-var auth passed — token is issued below.
   } else if (rows[0].username !== username) {
     loginError = `Username "${username}" not found. The admin username is "${rows[0].username}".`;
   } else {
