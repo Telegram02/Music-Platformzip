@@ -15,10 +15,7 @@ router.get("/portfolio", async (_req, res): Promise<void> => {
 });
 
 router.get("/portfolio/all", requireAdmin, async (_req, res): Promise<void> => {
-  const items = await db
-    .select()
-    .from(portfolioItemsTable)
-    .orderBy(asc(portfolioItemsTable.sortOrder));
+  const items = await db.select().from(portfolioItemsTable).orderBy(asc(portfolioItemsTable.sortOrder));
   res.json(items);
 });
 
@@ -31,11 +28,7 @@ router.put("/portfolio/:id", requireAdmin, async (req, res): Promise<void> => {
   const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
   const id = parseInt(raw, 10);
   const { id: _id, createdAt: _c, updatedAt: _u, ...rest } = req.body;
-  const [item] = await db
-    .update(portfolioItemsTable)
-    .set(rest)
-    .where(eq(portfolioItemsTable.id, id))
-    .returning();
+  const [item] = await db.update(portfolioItemsTable).set(rest).where(eq(portfolioItemsTable.id, id)).returning();
   if (!item) { res.status(404).json({ error: "Not found" }); return; }
   res.json(item);
 });

@@ -1,2 +1,0 @@
-- [DB schema lib rebuild](db-schema-rebuild.md) — after adding new schema files, must run `pnpm run typecheck:libs` before leaf package typechecks see the new exports
-- [Session cookie name](session-config.md) — session cookie is named `caktus.sid`; rate limiter on login skips successful requests; `trust proxy = 1` set for IP detection

@@ -15,10 +15,7 @@ router.get("/tracks", async (_req, res): Promise<void> => {
 });
 
 router.get("/tracks/all", requireAdmin, async (_req, res): Promise<void> => {
-  const tracks = await db
-    .select()
-    .from(audioTracksTable)
-    .orderBy(asc(audioTracksTable.sortOrder));
+  const tracks = await db.select().from(audioTracksTable).orderBy(asc(audioTracksTable.sortOrder));
   res.json(tracks);
 });
 
@@ -31,11 +28,7 @@ router.put("/tracks/:id", requireAdmin, async (req, res): Promise<void> => {
   const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
   const id = parseInt(raw, 10);
   const { id: _id, createdAt: _c, updatedAt: _u, ...rest } = req.body;
-  const [track] = await db
-    .update(audioTracksTable)
-    .set(rest)
-    .where(eq(audioTracksTable.id, id))
-    .returning();
+  const [track] = await db.update(audioTracksTable).set(rest).where(eq(audioTracksTable.id, id)).returning();
   if (!track) { res.status(404).json({ error: "Not found" }); return; }
   res.json(track);
 });

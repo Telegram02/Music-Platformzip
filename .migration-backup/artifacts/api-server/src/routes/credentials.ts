@@ -30,14 +30,12 @@ router.get("/credentials/status", requireAdmin, async (_req, res): Promise<void>
 
 router.post("/credentials/request-otp", requireAdmin, async (req, res): Promise<void> => {
   if (!isEmailConfigured()) {
-    res.status(503).json({ error: "Email not configured on server" });
-    return;
+    res.status(503).json({ error: "Email not configured on server" }); return;
   }
 
   const { currentPassword } = req.body as { currentPassword?: string };
   if (!currentPassword) {
-    res.status(400).json({ error: "Current password required" });
-    return;
+    res.status(400).json({ error: "Current password required" }); return;
   }
 
   const storedHash = await getAdminPasswordHash();
@@ -51,20 +49,17 @@ router.post("/credentials/request-otp", requireAdmin, async (req, res): Promise<
   }
 
   if (!valid) {
-    res.status(401).json({ error: "Current password is incorrect" });
-    return;
+    res.status(401).json({ error: "Current password is incorrect" }); return;
   }
 
   const adminEmail = await getAdminEmail();
   const toEmail = adminEmail ?? process.env.GMAIL_USER;
   if (!toEmail) {
-    res.status(503).json({ error: "No admin email configured" });
-    return;
+    res.status(503).json({ error: "No admin email configured" }); return;
   }
 
   const code = generateOtp();
   const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
-
   await db.insert(adminOtpTable).values({ code, expiresAt, used: "false" });
 
   try {
@@ -78,36 +73,18 @@ router.post("/credentials/request-otp", requireAdmin, async (req, res): Promise<
 
 router.post("/credentials/verify-otp", requireAdmin, async (req, res): Promise<void> => {
   const { code, newPassword, newEmail, newUsername } = req.body as {
-    code?: string;
-    newPassword?: string;
-    newEmail?: string;
-    newUsername?: string;
+    code?: string; newPassword?: string; newEmail?: string; newUsername?: string;
   };
 
-  if (!code) {
-    res.status(400).json({ error: "OTP code required" });
-    return;
-  }
+  if (!code) { res.status(400).json({ error: "OTP code required" }); return; }
   if (!newPassword || newPassword.length < 8) {
-    res.status(400).json({ error: "New password must be at least 8 characters" });
-    return;
+    res.status(400).json({ error: "New password must be at least 8 characters" }); return;
   }
 
   const now = new Date();
-  const otpRows = await db
-    .select()
-    .from(adminOtpTable)
-    .orderBy(desc(adminOtpTable.id))
-    .limit(10);
-
-  const match = otpRows.find(
-    (r) => r.code === code && r.used === "false" && new Date(r.expiresAt) > now
-  );
-
-  if (!match) {
-    res.status(401).json({ error: "Invalid or expired code" });
-    return;
-  }
+  const otpRows = await db.select().from(adminOtpTable).orderBy(desc(adminOtpTable.id)).limit(10);
+  const match = otpRows.find((r) => r.code === code && r.used === "false" && new Date(r.expiresAt) > now);
+  if (!match) { res.status(401).json({ error: "Invalid or expired code" }); return; }
 
   await db.update(adminOtpTable).set({ used: "true" }).where(eq(adminOtpTable.id, match.id));
 

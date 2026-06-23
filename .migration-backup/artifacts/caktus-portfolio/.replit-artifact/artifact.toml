@@ -1,6 +1,6 @@
 kind = "web"
 previewPath = "/"
-title = "Caktus Portfolio"
+title = "Caktus Productions"
 version = "1.0.0"
 id = "artifacts/caktus-portfolio"
 router = "path"

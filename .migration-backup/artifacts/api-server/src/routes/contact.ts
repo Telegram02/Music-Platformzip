@@ -21,14 +21,9 @@ router.post("/contact", contactLimiter, async (req, res): Promise<void> => {
     name?: string; email?: string; subject?: string; message?: string; _hp?: string;
   };
 
-  if (_hp && _hp.length > 0) {
-    res.json({ ok: true });
-    return;
-  }
-
+  if (_hp && _hp.length > 0) { res.json({ ok: true }); return; }
   if (!name || !email || !message) {
-    res.status(400).json({ error: "Name, email, and message are required" });
-    return;
+    res.status(400).json({ error: "Name, email, and message are required" }); return;
   }
 
   const nameStr = name.trim();
@@ -36,18 +31,15 @@ router.post("/contact", contactLimiter, async (req, res): Promise<void> => {
   const messageStr = message.trim();
 
   if (nameStr.length < 2 || nameStr.length > 100) {
-    res.status(400).json({ error: "Name must be between 2 and 100 characters" });
-    return;
+    res.status(400).json({ error: "Name must be between 2 and 100 characters" }); return;
   }
   if (messageStr.length < 10 || messageStr.length > 5000) {
-    res.status(400).json({ error: "Message must be between 10 and 5000 characters" });
-    return;
+    res.status(400).json({ error: "Message must be between 10 and 5000 characters" }); return;
   }
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(emailStr)) {
-    res.status(400).json({ error: "Invalid email address" });
-    return;
+    res.status(400).json({ error: "Invalid email address" }); return;
   }
 
   const subjectStr = (subject ?? "").trim().slice(0, 300);
@@ -60,46 +52,29 @@ router.post("/contact", contactLimiter, async (req, res): Promise<void> => {
   });
 
   if (isEmailConfigured()) {
-    sendContactNotification({
-      name: nameStr,
-      email: emailStr,
-      subject: subjectStr,
-      message: messageStr,
-    }).catch((err) => logger.error({ err }, "Contact notification failed"));
-
-    sendAutoReply({
-      name: nameStr,
-      email: emailStr,
-      subject: subjectStr,
-    }).catch((err) => logger.error({ err }, "Auto-reply failed"));
+    sendContactNotification({ name: nameStr, email: emailStr, subject: subjectStr, message: messageStr })
+      .catch((err) => logger.error({ err }, "Contact notification failed"));
+    sendAutoReply({ name: nameStr, email: emailStr, subject: subjectStr })
+      .catch((err) => logger.error({ err }, "Auto-reply failed"));
   }
 
   res.json({ ok: true });
 });
 
 router.get("/contact/unread-count", requireAdmin, async (_req, res): Promise<void> => {
-  const result = await db
-    .select({ count: count() })
-    .from(contactMessagesTable)
-    .where(eq(contactMessagesTable.read, false));
+  const result = await db.select({ count: count() }).from(contactMessagesTable).where(eq(contactMessagesTable.read, false));
   res.json({ count: result[0]?.count ?? 0 });
 });
 
 router.get("/contact/messages", requireAdmin, async (_req, res): Promise<void> => {
-  const rows = await db
-    .select()
-    .from(contactMessagesTable)
-    .orderBy(desc(contactMessagesTable.createdAt))
-    .limit(100);
+  const rows = await db.select().from(contactMessagesTable).orderBy(desc(contactMessagesTable.createdAt)).limit(100);
   res.json(rows);
 });
 
 router.put("/contact/messages/:id/read", requireAdmin, async (req, res): Promise<void> => {
   const id = Number(req.params.id);
   const { read } = req.body as { read?: boolean };
-  await db.update(contactMessagesTable)
-    .set({ read: read ?? true })
-    .where(eq(contactMessagesTable.id, id));
+  await db.update(contactMessagesTable).set({ read: read ?? true }).where(eq(contactMessagesTable.id, id));
   res.json({ ok: true });
 });
 

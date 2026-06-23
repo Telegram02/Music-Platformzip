@@ -15,10 +15,7 @@ router.get("/social", async (_req, res): Promise<void> => {
 });
 
 router.get("/social/all", requireAdmin, async (_req, res): Promise<void> => {
-  const links = await db
-    .select()
-    .from(socialLinksTable)
-    .orderBy(asc(socialLinksTable.sortOrder));
+  const links = await db.select().from(socialLinksTable).orderBy(asc(socialLinksTable.sortOrder));
   res.json(links);
 });
 
@@ -31,11 +28,7 @@ router.put("/social/:id", requireAdmin, async (req, res): Promise<void> => {
   const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
   const id = parseInt(raw, 10);
   const { id: _id, updatedAt: _u, ...rest } = req.body;
-  const [link] = await db
-    .update(socialLinksTable)
-    .set(rest)
-    .where(eq(socialLinksTable.id, id))
-    .returning();
+  const [link] = await db.update(socialLinksTable).set(rest).where(eq(socialLinksTable.id, id)).returning();
   if (!link) { res.status(404).json({ error: "Not found" }); return; }
   res.json(link);
 });

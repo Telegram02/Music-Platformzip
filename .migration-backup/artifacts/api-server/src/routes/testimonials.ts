@@ -6,19 +6,12 @@ import { requireAdmin } from "../lib/auth";
 const router: IRouter = Router();
 
 router.get("/testimonials", async (_req, res): Promise<void> => {
-  const rows = await db
-    .select()
-    .from(testimonialsTable)
-    .where(eq(testimonialsTable.active, true))
-    .orderBy(asc(testimonialsTable.sortOrder), asc(testimonialsTable.id));
+  const rows = await db.select().from(testimonialsTable).where(eq(testimonialsTable.active, true)).orderBy(asc(testimonialsTable.sortOrder), asc(testimonialsTable.id));
   res.json(rows);
 });
 
 router.get("/testimonials/all", requireAdmin, async (_req, res): Promise<void> => {
-  const rows = await db
-    .select()
-    .from(testimonialsTable)
-    .orderBy(asc(testimonialsTable.sortOrder), asc(testimonialsTable.id));
+  const rows = await db.select().from(testimonialsTable).orderBy(asc(testimonialsTable.sortOrder), asc(testimonialsTable.id));
   res.json(rows);
 });
 
@@ -28,8 +21,7 @@ router.post("/testimonials", requireAdmin, async (req, res): Promise<void> => {
     authorAvatar?: string; rating?: number; sortOrder?: number; active?: boolean;
   };
   if (!quote?.trim() || !authorName?.trim()) {
-    res.status(400).json({ error: "quote and authorName are required" });
-    return;
+    res.status(400).json({ error: "quote and authorName are required" }); return;
   }
   const [row] = await db.insert(testimonialsTable).values({
     quote: quote.trim().slice(0, 1000),
@@ -49,10 +41,7 @@ router.put("/testimonials/:id", requireAdmin, async (req, res): Promise<void> =>
     quote?: string; authorName?: string; authorTitle?: string;
     authorAvatar?: string; rating?: number; sortOrder?: number; active?: boolean;
   };
-  type Update = {
-    quote?: string; authorName?: string; authorTitle?: string;
-    authorAvatar?: string; rating?: number; sortOrder?: number; active?: boolean;
-  };
+  type Update = { quote?: string; authorName?: string; authorTitle?: string; authorAvatar?: string; rating?: number; sortOrder?: number; active?: boolean; };
   const updates: Update = {};
   if (quote !== undefined) updates.quote = quote.trim().slice(0, 1000);
   if (authorName !== undefined) updates.authorName = authorName.trim().slice(0, 100);
