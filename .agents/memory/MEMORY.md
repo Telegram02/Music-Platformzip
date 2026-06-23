@@ -1,0 +1,1 @@
+- [Vercel serverless seed fix](vercel-seed-fix.md) — seedDefaults() must be called in api/index.ts on cold start, not just in app.listen()
