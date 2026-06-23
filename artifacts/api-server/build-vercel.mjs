@@ -9,17 +9,18 @@ globalThis.require = createRequire(import.meta.url);
 const artifactDir = path.dirname(fileURLToPath(import.meta.url));
 // Output directly into api/ at the project root so pino worker files
 // land alongside the handler — Vercel auto-includes all files in api/.
+// CJS format (.js) is used because Vercel's function auto-detection
+// reliably handles api/index.js; .mjs was treated as a static file.
 const apiDir = path.resolve(artifactDir, "../../api");
 
 async function buildVercel() {
   await esbuild({
-    // Named entry so output file is api/index.mjs (not api/vercel-handler.mjs)
+    // Named entry so output file is api/index.js (not api/vercel-handler.js)
     entryPoints: [{ in: path.resolve(artifactDir, "src/vercel-handler.ts"), out: "index" }],
     platform: "node",
     bundle: true,
-    format: "esm",
+    format: "cjs",
     outdir: apiDir,
-    outExtension: { ".js": ".mjs" },
     logLevel: "info",
     // @aws-sdk and nodemailer are intentionally bundled here so Vercel gets
     // a single self-contained file with no external workspace dependencies.
@@ -93,16 +94,6 @@ async function buildVercel() {
     plugins: [
       esbuildPluginPino({ transports: ["pino-pretty"] }),
     ],
-    banner: {
-      js: `import { createRequire as __bannerCrReq } from 'node:module';
-import __bannerPath from 'node:path';
-import __bannerUrl from 'node:url';
-
-globalThis.require = __bannerCrReq(import.meta.url);
-globalThis.__filename = __bannerUrl.fileURLToPath(import.meta.url);
-globalThis.__dirname = __bannerPath.dirname(globalThis.__filename);
-    `,
-    },
   });
 }
 
