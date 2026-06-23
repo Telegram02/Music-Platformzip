@@ -30,13 +30,30 @@ app.use(
   }),
 );
 
-const productionOrigins = process.env.REPLIT_DOMAINS
-  ? process.env.REPLIT_DOMAINS.split(",").map((d) => `https://${d.trim()}`)
-  : null;
+function getAllowedOrigins(): string[] | true {
+  const origins: string[] = [];
+
+  if (process.env.CORS_ORIGIN) {
+    process.env.CORS_ORIGIN.split(",").forEach((o) => {
+      const trimmed = o.trim();
+      if (trimmed) origins.push(trimmed);
+    });
+  }
+
+  if (process.env.REPLIT_DOMAINS) {
+    process.env.REPLIT_DOMAINS.split(",").forEach((d) => {
+      origins.push(`https://${d.trim()}`);
+    });
+  }
+
+  return origins.length > 0 ? origins : true;
+}
+
+const allowedOrigins = getAllowedOrigins();
 
 app.use(
   cors({
-    origin: productionOrigins ?? true,
+    origin: allowedOrigins,
     credentials: true,
   }),
 );
