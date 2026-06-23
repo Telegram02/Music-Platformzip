@@ -1,4 +1,4 @@
-modules = ["nodejs-20", "web", "bash"]
+modules = ["nodejs-24"]
 
 [deployment]
 router = "application"
@@ -18,29 +18,3 @@ expertMode = true
 [postMerge]
 path = "scripts/post-merge.sh"
 timeoutMs = 20000
-
-[[ports]]
-localPort = 8080
-externalPort = 8080
-
-[[ports]]
-localPort = 8081
-externalPort = 8081
-
-[[ports]]
-localPort = 18681
-externalPort = 80
-
-[userenv]
-
-[userenv.shared]
-GMAIL_USER = "madebycaktus@gmail.com"
-ADMIN_EMAIL = "eric2277@icloud.com"
-ADMIN_USERNAME = "admin"
-ADMIN_PASSWORD = "Darksouls2!"
-
-[objectStorage]
-defaultBucketID = "replit-objstore-b2787dd4-10ce-4e4d-b10c-b80d5356d953"
-
-[nix]
-channel = "stable-25_05"
