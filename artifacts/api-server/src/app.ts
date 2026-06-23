@@ -1,11 +1,14 @@
 import express, { type Express } from "express";
 import cors from "cors";
 import session from "express-session";
+import ConnectPgSimple from "connect-pg-simple";
 import helmet from "helmet";
 import pinoHttp from "pino-http";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import router from "./routes";
 import { logger } from "./lib/logger";
+
+const PgSession = ConnectPgSimple(session);
 
 const app: Express = express();
 
@@ -61,15 +64,24 @@ app.use(
 app.use(express.json({ limit: "2mb" }));
 app.use(express.urlencoded({ extended: true, limit: "2mb" }));
 
+const isProd = process.env.NODE_ENV === "production";
+
 app.use(
   session({
     name: "caktus.sid",
     secret: process.env.SESSION_SECRET ?? "caktus-dev-secret",
     resave: false,
     saveUninitialized: false,
+    store: process.env.DATABASE_URL
+      ? new PgSession({
+          conString: process.env.DATABASE_URL,
+          tableName: "user_sessions",
+          createTableIfMissing: true,
+        })
+      : undefined,
     cookie: {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: isProd,
       sameSite: "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     },
