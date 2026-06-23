@@ -33,7 +33,11 @@ router.post("/storage/uploads/request-url", requireAdmin, async (req: Request, r
     res.json(RequestUploadUrlResponse.parse({ uploadURL, objectPath, metadata: { name, size, contentType } }));
   } catch (error) {
     req.log.error({ err: error }, "Error generating upload URL");
-    res.status(500).json({ error: "Failed to generate upload URL" });
+    if ((error as Error).message?.includes("R2")) {
+      res.status(503).json({ error: "File storage not configured. Set R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET_NAME." });
+    } else {
+      res.status(500).json({ error: "Failed to generate upload URL" });
+    }
   }
 });
 
@@ -77,7 +81,6 @@ router.get("/storage/objects/*path", requireAdmin, async (req: Request, res: Res
     }
   } catch (error) {
     if (error instanceof ObjectNotFoundError) {
-      req.log.warn({ err: error }, "Object not found");
       res.status(404).json({ error: "Object not found" });
       return;
     }
@@ -88,35 +91,15 @@ router.get("/storage/objects/*path", requireAdmin, async (req: Request, res: Res
 
 router.get("/storage/bucket/list", requireAdmin, async (req: Request, res: Response) => {
   try {
-    const { objectStorageClient } = await import("../lib/objectStorage");
-    const privateDir = objectStorageService.getPrivateObjectDir();
-    const normalized = privateDir.startsWith("/") ? privateDir : `/${privateDir}`;
-    const parts = normalized.split("/").filter(Boolean);
-    const bucketName = parts[0];
-    const prefix = parts.slice(1).join("/") + (parts.length > 1 ? "/" : "");
-
-    const bucket = objectStorageClient.bucket(bucketName);
-    const [files] = await bucket.getFiles({ prefix });
-
-    const items = await Promise.all(
-      files.map(async (file) => {
-        const [meta] = await file.getMetadata();
-        const objectName = file.name;
-        const relativePath = objectName.startsWith(prefix) ? objectName.slice(prefix.length) : objectName;
-        return {
-          objectPath: `/objects/${relativePath}`,
-          name: relativePath.replace(/^uploads\/[^/]+\//, "").replace(/^uploads\//, ""),
-          size: Number(meta.size ?? 0),
-          contentType: (meta.contentType as string) || "application/octet-stream",
-          updatedAt: meta.updated || meta.timeCreated || "",
-        };
-      })
-    );
-    items.sort((a, b) => (a.updatedAt < b.updatedAt ? 1 : -1));
+    const items = await objectStorageService.listObjects("uploads/");
     res.json({ items });
   } catch (error) {
     req.log.error({ err: error }, "Error listing bucket objects");
-    res.status(500).json({ error: "Failed to list bucket objects" });
+    if ((error as Error).message?.includes("R2")) {
+      res.status(503).json({ error: "File storage not configured. Set R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET_NAME." });
+    } else {
+      res.status(500).json({ error: "Failed to list bucket objects" });
+    }
   }
 });
 

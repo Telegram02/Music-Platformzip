@@ -1,9 +1,16 @@
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 import { db, adminCredentialsTable } from "@workspace/db";
 import { desc } from "drizzle-orm";
+import type { Request, Response, NextFunction } from "express";
 
-const ADMIN_USERNAME = process.env.ADMIN_USERNAME;
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+function getJwtSecret(): string {
+  const secret = process.env.JWT_SECRET || process.env.SESSION_SECRET;
+  if (!secret) {
+    throw new Error("JWT_SECRET (or SESSION_SECRET) environment variable is required.");
+  }
+  return secret;
+}
 
 export async function verifyCredentials(username: string, password: string): Promise<boolean> {
   try {
@@ -19,8 +26,10 @@ export async function verifyCredentials(username: string, password: string): Pro
   } catch {
     // fall through to env-based check
   }
-  if (ADMIN_USERNAME && ADMIN_PASSWORD) {
-    return username === ADMIN_USERNAME && password === ADMIN_PASSWORD;
+  const envUsername = process.env.ADMIN_USERNAME;
+  const envPassword = process.env.ADMIN_PASSWORD;
+  if (envUsername && envPassword) {
+    return username === envUsername && password === envPassword;
   }
   return false;
 }
@@ -36,18 +45,28 @@ export async function verifyPassword(password: string): Promise<boolean> {
       return bcrypt.compare(password, rows[0].passwordHash);
     }
   } catch {
-    // fall through to env-based check
+    // fall through
   }
-  return !!ADMIN_PASSWORD && password === ADMIN_PASSWORD;
+  return !!process.env.ADMIN_PASSWORD && password === process.env.ADMIN_PASSWORD;
 }
 
-export function requireAdmin(
-  req: import("express").Request,
-  res: import("express").Response,
-  next: import("express").NextFunction
-): void {
-  const session = req.session as { adminLoggedIn?: boolean };
-  if (!session.adminLoggedIn) {
+export function signAdminToken(rememberMe = false): string {
+  const expiresIn = rememberMe ? "30d" : "24h";
+  return jwt.sign({ adminLoggedIn: true }, getJwtSecret(), { expiresIn } as jwt.SignOptions);
+}
+
+export function verifyAdminToken(token: string): boolean {
+  try {
+    const payload = jwt.verify(token, getJwtSecret()) as { adminLoggedIn?: boolean };
+    return payload.adminLoggedIn === true;
+  } catch {
+    return false;
+  }
+}
+
+export function requireAdmin(req: Request, res: Response, next: NextFunction): void {
+  const token = req.cookies?.["caktus.tok"];
+  if (!token || !verifyAdminToken(token)) {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }

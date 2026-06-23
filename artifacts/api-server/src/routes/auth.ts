@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import { desc, eq } from "drizzle-orm";
 import rateLimit from "express-rate-limit";
 import { db, adminCredentialsTable, adminOtpTable, loginActivityTable } from "@workspace/db";
-import { verifyCredentials, requireAdmin } from "../lib/auth";
+import { verifyCredentials, requireAdmin, signAdminToken } from "../lib/auth";
 import { sendOtpEmail, isEmailConfigured } from "../lib/email";
 
 const router: IRouter = Router();
@@ -17,9 +17,19 @@ const loginLimiter = rateLimit({
   skipSuccessfulRequests: true,
 });
 
+const resetLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Too many attempts. Please try again in 15 minutes." },
+});
+
 function generateOtp(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
+
+const isProd = process.env.NODE_ENV === "production";
 
 router.post("/auth/request-reset", async (req, res): Promise<void> => {
   if (!isEmailConfigured()) {
@@ -49,7 +59,7 @@ router.post("/auth/request-reset", async (req, res): Promise<void> => {
   }
 });
 
-router.post("/auth/confirm-reset", async (req, res): Promise<void> => {
+router.post("/auth/confirm-reset", resetLimiter, async (req, res): Promise<void> => {
   const { code, newPassword, newUsername } = req.body as {
     code?: string; newPassword?: string; newUsername?: string;
   };
@@ -92,6 +102,7 @@ router.post("/auth/login", loginLimiter, async (req, res): Promise<void> => {
   if (!username || !password) {
     res.status(400).json({ error: "Username and password required" }); return;
   }
+
   const valid = await verifyCredentials(username, password);
 
   await db.insert(loginActivityTable).values({
@@ -105,23 +116,25 @@ router.post("/auth/login", loginLimiter, async (req, res): Promise<void> => {
     res.status(401).json({ error: "Invalid username or password" }); return;
   }
 
-  (req.session as { adminLoggedIn?: boolean }).adminLoggedIn = true;
-  if (rememberMe) {
-    req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000;
-  } else {
-    req.session.cookie.expires = undefined;
-  }
-  req.session.save((err) => {
-    if (err) {
-      req.log.error({ err }, "Session save error");
-      res.status(500).json({ error: "Session error" }); return;
-    }
-    res.json({ ok: true, rememberMe: !!rememberMe });
+  const token = signAdminToken(!!rememberMe);
+  const maxAge = rememberMe
+    ? 30 * 24 * 60 * 60 * 1000
+    : 24 * 60 * 60 * 1000;
+
+  res.cookie("caktus.tok", token, {
+    httpOnly: true,
+    secure: isProd,
+    sameSite: isProd ? "none" : "lax",
+    maxAge,
+    path: "/",
   });
+
+  res.json({ ok: true, rememberMe: !!rememberMe });
 });
 
-router.post("/auth/logout", (req, res): void => {
-  req.session.destroy(() => { res.json({ ok: true }); });
+router.post("/auth/logout", (_req, res): void => {
+  res.clearCookie("caktus.tok", { path: "/" });
+  res.json({ ok: true });
 });
 
 router.get("/auth/me", requireAdmin, (_req, res): void => {
