@@ -35,18 +35,32 @@ const httpLogger = (pinoHttp as any)({
 app.use(httpLogger);
 
 function getAllowedOrigins(): string[] | true {
+  const isProd = process.env.NODE_ENV === "production";
   const origins: string[] = [];
+
   if (process.env.CORS_ORIGIN) {
     process.env.CORS_ORIGIN.split(",").forEach((o) => {
       const trimmed = o.trim();
       if (trimmed) origins.push(trimmed);
     });
   }
+
+  // Auto-allow the Vercel deployment URL if set (injected automatically by Vercel)
+  if (process.env.VERCEL_URL) {
+    origins.push(`https://${process.env.VERCEL_URL}`);
+  }
+
   if (process.env.REPLIT_DOMAINS) {
     process.env.REPLIT_DOMAINS.split(",").forEach((d) => {
       origins.push(`https://${d.trim()}`);
     });
   }
+
+  // In production, never fall back to wildcard — it breaks credentialed requests anyway
+  if (origins.length === 0 && isProd) {
+    console.warn("WARNING: No CORS_ORIGIN set in production. Set CORS_ORIGIN to your frontend URL.");
+  }
+
   return origins.length > 0 ? origins : true;
 }
 
