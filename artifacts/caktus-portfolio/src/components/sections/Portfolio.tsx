@@ -192,17 +192,24 @@ function PortfolioCard({ item }: { item: PortfolioItem }) {
 
 // ── Sticky mini-player ────────────────────────────────────────────────────────
 function StickyMiniPlayer({
-  track, trackIndex, totalTracks, progress, volume,
-  onStop, onVolumeChange, onNext, onPrev,
+  track, trackIndex, totalTracks, progress, volume, isPlaying,
+  onPlayPause, onClose, onVolumeChange, onNext, onPrev, onSeek,
 }: {
   track: AudioTrack; trackIndex: number; totalTracks: number;
-  progress: number; volume: number;
-  onStop: () => void; onVolumeChange: (v: number) => void;
+  progress: number; volume: number; isPlaying: boolean;
+  onPlayPause: () => void; onClose: () => void;
+  onVolumeChange: (v: number) => void;
   onNext: () => void; onPrev: () => void;
+  onSeek: (p: number) => void;
 }) {
   const Icon: LucideIcon = GENRE_ICON_MAP[track.iconName ?? "Music2"] ?? Music2;
   const hasPrev = trackIndex > 0;
   const hasNext = trackIndex < totalTracks - 1;
+
+  function handleSeekClick(e: React.MouseEvent<HTMLDivElement>) {
+    const rect = e.currentTarget.getBoundingClientRect();
+    onSeek((e.clientX - rect.left) / rect.width);
+  }
 
   return (
     <motion.div
@@ -212,31 +219,29 @@ function StickyMiniPlayer({
       transition={{ type: "spring", stiffness: 400, damping: 30 }}
       className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 border-t border-primary/30 backdrop-blur-md shadow-[0_-4px_30px_rgba(147,51,234,0.2)]"
     >
-      {/* Progress bar */}
-      <div className="absolute top-0 left-0 h-[2px] bg-primary transition-all duration-300" style={{ width: `${progress * 100}%` }} />
+      {/* Clickable seek bar */}
+      <div
+        className="absolute top-0 left-0 right-0 h-1 cursor-pointer group"
+        onClick={handleSeekClick}
+      >
+        <div className="absolute inset-0 bg-white/5 group-hover:bg-white/10 transition-colors" />
+        <div className="h-full bg-primary transition-all duration-150" style={{ width: `${progress * 100}%` }} />
+      </div>
 
-      <div className="max-w-3xl mx-auto px-4 py-3 flex items-center gap-3">
+      <div className="max-w-3xl mx-auto px-3 sm:px-4 py-2.5 flex items-center gap-2 sm:gap-3">
         {/* Cover / icon */}
         {track.coverUrl ? (
-          <img src={storageUrl(track.coverUrl)} alt={track.title} className="w-9 h-9 rounded object-cover flex-shrink-0 border border-primary/30" />
+          <img src={storageUrl(track.coverUrl)} alt={track.title} className="w-8 h-8 sm:w-9 sm:h-9 rounded object-cover flex-shrink-0 border border-primary/30" />
         ) : (
-          <div className="w-9 h-9 rounded bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
-            <Icon size={16} className="text-primary" />
+          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
+            <Icon size={15} className="text-primary" />
           </div>
         )}
 
         {/* Track info */}
         <div className="flex-1 min-w-0">
-          <p className="text-white text-sm font-semibold truncate">{track.title}</p>
-          <p className="text-foreground/40 text-xs">{track.genre || "Audio"}</p>
-        </div>
-
-        {/* Animated bars — hidden on small screens */}
-        <div className="hidden sm:flex gap-[2px] items-end h-5">
-          {[3, 5, 4, 6, 3, 4, 5].map((h, i) => (
-            <div key={i} className="w-[2px] bg-primary rounded-full animate-bounce"
-              style={{ height: `${h * 3}px`, animationDelay: `${i * 0.1}s`, animationDuration: "0.7s" }} />
-          ))}
+          <p className="text-white text-xs sm:text-sm font-semibold truncate">{track.title}</p>
+          <p className="text-foreground/40 text-[10px] sm:text-xs">{track.genre || "Audio"}</p>
         </div>
 
         {/* Volume — desktop only */}
@@ -247,19 +252,23 @@ function StickyMiniPlayer({
             className="w-16 accent-primary cursor-pointer" />
         </div>
 
-        {/* Prev / Stop / Next */}
-        <div className="flex items-center gap-1 flex-shrink-0">
+        {/* Prev / Play-Pause / Next / Close */}
+        <div className="flex items-center gap-0.5 sm:gap-1 flex-shrink-0">
           <button onClick={onPrev} disabled={!hasPrev}
             className="w-8 h-8 flex items-center justify-center rounded-full text-white/50 hover:text-white hover:bg-white/10 transition-colors disabled:opacity-20 disabled:cursor-not-allowed">
             <SkipBack size={15} />
           </button>
-          <button onClick={onStop}
-            className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white/60 hover:text-white transition-colors">
-            <X size={14} />
+          <button onClick={onPlayPause}
+            className="w-9 h-9 flex items-center justify-center rounded-full bg-primary text-white hover:bg-primary/80 transition-colors">
+            {isPlaying ? <Pause size={15} className="fill-white" /> : <Play size={15} className="fill-white ml-0.5" />}
           </button>
           <button onClick={onNext} disabled={!hasNext}
             className="w-8 h-8 flex items-center justify-center rounded-full text-white/50 hover:text-white hover:bg-white/10 transition-colors disabled:opacity-20 disabled:cursor-not-allowed">
             <SkipForward size={15} />
+          </button>
+          <button onClick={onClose}
+            className="w-7 h-7 flex items-center justify-center rounded-full text-white/30 hover:text-white hover:bg-white/10 transition-colors ml-1">
+            <X size={13} />
           </button>
         </div>
       </div>
@@ -282,6 +291,7 @@ export function Portfolio() {
   const bgImage = settings?.portfolioBgImage ? storageUrl(settings.portfolioBgImage) : "";
 
   const [activeId, setActiveId]       = useState<number | null>(null);
+  const [playing, setPlaying]         = useState(false);
   const [volume, setVolume]           = useState(0.8);
   const [progress, setProgress]       = useState(0);
   const [sectionVisible, setSectionVisible] = useState(true);
@@ -299,6 +309,18 @@ export function Portfolio() {
   // Sync shared audio volume
   useEffect(() => { sharedAudio.volume = volume; }, [volume]);
 
+  // Sync playing state with sharedAudio events
+  useEffect(() => {
+    const onPlay  = () => setPlaying(true);
+    const onPause = () => setPlaying(false);
+    sharedAudio.addEventListener("play", onPlay);
+    sharedAudio.addEventListener("pause", onPause);
+    return () => {
+      sharedAudio.removeEventListener("play", onPlay);
+      sharedAudio.removeEventListener("pause", onPause);
+    };
+  }, []);
+
   // Play a track
   const playTrack = useCallback((track: AudioTrack) => {
     if (!track.audioUrl) return;
@@ -310,10 +332,24 @@ export function Portfolio() {
     setProgress(0);
   }, []);
 
-  const stopTrack = useCallback(() => {
+  const closePlayer = useCallback(() => {
     sharedAudio.pause();
     setActiveId(null);
   }, []);
+
+  const togglePlayPause = useCallback(() => {
+    if (sharedAudio.paused) sharedAudio.play().catch(() => {});
+    else sharedAudio.pause();
+  }, []);
+
+  const handleStickySeek = useCallback((p: number) => {
+    if (sharedAudio.duration) {
+      sharedAudio.currentTime = p * sharedAudio.duration;
+      setProgress(p);
+    }
+  }, []);
+
+  const stopTrack = closePlayer;
 
   const playNext = useCallback(() => {
     if (activeIdx < 0 || activeIdx >= showTracks.length - 1) return;
@@ -466,10 +502,13 @@ export function Portfolio() {
             totalTracks={showTracks.length}
             progress={progress}
             volume={volume}
-            onStop={stopTrack}
+            isPlaying={playing}
+            onPlayPause={togglePlayPause}
+            onClose={closePlayer}
             onVolumeChange={setVolume}
             onNext={playNext}
             onPrev={playPrev}
+            onSeek={handleStickySeek}
           />
         )}
       </AnimatePresence>

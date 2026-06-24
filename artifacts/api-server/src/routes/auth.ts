@@ -116,13 +116,13 @@ router.post("/auth/login", loginLimiter, async (req, res): Promise<void> => {
     if (!envPassword) {
       loginError = "No admin account exists. Set ADMIN_PASSWORD in environment variables.";
     } else if (username !== envUsername) {
-      loginError = `Username "${username}" not found. Try "${envUsername}".`;
+      loginError = "Invalid credentials.";
     } else if (password !== envPassword) {
       loginError = "Password is incorrect.";
     }
     // If loginError is still null here, env-var auth passed — token is issued below.
   } else if (rows[0].username !== username) {
-    loginError = `Username "${username}" not found. The admin username is "${rows[0].username}".`;
+    loginError = "Invalid credentials.";
   } else {
     const passwordOk = await bcrypt.compare(password, rows[0].passwordHash);
     if (!passwordOk) loginError = "Password is incorrect.";

@@ -4,6 +4,7 @@ import { FileUploader } from "../components/FileUploader";
 import { Trash2, Edit2, Plus, X, Check } from "lucide-react";
 import { Music2 } from "lucide-react";
 import { GENRE_ICON_MAP, GENRE_ICON_GROUPS } from "@/lib/genreIcons";
+import { toast } from "@/hooks/use-toast";
 
 function GenreIconPicker({
   value, onChange,
@@ -51,6 +52,7 @@ export default function TracksTab() {
   const [editing, setEditing] = useState<Partial<AudioTrack> | null>(null);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
+  const [confirmId, setConfirmId] = useState<number | null>(null);
 
   async function load() {
     const data = await api.getTracks(true);
@@ -71,13 +73,13 @@ export default function TracksTab() {
       else { await api.createTrack(editing); }
       cancelEdit();
       await load();
-    } catch (e) { alert("Error: " + (e as Error).message); }
+    } catch (e) { toast({ title: "Error saving track", description: (e as Error).message, variant: "destructive" }); }
     finally { setSaving(false); }
   }
 
   async function handleDelete(id: number) {
-    if (!confirm("Delete this track?")) return;
     await api.deleteTrack(id);
+    setConfirmId(null);
     await load();
   }
 
@@ -198,10 +200,23 @@ export default function TracksTab() {
                   className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-colors">
                   <Edit2 size={15} />
                 </button>
-                <button onClick={() => handleDelete(t.id)}
-                  className="p-2 rounded-lg bg-white/5 hover:bg-red-500/20 text-white/60 hover:text-red-400 transition-colors">
-                  <Trash2 size={15} />
-                </button>
+                {confirmId === t.id ? (
+                  <div className="flex items-center gap-1">
+                    <button onClick={() => handleDelete(t.id)}
+                      className="px-2 py-1 text-xs bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg transition-colors font-medium">
+                      Delete
+                    </button>
+                    <button onClick={() => setConfirmId(null)}
+                      className="px-2 py-1 text-xs bg-white/5 hover:bg-white/10 text-white/50 rounded-lg transition-colors">
+                      Cancel
+                    </button>
+                  </div>
+                ) : (
+                  <button onClick={() => setConfirmId(t.id)}
+                    className="p-2 rounded-lg bg-white/5 hover:bg-red-500/20 text-white/60 hover:text-red-400 transition-colors">
+                    <Trash2 size={15} />
+                  </button>
+                )}
               </div>
             </div>
           );

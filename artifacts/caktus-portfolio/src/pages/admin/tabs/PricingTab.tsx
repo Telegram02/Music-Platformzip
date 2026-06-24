@@ -7,6 +7,7 @@ import {
   Pencil, Trash2, Plus, Star, Eye, EyeOff, Wand2, type LucideIcon,
 } from "lucide-react";
 import { api, type PricingItem } from "@/lib/api";
+import { toast } from "@/hooks/use-toast";
 
 const ICON_MAP: Record<string, LucideIcon> = {
   Music2, Gamepad2, Radio, SlidersHorizontal, Film, Speaker,
@@ -238,6 +239,7 @@ export default function PricingTab() {
   const [sectionVisible, setSectionVisible] = useState(true);
   const [savingVisibility, setSavingVisibility] = useState(false);
   const [showPresets, setShowPresets] = useState(false);
+  const [confirmId, setConfirmId] = useState<number | null>(null);
 
   function refresh() {
     api.getPricing(true)
@@ -276,7 +278,7 @@ export default function PricingTab() {
       setAddingPreset(null);
       refresh();
       queryClient.invalidateQueries({ queryKey: ["pricing"] });
-    } catch (e) { alert((e as Error).message); }
+    } catch (e) { toast({ title: "Error saving pricing card", description: (e as Error).message, variant: "destructive" }); }
     finally { setSaving(false); }
   }
 
@@ -287,13 +289,13 @@ export default function PricingTab() {
       setEditingId(null);
       refresh();
       queryClient.invalidateQueries({ queryKey: ["pricing"] });
-    } catch (e) { alert((e as Error).message); }
+    } catch (e) { toast({ title: "Error saving pricing card", description: (e as Error).message, variant: "destructive" }); }
     finally { setSaving(false); }
   }
 
   async function handleDelete(id: number) {
-    if (!confirm("Delete this pricing card?")) return;
     await api.deletePricingItem(id);
+    setConfirmId(null);
     refresh();
     queryClient.invalidateQueries({ queryKey: ["pricing"] });
   }
@@ -442,10 +444,23 @@ export default function PricingTab() {
                   className="p-1.5 text-white/30 hover:text-white hover:bg-white/10 rounded-lg transition-all">
                   <Pencil size={14} />
                 </button>
-                <button onClick={() => handleDelete(item.id)}
-                  className="p-1.5 text-white/30 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all">
-                  <Trash2 size={14} />
-                </button>
+                {confirmId === item.id ? (
+                  <div className="flex items-center gap-1">
+                    <button onClick={() => handleDelete(item.id)}
+                      className="px-2 py-1 text-xs bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg transition-colors font-medium">
+                      Delete
+                    </button>
+                    <button onClick={() => setConfirmId(null)}
+                      className="px-2 py-1 text-xs bg-white/5 hover:bg-white/10 text-white/50 rounded-lg transition-colors">
+                      Cancel
+                    </button>
+                  </div>
+                ) : (
+                  <button onClick={() => setConfirmId(item.id)}
+                    className="p-1.5 text-white/30 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all">
+                    <Trash2 size={14} />
+                  </button>
+                )}
               </div>
             </div>
           );

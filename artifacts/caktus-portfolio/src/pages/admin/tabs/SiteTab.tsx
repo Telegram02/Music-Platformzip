@@ -3,6 +3,7 @@ import { api } from "@/lib/api";
 import { FileUploader } from "../components/FileUploader";
 import { storageUrl } from "@/lib/api";
 import { Eye, EyeOff, User, Image, Music2, Film, Headphones, X } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 
 const SETTINGS_GROUPS = [
   {
@@ -119,7 +120,7 @@ export default function SiteTab() {
       setSaved(true);
       setTimeout(() => setSaved(false), 2500);
     } catch (e) {
-      alert("Failed to save: " + (e as Error).message);
+      toast({ title: "Failed to save", description: (e as Error).message, variant: "destructive" });
     } finally {
       setSaving(false);
     }

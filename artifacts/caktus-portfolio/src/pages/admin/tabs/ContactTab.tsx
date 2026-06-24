@@ -23,6 +23,7 @@ export default function ContactTab() {
   const [testimonialSent, setTestimonialSent] = useState<Set<number>>(new Set());
   const [sendingTestimonial, setSendingTestimonial] = useState(false);
   const [testimonialError, setTestimonialError] = useState("");
+  const [confirmId, setConfirmId] = useState<number | null>(null);
 
   const unread = messages.filter((m) => !m.read).length;
 
@@ -46,8 +47,8 @@ export default function ContactTab() {
   }
 
   async function handleDelete(id: number) {
-    if (!confirm("Delete this message?")) return;
     await api.deleteMessage(id);
+    setConfirmId(null);
     queryClient.invalidateQueries({ queryKey: ["contact-messages"] });
     if (selected?.id === id) setSelected(null);
   }
@@ -124,12 +125,23 @@ export default function ContactTab() {
                 >
                   {selected.read ? <MailOpen size={14} /> : <MailCheck size={14} />}
                 </button>
-                <button
-                  onClick={() => handleDelete(selected.id)}
-                  className="p-1.5 text-white/30 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all"
-                >
-                  <Trash2 size={14} />
-                </button>
+                {confirmId === selected.id ? (
+                  <div className="flex items-center gap-1">
+                    <button onClick={() => handleDelete(selected.id)}
+                      className="px-2 py-1 text-xs bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg transition-colors font-medium">
+                      Delete
+                    </button>
+                    <button onClick={() => setConfirmId(null)}
+                      className="px-2 py-1 text-xs bg-white/5 hover:bg-white/10 text-white/50 rounded-lg transition-colors">
+                      Cancel
+                    </button>
+                  </div>
+                ) : (
+                  <button onClick={() => setConfirmId(selected.id)}
+                    className="p-1.5 text-white/30 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all">
+                    <Trash2 size={14} />
+                  </button>
+                )}
               </div>
             </div>
             {selected.subject && (

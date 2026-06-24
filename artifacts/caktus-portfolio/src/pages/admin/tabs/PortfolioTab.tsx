@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { api, storageUrl, type PortfolioItem } from "@/lib/api";
 import { FileUploader } from "../components/FileUploader";
 import { Trash2, Edit2, Plus, X, Check } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 
 const TYPES = ["youtube", "soundcloud", "spotify", "custom", "game", "mixing"];
 
@@ -21,6 +22,7 @@ export default function PortfolioTab() {
   const [editing, setEditing] = useState<Partial<PortfolioItem> | null>(null);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
+  const [confirmId, setConfirmId] = useState<number | null>(null);
 
   async function load() {
     const data = await api.getPortfolio(true);
@@ -49,15 +51,15 @@ export default function PortfolioTab() {
       cancelEdit();
       await load();
     } catch (e) {
-      alert("Error: " + (e as Error).message);
+      toast({ title: "Error saving item", description: (e as Error).message, variant: "destructive" });
     } finally {
       setSaving(false);
     }
   }
 
   async function handleDelete(id: number) {
-    if (!confirm("Delete this item?")) return;
     await api.deletePortfolioItem(id);
+    setConfirmId(null);
     await load();
   }
 
@@ -209,12 +211,23 @@ export default function PortfolioTab() {
               >
                 <Edit2 size={15} />
               </button>
-              <button
-                onClick={() => handleDelete(item.id)}
-                className="p-2 rounded-lg bg-white/5 hover:bg-red-500/20 text-white/60 hover:text-red-400 transition-colors"
-              >
-                <Trash2 size={15} />
-              </button>
+              {confirmId === item.id ? (
+                <div className="flex items-center gap-1">
+                  <button onClick={() => handleDelete(item.id)}
+                    className="px-2 py-1 text-xs bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg transition-colors font-medium">
+                    Delete
+                  </button>
+                  <button onClick={() => setConfirmId(null)}
+                    className="px-2 py-1 text-xs bg-white/5 hover:bg-white/10 text-white/50 rounded-lg transition-colors">
+                    Cancel
+                  </button>
+                </div>
+              ) : (
+                <button onClick={() => setConfirmId(item.id)}
+                  className="p-2 rounded-lg bg-white/5 hover:bg-red-500/20 text-white/60 hover:text-red-400 transition-colors">
+                  <Trash2 size={15} />
+                </button>
+              )}
             </div>
           </div>
         ))}
