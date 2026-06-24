@@ -56,7 +56,7 @@ function AudioWidget({ audioUrl, coverUrl, title }: { audioUrl: string; coverUrl
 
 export function About() {
   const { data: settings } = useSiteSettings();
-  const bio = settings?.bio ?? "Music producer and sound designer with experience across hip-hop, rock, metal, metalcore, electronic, industrial, ambient, horror, cinematic, and video game music. Focused on emotional storytelling through sound.";
+  const bio = settings?.bio ?? "I'm Caktus — a music composer and producer with 8 years of experience and a passion for making every project feel exactly the way it should. I work across a wide range of styles: hip-hop, metal, rock, orchestral, horror, ambient, and cinematic. Whatever the sound, I bring the same focus — make it hit, make it feel right.";
   const years = settings?.yearsExperience ?? "10";
   const bgImage = settings?.aboutBgImage ? storageUrl(settings.aboutBgImage) : "";
 

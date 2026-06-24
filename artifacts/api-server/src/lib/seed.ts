@@ -4,7 +4,7 @@ import { eq } from "drizzle-orm";
 import { logger } from "./logger";
 
 const DEFAULT_SETTINGS: Record<string, string> = {
-  bio: "I'm Caktus (Ahmed Al-Ghizy), a music composer and producer from Iraq. I've been in love with music since I was a kid and started producing at 18 — 8 years of constantly developing my craft. I work across video game music, hip-hop, metal, rock, horror soundtracks, orchestral, and ambient. My main goal is scoring music for video game developers and studios, since games have always been a huge passion of mine.",
+  bio: "I'm Caktus — a music composer and producer with 8 years of experience and a passion for making every project feel exactly the way it should. I work across a wide range of styles: hip-hop, metal, rock, orchestral, horror, ambient, and cinematic. Whatever the sound, I bring the same focus — make it hit, make it feel right.",
   tagline: "Music composer and producer specializing in video game soundtracks, hip-hop, metal, orchestral, horror, and ambient music.",
   yearsExperience: "8",
   contactEmail: "madebycaktus@gmail.com",
