@@ -11,6 +11,7 @@ import { Testimonials } from "@/components/sections/Testimonials";
 import { Pricing } from "@/components/sections/Pricing";
 import { CommissionModal } from "@/components/sections/CommissionModal";
 import { Contact } from "@/components/sections/Contact";
+import { LookingFor } from "@/components/sections/LookingFor";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { Mail } from "lucide-react";
 import { useAdminStatus } from "@/hooks/useAdminStatus";
@@ -32,6 +33,7 @@ export default function Home() {
 
       <main className={`flex-grow${isAdmin ? " pt-10" : ""}`}>
         <Hero />
+        <LookingFor />
         <About />
         <Services />
         <Portfolio />
