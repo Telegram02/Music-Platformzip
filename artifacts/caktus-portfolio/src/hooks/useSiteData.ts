@@ -5,7 +5,8 @@ export function useSiteSettings() {
   return useQuery({
     queryKey: ["site-settings"],
     queryFn: () => api.getSettings(),
-    staleTime: 30_000,
+    staleTime: 5 * 60_000,
+    gcTime: 30 * 60_000,
   });
 }
 
@@ -13,7 +14,8 @@ export function useSocialLinks() {
   return useQuery({
     queryKey: ["social-links"],
     queryFn: () => api.getSocial(false),
-    staleTime: 30_000,
+    staleTime: 5 * 60_000,
+    gcTime: 30 * 60_000,
   });
 }
 
@@ -21,7 +23,8 @@ export function useAudioTracks() {
   return useQuery({
     queryKey: ["audio-tracks"],
     queryFn: () => api.getTracks(false),
-    staleTime: 30_000,
+    staleTime: 5 * 60_000,
+    gcTime: 30 * 60_000,
   });
 }
 
@@ -29,7 +32,8 @@ export function usePortfolioItems() {
   return useQuery({
     queryKey: ["portfolio-items"],
     queryFn: () => api.getPortfolio(false),
-    staleTime: 30_000,
+    staleTime: 5 * 60_000,
+    gcTime: 30 * 60_000,
   });
 }
 
@@ -37,7 +41,8 @@ export function useServices() {
   return useQuery({
     queryKey: ["services"],
     queryFn: () => api.getServices(false),
-    staleTime: 30_000,
+    staleTime: 5 * 60_000,
+    gcTime: 30 * 60_000,
   });
 }
 
@@ -45,7 +50,8 @@ export function useTestimonials() {
   return useQuery({
     queryKey: ["testimonials"],
     queryFn: () => api.getTestimonials(false),
-    staleTime: 30_000,
+    staleTime: 5 * 60_000,
+    gcTime: 30 * 60_000,
   });
 }
 

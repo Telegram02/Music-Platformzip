@@ -51,6 +51,15 @@ router.get("/storage/public-objects/*filePath", async (req: Request, res: Respon
     const response = await objectStorageService.downloadObject(file);
     res.status(response.status);
     response.headers.forEach((value, key) => res.setHeader(key, value));
+
+    // Long-lived cache so Vercel Edge Network and browsers serve from cache
+    // after the first load — subsequent visits never hit this function.
+    // 1 year immutable for media assets (images, audio, video).
+    if (response.status === 200) {
+      res.setHeader("Cache-Control", "public, max-age=31536000, stale-while-revalidate=86400, immutable");
+      res.setHeader("Vary", "Accept-Encoding");
+    }
+
     if (response.body) {
       const nodeStream = Readable.fromWeb(response.body as ReadableStream<Uint8Array>);
       nodeStream.pipe(res);
