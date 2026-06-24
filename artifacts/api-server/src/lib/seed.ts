@@ -4,17 +4,17 @@ import { eq } from "drizzle-orm";
 import { logger } from "./logger";
 
 const DEFAULT_SETTINGS: Record<string, string> = {
-  bio: "Music producer and sound designer with experience across hip-hop, rock, metal, metalcore, electronic, industrial, ambient, horror, cinematic, and video game music. Focused on emotional storytelling through sound with high-quality production, mixing, and mastering.",
-  tagline: "Cinematic soundtracks, game audio, and professional music production for artists and studios. Emotional storytelling through sound.",
-  yearsExperience: "10",
-  contactEmail: "caktusaudio@gmail.com",
+  bio: "I'm Caktus (Ahmed Al-Ghizy), a music composer and producer from Iraq. I've been in love with music since I was a kid and started producing at 18 — 8 years of constantly developing my craft. I work across video game music, hip-hop, metal, rock, horror soundtracks, orchestral, and ambient. My main goal is scoring music for video game developers and studios, since games have always been a huge passion of mine.",
+  tagline: "Music composer and producer specializing in video game soundtracks, hip-hop, metal, orchestral, horror, and ambient music.",
+  yearsExperience: "8",
+  contactEmail: "madebycaktus@gmail.com",
   discord: "caktus",
   introVideoUrl: "",
   heroImageUrl: "",
-  heroBadge: "Music Producer | Composer | Sound Designer",
-  availability: "Currently accepting projects for Q4. Reach out to discuss your vision, rates, and availability.",
-  siteMetaTitle: "Caktus Productions — Music Producer & Composer",
-  siteMetaDescription: "Cinematic soundtracks, game audio, and professional music production for artists and studios.",
+  heroBadge: "Music Composer | Producer | Sound Designer",
+  availability: "Currently accepting projects. Reach out to discuss your vision, rates, and availability.",
+  siteMetaTitle: "Caktus Productions — Music Composer & Producer",
+  siteMetaDescription: "Music composer and producer specializing in video game soundtracks, hip-hop, metal, orchestral, horror, and ambient music.",
 };
 
 const DEFAULT_SOCIAL: Array<{ platform: string; url: string; sortOrder: number }> = [
