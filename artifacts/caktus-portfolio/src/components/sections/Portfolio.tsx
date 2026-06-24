@@ -683,7 +683,7 @@ const PLACEHOLDER_TRACKS: AudioTrack[] = [
 
 // ── Main Portfolio section ────────────────────────────────────────────────────
 export function Portfolio() {
-  const { data: tracks = [] } = useAudioTracks();
+  const { data: tracks = [], isLoading: tracksLoading } = useAudioTracks();
   const { data: portfolioItems = [] } = usePortfolioItems();
   const { data: settings } = useSiteSettings();
   const bgImage = settings?.portfolioBgImage ? storageUrl(settings.portfolioBgImage) : "";
@@ -835,24 +835,30 @@ export function Portfolio() {
             </motion.p>
           </div>
 
-          {showTracks.length > 0 && (
+          {(tracksLoading || showTracks.length > 0) && (
             <div className="mb-12 md:mb-16">
               <h3 className="text-sm uppercase tracking-widest text-foreground/40 font-mono mb-5 md:mb-6 flex items-center gap-3">
                 <span className="w-8 h-[1px] bg-primary/50 inline-block" />
                 Audio Demos
-                {!hasRealTracks && <span className="text-foreground/20 text-xs hidden sm:inline">(placeholders)</span>}
+                {!tracksLoading && !hasRealTracks && <span className="text-foreground/20 text-xs hidden sm:inline">(placeholders)</span>}
               </h3>
 
               {/* ── MOBILE: compact paginated list ─────────────────────────── */}
               <div className="md:hidden space-y-2">
-                {mobilePageTracks.map((track) => (
-                  <MobileAudioCard key={track.id} track={track}
-                    isPlaying={activeId === track.id}
-                    progress={activeId === track.id ? progress : 0}
-                    onPlay={() => playTrack(track)}
-                    onStop={stopTrack}
-                    onProgressUpdate={handleProgressUpdate} />
-                ))}
+                {tracksLoading ? (
+                  Array.from({ length: 4 }).map((_, i) => (
+                    <div key={i} className="h-[68px] rounded-xl bg-card border border-border/30 animate-pulse" />
+                  ))
+                ) : (
+                  mobilePageTracks.map((track) => (
+                    <MobileAudioCard key={track.id} track={track}
+                      isPlaying={activeId === track.id}
+                      progress={activeId === track.id ? progress : 0}
+                      onPlay={() => playTrack(track)}
+                      onStop={stopTrack}
+                      onProgressUpdate={handleProgressUpdate} />
+                  ))
+                )}
 
                 {/* Pagination controls */}
                 {mobilePageCount > 1 && (
@@ -883,7 +889,11 @@ export function Portfolio() {
 
               {/* ── DESKTOP: card grid ──────────────────────────────────────── */}
               <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {showTracks.map((track, index) => {
+                {tracksLoading
+                  ? Array.from({ length: 3 }).map((_, i) => (
+                      <div key={i} className="h-52 rounded-sm bg-card border border-border/30 animate-pulse" style={{ animationDelay: `${i * 120}ms` }} />
+                    ))
+                  : showTracks.map((track, index) => {
                   const isFeatured = track.cardStyle === "featured";
                   const isCompact  = track.cardStyle === "compact";
                   const sharedProps = {
