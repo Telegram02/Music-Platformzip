@@ -23,8 +23,11 @@ export function Hero() {
 
   const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
-    const element = document.querySelector(href);
-    if (element) element.scrollIntoView({ behavior: "smooth" });
+    const id = href.replace("#", "");
+    const el = document.getElementById(id);
+    if (!el) return;
+    const top = el.getBoundingClientRect().top + window.scrollY - 72;
+    window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
   };
 
   return (
@@ -132,7 +135,7 @@ export function Hero() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.5, duration: 1 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-0 pointer-events-none hidden sm:flex"
       >
         <span className="text-xs text-foreground/50 uppercase tracking-widest">Scroll</span>
         <div className="w-[1px] h-12 bg-gradient-to-b from-foreground/50 to-transparent" />

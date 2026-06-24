@@ -52,7 +52,8 @@ export default function Home() {
         href="#contact"
         onClick={(e) => {
           e.preventDefault();
-          document.querySelector("#contact")?.scrollIntoView({ behavior: "smooth" });
+          const el = document.getElementById("contact");
+          if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 72, behavior: "smooth" });
         }}
         className="fixed bottom-6 right-6 z-40 flex items-center justify-center gap-2 px-6 py-3 bg-primary text-white rounded-full font-medium shadow-[0_0_20px_rgba(147,51,234,0.4)] hover:shadow-[0_0_30px_rgba(147,51,234,0.6)] hover:-translate-y-1 hover:bg-primary/90 transition-all duration-300"
       >

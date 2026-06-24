@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Menu, X } from "lucide-react";
 import { motion, useScroll, useSpring } from "framer-motion";
 import { useAdminStatus } from "@/hooks/useAdminStatus";
@@ -6,6 +6,17 @@ import { useSiteSettings } from "@/hooks/useSiteData";
 
 interface NavbarProps {
   onCommissionOpen: () => void;
+}
+
+const NAVBAR_HEIGHT = 72; // px — matches the tallest state of the nav
+
+function scrollToId(id: string, isAdmin: boolean) {
+  const el = document.getElementById(id === "#home" ? "home" : id.replace("#", ""));
+  if (!el) return;
+  const adminBarHeight = isAdmin ? 40 : 0;
+  const offset = NAVBAR_HEIGHT + adminBarHeight;
+  const top = el.getBoundingClientRect().top + window.scrollY - offset;
+  window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
 }
 
 export function Navbar({ onCommissionOpen }: NavbarProps) {
@@ -16,7 +27,6 @@ export function Navbar({ onCommissionOpen }: NavbarProps) {
   const { data: settings } = useSiteSettings();
   const pricingVisible      = settings?.pricingVisible      !== "false";
   const servicesVisible     = settings?.servicesVisible     !== "false";
-  const testimonialsVisible = settings?.testimonialsVisible !== "false";
 
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30, restDelta: 0.001 });
@@ -27,38 +37,41 @@ export function Navbar({ onCommissionOpen }: NavbarProps) {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  useEffect(() => {
-    const sectionIds = ["contact", "pricing", "workflow", "portfolio", "services", "about", "home"];
-    const observers: IntersectionObserver[] = [];
-    sectionIds.forEach((id) => {
+  // Active section detection via scroll position (more accurate than IntersectionObserver)
+  const updateActive = useCallback(() => {
+    const sectionIds = ["home", "about", "services", "portfolio", "workflow", "pricing", "contact"];
+    const adminBarHeight = isAdmin ? 40 : 0;
+    const offset = NAVBAR_HEIGHT + adminBarHeight + 16; // small extra buffer
+
+    let current = "home";
+    for (const id of sectionIds) {
       const el = document.getElementById(id);
-      if (!el) return;
-      const obs = new IntersectionObserver(
-        ([entry]) => { if (entry.isIntersecting) setActiveSection(id); },
-        { rootMargin: "-35% 0px -55% 0px", threshold: 0 },
-      );
-      obs.observe(el);
-      observers.push(obs);
-    });
-    return () => observers.forEach((o) => o.disconnect());
-  }, []);
+      if (!el) continue;
+      const top = el.getBoundingClientRect().top;
+      if (top <= offset) current = id;
+    }
+    setActiveSection(current);
+  }, [isAdmin]);
+
+  useEffect(() => {
+    window.addEventListener("scroll", updateActive, { passive: true });
+    updateActive();
+    return () => window.removeEventListener("scroll", updateActive);
+  }, [updateActive]);
 
   const navLinks = [
-    { name: "About",        href: "#about",        id: "about" },
-    ...(servicesVisible     ? [{ name: "Services",     href: "#services",     id: "services"     }] : []),
-    { name: "Portfolio",    href: "#portfolio",    id: "portfolio" },
-    { name: "Workflow",     href: "#workflow",     id: "workflow" },
-    ...(pricingVisible ? [{ name: "Pricing", href: "#pricing", id: "pricing" }] : []),
-    { name: "Contact", href: "#contact", id: "contact" },
+    { name: "About",     href: "#about",     id: "about"     },
+    ...(servicesVisible ? [{ name: "Services", href: "#services", id: "services" }] : []),
+    { name: "Portfolio", href: "#portfolio", id: "portfolio" },
+    { name: "Workflow",  href: "#workflow",  id: "workflow"  },
+    ...(pricingVisible  ? [{ name: "Pricing",  href: "#pricing",  id: "pricing"  }] : []),
+    { name: "Contact",   href: "#contact",   id: "contact"   },
   ];
 
-  const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
-    const element = document.querySelector(href);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-      setIsMobileMenuOpen(false);
-    }
+    scrollToId(href, isAdmin);
+    setIsMobileMenuOpen(false);
   };
 
   const topOffset = isAdmin ? "top-10" : "top-0";
@@ -79,7 +92,7 @@ export function Navbar({ onCommissionOpen }: NavbarProps) {
       <div className="container mx-auto px-6 flex items-center justify-between">
         <a
           href="#home"
-          onClick={(e) => scrollToSection(e, "#home")}
+          onClick={(e) => handleNavClick(e, "#home")}
           className="text-2xl font-display font-bold tracking-widest text-white hover:text-primary transition-colors"
         >
           CAKTUS
@@ -90,7 +103,7 @@ export function Navbar({ onCommissionOpen }: NavbarProps) {
             <a
               key={link.name}
               href={link.href}
-              onClick={(e) => scrollToSection(e, link.href)}
+              onClick={(e) => handleNavClick(e, link.href)}
               className={`text-sm uppercase tracking-wider font-medium transition-colors relative group ${
                 activeSection === link.id ? "text-primary" : "text-foreground/80 hover:text-primary"
               }`}
@@ -113,7 +126,7 @@ export function Navbar({ onCommissionOpen }: NavbarProps) {
           </button>
           <a
             href="#contact"
-            onClick={(e) => scrollToSection(e, "#contact")}
+            onClick={(e) => handleNavClick(e, "#contact")}
             className="px-5 py-2.5 bg-primary/10 text-primary border border-primary/30 hover:bg-primary hover:text-white transition-all duration-300 rounded-sm font-medium uppercase tracking-wider text-sm hover:shadow-[0_0_15px_rgba(147,51,234,0.5)]"
           >
             Hire Me
@@ -140,7 +153,7 @@ export function Navbar({ onCommissionOpen }: NavbarProps) {
             <a
               key={link.name}
               href={link.href}
-              onClick={(e) => scrollToSection(e, link.href)}
+              onClick={(e) => handleNavClick(e, link.href)}
               className={`text-base uppercase tracking-wider font-medium py-3 border-b border-border/20 last:border-0 transition-colors flex items-center justify-between ${
                 activeSection === link.id ? "text-primary" : "text-foreground/90 hover:text-primary"
               }`}
@@ -161,7 +174,7 @@ export function Navbar({ onCommissionOpen }: NavbarProps) {
             </button>
             <a
               href="#contact"
-              onClick={(e) => scrollToSection(e, "#contact")}
+              onClick={(e) => handleNavClick(e, "#contact")}
               className="block text-center px-6 py-3 bg-primary text-white rounded-sm font-medium uppercase tracking-wider text-sm hover:bg-primary/90 transition-colors"
             >
               Hire Me
