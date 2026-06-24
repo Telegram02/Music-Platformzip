@@ -666,6 +666,20 @@ export function Portfolio() {
     return () => sharedAudio.removeEventListener("ended", onEnd);
   }, [activeIdx, showTracks, playTrack, stopTrack]);
 
+  // Auto-play deep-linked track once real tracks are loaded
+  useEffect(() => {
+    const id = pendingTrackId.current;
+    if (!id || !hasRealTracks) return;
+    const target = showTracks.find((t) => t.id === id);
+    if (target && target.audioUrl) {
+      pendingTrackId.current = null;
+      setTimeout(() => {
+        playTrack(target);
+        sectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 600);
+    }
+  }, [hasRealTracks, showTracks, playTrack]);
+
   // Track progress
   const handleProgressUpdate = useCallback((p: number) => setProgress(p), []);
 
@@ -749,9 +763,10 @@ export function Portfolio() {
               </div>
 
               {/* ── DESKTOP: card grid ──────────────────────────────────────── */}
-              <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {showTracks.map((track, index) => {
                   const isFeatured = track.cardStyle === "featured";
+                  const isCompact  = track.cardStyle === "compact";
                   const sharedProps = {
                     track,
                     isPlaying: activeId === track.id,
@@ -769,11 +784,23 @@ export function Portfolio() {
                       whileInView={{ opacity: 1, y: 0 }}
                       viewport={{ once: true }}
                       transition={{ duration: 0.5, delay: index * 0.08 }}
-                      className={`group ${isFeatured ? "md:col-span-2 lg:col-span-2" : ""}`}
+                      className={`group ${
+                        isFeatured ? "md:col-span-2 lg:col-span-2" :
+                        isCompact  ? "col-span-full" : ""
+                      }`}
                     >
-                      {isFeatured
-                        ? <FeaturedAudioCard {...sharedProps} />
-                        : <DesktopAudioCard {...sharedProps} />}
+                      {isFeatured ? (
+                        <FeaturedAudioCard {...sharedProps} />
+                      ) : isCompact ? (
+                        <CompactAudioCard
+                          track={track}
+                          isPlaying={sharedProps.isPlaying}
+                          onPlay={sharedProps.onPlay}
+                          onStop={sharedProps.onStop}
+                        />
+                      ) : (
+                        <DesktopAudioCard {...sharedProps} />
+                      )}
                     </motion.div>
                   );
                 })}
