@@ -34,6 +34,10 @@ export function Hero() {
     <section id="home" className="relative min-h-[100dvh] flex items-center justify-center overflow-hidden pt-20">
       {/* Background layers */}
       <div className="absolute inset-0 z-0">
+        {/* Shimmer placeholder while settings load */}
+        {!settings && (
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/8 via-transparent to-accent/6 animate-pulse" />
+        )}
         {/* Static image background */}
         {heroImageUrl && !introVideoUrl && (
           <img

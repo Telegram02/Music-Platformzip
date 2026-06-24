@@ -8,6 +8,52 @@ import { GENRE_ICON_MAP } from "@/lib/genreIcons";
 
 const WAVEFORM_HEIGHTS = Array.from({ length: 32 }, (_, i) => Math.max(10, ((i * 37 + 13) % 90) + 10));
 
+// ── Web Audio API analyser — singleton so createMediaElementSource is called once ──
+let _audioCtx: AudioContext | null = null;
+let _analyser: AnalyserNode | null = null;
+let _srcConnected = false;
+
+function ensureAnalyser(): AnalyserNode | null {
+  try {
+    if (!_audioCtx) {
+      _audioCtx = new AudioContext();
+      _analyser = _audioCtx.createAnalyser();
+      _analyser.fftSize = 64;
+      _analyser.smoothingTimeConstant = 0.75;
+    }
+    if (_audioCtx.state === "suspended") void _audioCtx.resume();
+    if (!_srcConnected && _analyser && _audioCtx) {
+      const src = _audioCtx.createMediaElementSource(sharedAudio);
+      src.connect(_analyser);
+      _analyser.connect(_audioCtx.destination);
+      _srcConnected = true;
+    }
+    return _analyser;
+  } catch {
+    return null;
+  }
+}
+
+function useAudioBars(playing: boolean, count = 32): number[] {
+  const [bars, setBars] = useState<number[]>(() => Array(count).fill(0));
+  const rafRef = useRef<number>(0);
+  useEffect(() => {
+    if (!playing) { setBars(Array(count).fill(0)); return; }
+    const analyser = ensureAnalyser();
+    if (!analyser) return;
+    const data = new Uint8Array(analyser.frequencyBinCount);
+    const step = Math.max(1, Math.floor(data.length / count));
+    function tick() {
+      analyser!.getByteFrequencyData(data);
+      setBars(Array.from({ length: count }, (_, i) => data[Math.min(i * step, data.length - 1)] / 255));
+      rafRef.current = requestAnimationFrame(tick);
+    }
+    rafRef.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [playing, count]);
+  return bars;
+}
+
 // ── Shared audio element (singleton) ─────────────────────────────────────────
 const sharedAudio = new Audio();
 
@@ -145,6 +191,8 @@ function FeaturedAudioCard({
     return () => sharedAudio.removeEventListener("timeupdate", onTime);
   }, [isPlaying, onProgressUpdate]);
 
+  const liveBars = useAudioBars(isPlaying, WAVEFORM_HEIGHTS.length);
+
   function handleSeek(e: React.MouseEvent<HTMLDivElement>) {
     if (!sharedAudio.duration) return;
     const rect = e.currentTarget.getBoundingClientRect();
@@ -217,13 +265,24 @@ function FeaturedAudioCard({
           )}
         </div>
 
-        {/* Waveform */}
+        {/* Waveform — live frequency bars when playing, static seek bar otherwise */}
         <div className="flex-1 flex items-center mb-4">
-          <div className="w-full flex items-center gap-[2px] h-10 cursor-pointer" onClick={handleSeek}>
-            {WAVEFORM_HEIGHTS.map((h, i) => (
-              <div key={i} className="flex-1 rounded-full transition-colors"
-                style={{ height: `${h}%`, background: i < played ? accent : "rgba(255,255,255,0.1)" }} />
-            ))}
+          <div className="w-full flex items-end gap-[2px] h-12 cursor-pointer" onClick={handleSeek} title="Click to seek">
+            {WAVEFORM_HEIGHTS.map((h, i) => {
+              const liveH = isPlaying ? Math.max(12, liveBars[i] * 100) : h;
+              return (
+                <div key={i} className="flex-1 rounded-full"
+                  style={{
+                    height: `${liveH}%`,
+                    transition: isPlaying ? "height 80ms ease-out" : "height 200ms",
+                    background: i < played
+                      ? accent
+                      : isPlaying
+                        ? `${accent}35`
+                        : "rgba(255,255,255,0.1)",
+                  }} />
+              );
+            })}
           </div>
         </div>
 
@@ -288,6 +347,8 @@ function DesktopAudioCard({
     return () => sharedAudio.removeEventListener("timeupdate", onTime);
   }, [isPlaying, onProgressUpdate]);
 
+  const liveBars = useAudioBars(isPlaying, WAVEFORM_HEIGHTS.length);
+
   function handleSeek(e: React.MouseEvent<HTMLDivElement>) {
     if (!sharedAudio.duration) return;
     const rect = e.currentTarget.getBoundingClientRect();
@@ -350,13 +411,24 @@ function DesktopAudioCard({
         </div>
       </div>
 
-      {/* Waveform seek bar */}
+      {/* Waveform seek bar — live frequency bars when playing */}
       <div className="flex-grow flex items-center py-2 mb-4">
-        <div className="w-full flex items-center gap-[2px] h-10 cursor-pointer" onClick={handleSeek}>
-          {WAVEFORM_HEIGHTS.map((h, i) => (
-            <div key={i} className="flex-1 rounded-full transition-colors"
-              style={{ height: `${h}%`, background: i < played ? accent : "rgba(255,255,255,0.1)" }} />
-          ))}
+        <div className="w-full flex items-end gap-[2px] h-12 cursor-pointer" onClick={handleSeek} title="Click to seek">
+          {WAVEFORM_HEIGHTS.map((h, i) => {
+            const liveH = isPlaying ? Math.max(12, liveBars[i] * 100) : h;
+            return (
+              <div key={i} className="flex-1 rounded-full"
+                style={{
+                  height: `${liveH}%`,
+                  transition: isPlaying ? "height 80ms ease-out" : "height 200ms",
+                  background: i < played
+                    ? accent
+                    : isPlaying
+                      ? `${accent}35`
+                      : "rgba(255,255,255,0.1)",
+                }} />
+            );
+          })}
         </div>
       </div>
 
@@ -392,45 +464,90 @@ function DesktopAudioCard({
   );
 }
 
-// ── Mobile compact card (row style) ──────────────────────────────────────────
+// ── Mobile compact card (row + seekable progress bar) ────────────────────────
 function MobileAudioCard({
-  track, isPlaying, onPlay, onStop,
-}: { track: AudioTrack; isPlaying: boolean; onPlay: () => void; onStop: () => void }) {
+  track, isPlaying, progress, onPlay, onStop, onProgressUpdate,
+}: {
+  track: AudioTrack; isPlaying: boolean; progress: number;
+  onPlay: () => void; onStop: () => void;
+  onProgressUpdate: (p: number) => void;
+}) {
   const Icon: LucideIcon = GENRE_ICON_MAP[track.iconName ?? "Music2"] ?? Music2;
   const accent = track.accentColor || "#9333ea";
   const iconCol = track.iconColor || null;
+  const liveBars = useAudioBars(isPlaying, 9);
+
+  useEffect(() => {
+    if (!isPlaying) return;
+    function onTime() {
+      if (sharedAudio.duration) onProgressUpdate(sharedAudio.currentTime / sharedAudio.duration);
+    }
+    sharedAudio.addEventListener("timeupdate", onTime);
+    return () => sharedAudio.removeEventListener("timeupdate", onTime);
+  }, [isPlaying, onProgressUpdate]);
+
+  function handleSeek(e: React.MouseEvent<HTMLDivElement>) {
+    if (!sharedAudio.duration) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    sharedAudio.currentTime = ((e.clientX - rect.left) / rect.width) * sharedAudio.duration;
+    if (!isPlaying) onPlay();
+  }
+
   return (
     <div
-      className="flex items-center gap-3 px-4 py-3 rounded-xl border transition-all"
+      className="flex flex-col rounded-xl border transition-all overflow-hidden"
       style={{
         borderColor: isPlaying ? `${accent}80` : `${accent}22`,
         background: isPlaying ? `${accent}0d` : "rgba(0,0,0,0.4)",
       }}
     >
-      {track.coverUrl ? (
-        <img src={storageUrl(track.coverUrl)} alt={track.title} className="w-10 h-10 rounded-lg object-cover flex-shrink-0 border border-border/40" />
-      ) : (
-        <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
-          style={{ background: `${accent}18`, border: `1px solid ${accent}33` }}>
-          <Icon size={18} style={{ color: iconCol ?? accent }} />
+      <div className="flex items-center gap-3 px-4 py-3">
+        {track.coverUrl ? (
+          <img src={storageUrl(track.coverUrl)} alt={track.title} className="w-10 h-10 rounded-lg object-cover flex-shrink-0 border border-border/40" />
+        ) : (
+          <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
+            style={{ background: `${accent}18`, border: `1px solid ${accent}33` }}>
+            <Icon size={18} style={{ color: iconCol ?? accent }} />
+          </div>
+        )}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-1.5">
+            <p className="text-sm font-semibold truncate text-white" style={isPlaying ? { color: accent } : {}}>
+              {track.title}
+            </p>
+            {track.pinned && <Pin size={10} className="text-yellow-400 flex-shrink-0" />}
+          </div>
+          <p className="text-xs text-foreground/40 truncate capitalize">{track.genre || "Audio"}</p>
         </div>
-      )}
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-1.5">
-          <p className="text-sm font-semibold truncate text-white" style={isPlaying ? { color: accent } : {}}>
-            {track.title}
-          </p>
-          {track.pinned && <Pin size={10} className="text-yellow-400 flex-shrink-0" />}
-        </div>
-        <p className="text-xs text-foreground/40 truncate capitalize">{track.genre || "Audio"}</p>
+        {/* Live frequency visualizer */}
+        {isPlaying && (
+          <div className="flex items-end gap-[2px] h-5 flex-shrink-0">
+            {liveBars.map((v, i) => (
+              <div key={i} className="w-[3px] rounded-full"
+                style={{
+                  height: `${Math.max(20, v * 100)}%`,
+                  transition: "height 80ms ease-out",
+                  background: i % 2 === 0 ? accent : `${accent}80`,
+                }} />
+            ))}
+          </div>
+        )}
+        <ShareButton track={track} size={13} />
+        <button onClick={isPlaying ? onStop : onPlay} disabled={!track.audioUrl}
+          className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 transition-all disabled:opacity-30"
+          style={isPlaying ? { background: accent } : { background: "rgba(255,255,255,0.1)" }}>
+          {isPlaying ? <Pause size={14} className="fill-white" /> : <Play size={14} className="fill-white ml-0.5" />}
+        </button>
       </div>
-      {isPlaying && <MiniWave playing />}
-      <ShareButton track={track} size={13} />
-      <button onClick={isPlaying ? onStop : onPlay} disabled={!track.audioUrl}
-        className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 transition-all disabled:opacity-30"
-        style={isPlaying ? { background: accent } : { background: "rgba(255,255,255,0.1)" }}>
-        {isPlaying ? <Pause size={14} className="fill-white" /> : <Play size={14} className="fill-white ml-0.5" />}
-      </button>
+      {/* Seek bar — tap anywhere to jump */}
+      <div
+        className="h-1 mx-4 mb-2.5 rounded-full overflow-hidden cursor-pointer"
+        style={{ background: "rgba(255,255,255,0.08)" }}
+        onClick={handleSeek}
+      >
+        <div className="h-full rounded-full transition-all duration-150"
+          style={{ width: `${(isPlaying ? progress : 0) * 100}%`, background: accent }} />
+      </div>
     </div>
   );
 }
@@ -566,7 +683,7 @@ const PLACEHOLDER_TRACKS: AudioTrack[] = [
 
 // ── Main Portfolio section ────────────────────────────────────────────────────
 export function Portfolio() {
-  const { data: tracks = [] } = useAudioTracks();
+  const { data: tracks = [], isLoading: tracksLoading } = useAudioTracks();
   const { data: portfolioItems = [] } = usePortfolioItems();
   const { data: settings } = useSiteSettings();
   const bgImage = settings?.portfolioBgImage ? storageUrl(settings.portfolioBgImage) : "";
@@ -718,22 +835,30 @@ export function Portfolio() {
             </motion.p>
           </div>
 
-          {showTracks.length > 0 && (
+          {(tracksLoading || showTracks.length > 0) && (
             <div className="mb-12 md:mb-16">
               <h3 className="text-sm uppercase tracking-widest text-foreground/40 font-mono mb-5 md:mb-6 flex items-center gap-3">
                 <span className="w-8 h-[1px] bg-primary/50 inline-block" />
                 Audio Demos
-                {!hasRealTracks && <span className="text-foreground/20 text-xs hidden sm:inline">(placeholders)</span>}
+                {!tracksLoading && !hasRealTracks && <span className="text-foreground/20 text-xs hidden sm:inline">(placeholders)</span>}
               </h3>
 
               {/* ── MOBILE: compact paginated list ─────────────────────────── */}
               <div className="md:hidden space-y-2">
-                {mobilePageTracks.map((track) => (
-                  <MobileAudioCard key={track.id} track={track}
-                    isPlaying={activeId === track.id}
-                    onPlay={() => playTrack(track)}
-                    onStop={stopTrack} />
-                ))}
+                {tracksLoading ? (
+                  Array.from({ length: 4 }).map((_, i) => (
+                    <div key={i} className="h-[68px] rounded-xl bg-card border border-border/30 animate-pulse" />
+                  ))
+                ) : (
+                  mobilePageTracks.map((track) => (
+                    <MobileAudioCard key={track.id} track={track}
+                      isPlaying={activeId === track.id}
+                      progress={activeId === track.id ? progress : 0}
+                      onPlay={() => playTrack(track)}
+                      onStop={stopTrack}
+                      onProgressUpdate={handleProgressUpdate} />
+                  ))
+                )}
 
                 {/* Pagination controls */}
                 {mobilePageCount > 1 && (
@@ -764,7 +889,11 @@ export function Portfolio() {
 
               {/* ── DESKTOP: card grid ──────────────────────────────────────── */}
               <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {showTracks.map((track, index) => {
+                {tracksLoading
+                  ? Array.from({ length: 3 }).map((_, i) => (
+                      <div key={i} className="h-52 rounded-sm bg-card border border-border/30 animate-pulse" style={{ animationDelay: `${i * 120}ms` }} />
+                    ))
+                  : showTracks.map((track, index) => {
                   const isFeatured = track.cardStyle === "featured";
                   const isCompact  = track.cardStyle === "compact";
                   const sharedProps = {

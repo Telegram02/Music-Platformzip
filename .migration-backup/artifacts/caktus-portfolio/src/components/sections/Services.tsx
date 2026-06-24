@@ -33,12 +33,12 @@ export function Services() {
   return (
     <section
       id="services"
-      className="py-24 relative bg-card/30 border-y border-border/30 overflow-hidden"
+      className="py-12 md:py-24 relative bg-card/30 border-y border-border/30 overflow-hidden"
       style={bgImage ? { backgroundImage: `url(${bgImage})`, backgroundSize: "cover", backgroundPosition: "center" } : {}}
     >
       {bgImage && <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" />}
       <div className="container mx-auto px-6 relative z-10">
-        <div className="text-center max-w-3xl mx-auto mb-16">
+        <div className="text-center max-w-3xl mx-auto mb-8 md:mb-16">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -65,7 +65,7 @@ export function Services() {
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
             {displayServices.map((service, index) => {
               const Icon = ICON_MAP[service.iconName] ?? Music2;
               return (
@@ -75,17 +75,17 @@ export function Services() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
-                  className="group relative p-8 bg-card border border-border/50 rounded-sm hover:border-primary/50 transition-colors duration-500 overflow-hidden"
+                  className="group relative p-4 sm:p-6 md:p-8 bg-card border border-border/50 rounded-sm hover:border-primary/50 transition-colors duration-500 overflow-hidden"
                 >
                   <div className={`absolute inset-0 bg-gradient-to-br ${service.colorClass} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
                   <div className="relative z-10 flex flex-col h-full">
-                    <div className="w-14 h-14 bg-background border border-border rounded-sm flex items-center justify-center mb-6 text-foreground group-hover:text-primary group-hover:scale-110 group-hover:border-primary/50 transition-all duration-300 group-hover:shadow-[0_0_20px_rgba(147,51,234,0.3)]">
-                      <Icon size={32} />
+                    <div className="w-10 h-10 sm:w-14 sm:h-14 bg-background border border-border rounded-sm flex items-center justify-center mb-3 sm:mb-6 text-foreground group-hover:text-primary group-hover:scale-110 group-hover:border-primary/50 transition-all duration-300 group-hover:shadow-[0_0_20px_rgba(147,51,234,0.3)]">
+                      <Icon className="w-5 h-5 sm:w-8 sm:h-8" />
                     </div>
-                    <h3 className="text-xl font-display font-bold text-white mb-3 tracking-wide">
+                    <h3 className="text-base sm:text-xl font-display font-bold text-white mb-2 sm:mb-3 tracking-wide">
                       {service.title}
                     </h3>
-                    <p className="text-foreground/60 font-light leading-relaxed group-hover:text-foreground/80 transition-colors">
+                    <p className="text-sm text-foreground/60 font-light leading-relaxed group-hover:text-foreground/80 transition-colors line-clamp-3 sm:line-clamp-none">
                       {service.description}
                     </p>
                   </div>

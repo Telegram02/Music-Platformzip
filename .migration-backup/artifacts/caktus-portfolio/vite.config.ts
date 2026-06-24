@@ -4,10 +4,13 @@ import tailwindcss from "@tailwindcss/vite";
 import path from "path";
 import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
 
+// PORT is only used by the dev/preview server — not needed during `vite build`.
 const rawPort = process.env.PORT;
 const port = rawPort ? Number(rawPort) : 3000;
+
+// BASE_PATH defaults to "/" for Vercel (static site at root).
+// In Replit dev, the artifact proxy sets this to the artifact's path prefix.
 const basePath = process.env.BASE_PATH ?? "/";
-const apiPort = process.env.API_PORT ?? "8080";
 
 export default defineConfig({
   base: basePath,
@@ -46,14 +49,8 @@ export default defineConfig({
     strictPort: true,
     host: "0.0.0.0",
     allowedHosts: true,
-    proxy: {
-      "/api": {
-        target: `http://localhost:${apiPort}`,
-        changeOrigin: false,
-      },
-    },
     fs: {
-      strict: true,
+      strict: false,
     },
   },
   preview: {

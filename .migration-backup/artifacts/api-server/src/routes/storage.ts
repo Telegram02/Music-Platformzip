@@ -19,6 +19,23 @@ const RequestUploadUrlResponse = z.object({
 const router: IRouter = Router();
 const objectStorageService = new ObjectStorageService();
 
+// CORS headers required for media (audio seeking, cross-origin video).
+// Browsers send an OPTIONS preflight before range requests on audio/video —
+// without these headers the audio player stalls waiting for permission.
+function setMediaCorsHeaders(res: Response): void {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Range, Content-Type, Authorization");
+  res.setHeader("Access-Control-Expose-Headers", "Content-Range, Content-Length, Accept-Ranges");
+}
+
+// Handle OPTIONS preflight for public media files
+router.options("/storage/public-objects/*filePath", (_req: Request, res: Response) => {
+  setMediaCorsHeaders(res);
+  res.setHeader("Access-Control-Max-Age", "86400"); // cache preflight for 24h
+  res.sendStatus(204);
+});
+
 router.post("/storage/uploads/request-url", requireAdmin, async (req: Request, res: Response) => {
   const parsed = RequestUploadUrlBody.safeParse(req.body);
   if (!parsed.success) {
@@ -51,6 +68,20 @@ router.get("/storage/public-objects/*filePath", async (req: Request, res: Respon
     const response = await objectStorageService.downloadObject(file);
     res.status(response.status);
     response.headers.forEach((value, key) => res.setHeader(key, value));
+
+    if (response.status === 200) {
+      // CORS headers so browsers can make range requests (audio seek, video scrub)
+      setMediaCorsHeaders(res);
+
+      // Long-lived cache: Vercel Edge Network serves from CDN after first load.
+      // Subsequent visitors never reach this serverless function for the same file.
+      res.setHeader("Cache-Control", "public, max-age=31536000, stale-while-revalidate=86400, immutable");
+      res.setHeader("Vary", "Accept-Encoding");
+
+      // Required for audio/video seeking in browsers
+      res.setHeader("Accept-Ranges", "bytes");
+    }
+
     if (response.body) {
       const nodeStream = Readable.fromWeb(response.body as ReadableStream<Uint8Array>);
       nodeStream.pipe(res);
