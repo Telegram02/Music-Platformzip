@@ -99,7 +99,7 @@ export interface AudioTrack {
   id: number; title: string; description: string; genre: string;
   iconName: string; audioUrl: string; coverUrl: string;
   sortOrder: number; active: boolean;
-  pinned: boolean; accentColor: string; iconColor: string;
+  pinned: boolean; accentColor: string; iconColor: string; cardStyle: string;
   createdAt: string; updatedAt: string;
 }
 

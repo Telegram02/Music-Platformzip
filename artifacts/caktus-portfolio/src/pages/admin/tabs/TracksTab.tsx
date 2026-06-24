@@ -106,10 +106,46 @@ function GenreIconPicker({ value, onChange }: { value: string; onChange: (name: 
   );
 }
 
+const CARD_STYLES = [
+  {
+    value: "default",
+    label: "Default",
+    desc: "Standard square card",
+    preview: (
+      <svg viewBox="0 0 48 36" className="w-12 h-9">
+        <rect x="1" y="1" width="46" height="34" rx="3" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.2)" strokeWidth="1.5"/>
+        <rect x="6" y="6" width="12" height="12" rx="2" fill="rgba(255,255,255,0.1)"/>
+        <rect x="22" y="7" width="20" height="2.5" rx="1" fill="rgba(255,255,255,0.3)"/>
+        <rect x="22" y="12" width="14" height="2" rx="1" fill="rgba(255,255,255,0.15)"/>
+        <rect x="6" y="24" width="28" height="2" rx="1" fill="rgba(147,51,234,0.5)"/>
+        <rect x="6" y="28" width="12" height="2" rx="1" fill="rgba(147,51,234,0.3)"/>
+      </svg>
+    ),
+  },
+  {
+    value: "featured",
+    label: "Featured",
+    desc: "Wide 2-column card with large artwork",
+    preview: (
+      <svg viewBox="0 0 96 36" className="w-24 h-9">
+        <rect x="1" y="1" width="94" height="34" rx="3" fill="rgba(147,51,234,0.08)" stroke="rgba(147,51,234,0.4)" strokeWidth="1.5"/>
+        <rect x="2" y="1" width="24" height="34" rx="2" fill="rgba(147,51,234,0.15)"/>
+        <text x="14" y="22" fontSize="14" textAnchor="middle" fill="rgba(147,51,234,0.8)">♪</text>
+        <rect x="30" y="7" width="30" height="3" rx="1" fill="rgba(255,255,255,0.4)"/>
+        <rect x="30" y="13" width="20" height="2" rx="1" fill="rgba(255,255,255,0.2)"/>
+        <rect x="30" y="22" width="40" height="2" rx="1" fill="rgba(147,51,234,0.5)"/>
+        <rect x="30" y="26" width="16" height="2" rx="1" fill="rgba(147,51,234,0.3)"/>
+        <circle cx="82" cy="25" r="6" fill="rgba(147,51,234,0.6)"/>
+        <rect x="1" y="1" width="94" height="2" rx="1" fill="rgba(147,51,234,0.6)"/>
+      </svg>
+    ),
+  },
+] as const;
+
 const empty = (): Partial<AudioTrack> => ({
   title: "", description: "", genre: "", iconName: "Music2",
   audioUrl: "", coverUrl: "", sortOrder: 0, active: true,
-  pinned: false, accentColor: "", iconColor: "",
+  pinned: false, accentColor: "", iconColor: "", cardStyle: "default",
 });
 
 export default function TracksTab() {
@@ -211,6 +247,30 @@ export default function TracksTab() {
               Genre Icon <span className="text-white/25">(shown when no cover art)</span>
             </label>
             <GenreIconPicker value={editing.iconName ?? "Music2"} onChange={(name) => set("iconName", name)} />
+          </div>
+
+          {/* Card style */}
+          <div className="border border-white/10 rounded-xl p-4 space-y-3 bg-white/3">
+            <p className="text-white/60 text-xs font-mono uppercase tracking-widest">Card Style</p>
+            <div className="flex flex-wrap gap-3">
+              {CARD_STYLES.map((s) => {
+                const active = (editing.cardStyle ?? "default") === s.value;
+                return (
+                  <button key={s.value} type="button" onClick={() => set("cardStyle", s.value)}
+                    className={`flex flex-col items-start gap-2 p-3 rounded-xl border transition-all ${
+                      active
+                        ? "border-purple-500/60 bg-purple-500/10"
+                        : "border-white/10 bg-white/5 hover:border-white/25"
+                    }`}>
+                    {s.preview}
+                    <div className="text-left">
+                      <p className={`text-xs font-medium ${active ? "text-purple-300" : "text-white/70"}`}>{s.label}</p>
+                      <p className="text-[10px] text-white/30 leading-tight">{s.desc}</p>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           {/* Color customization */}

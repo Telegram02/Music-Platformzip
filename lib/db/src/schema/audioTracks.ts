@@ -15,6 +15,7 @@ export const audioTracksTable = pgTable("audio_tracks", {
   pinned: boolean("pinned").notNull().default(false),
   accentColor: text("accent_color").notNull().default(""),
   iconColor: text("icon_color").notNull().default(""),
+  cardStyle: text("card_style").notNull().default("default"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
 });

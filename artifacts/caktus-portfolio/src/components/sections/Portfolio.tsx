@@ -22,6 +22,146 @@ function MiniWave({ playing }: { playing: boolean }) {
   );
 }
 
+// ── Featured (wide) card ──────────────────────────────────────────────────────
+function FeaturedAudioCard({
+  track, isPlaying, volume, progress,
+  onPlay, onStop, onVolumeChange, onProgressUpdate,
+}: {
+  track: AudioTrack; isPlaying: boolean; volume: number; progress: number;
+  onPlay: () => void; onStop: () => void;
+  onVolumeChange: (v: number) => void; onProgressUpdate: (p: number) => void;
+}) {
+  const [showVolume, setShowVolume] = useState(false);
+  const Icon: LucideIcon = GENRE_ICON_MAP[track.iconName ?? "Music2"] ?? Music2;
+  const accent = track.accentColor || "#9333ea";
+  const iconCol = track.iconColor || null;
+
+  useEffect(() => {
+    if (!isPlaying) return;
+    function onTime() {
+      if (sharedAudio.duration) onProgressUpdate(sharedAudio.currentTime / sharedAudio.duration);
+    }
+    sharedAudio.addEventListener("timeupdate", onTime);
+    return () => sharedAudio.removeEventListener("timeupdate", onTime);
+  }, [isPlaying, onProgressUpdate]);
+
+  function handleSeek(e: React.MouseEvent<HTMLDivElement>) {
+    if (!sharedAudio.duration) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    sharedAudio.currentTime = ((e.clientX - rect.left) / rect.width) * sharedAudio.duration;
+    if (!isPlaying) onPlay();
+  }
+
+  const played = Math.round(progress * WAVEFORM_HEIGHTS.length);
+
+  return (
+    <div
+      className="border rounded-sm backdrop-blur-sm transition-all relative overflow-hidden flex flex-row h-full min-h-[180px]"
+      style={{
+        borderColor: isPlaying ? `${accent}99` : `${accent}30`,
+        boxShadow: isPlaying ? `0 0 40px ${accent}30` : `0 0 20px ${accent}10`,
+        background: `linear-gradient(135deg, ${accent}0a 0%, rgba(0,0,0,0.85) 60%)`,
+      }}
+    >
+      {/* Animated top bar */}
+      {isPlaying && (
+        <div className="absolute top-0 left-0 right-0 h-[2px]"
+          style={{ background: `linear-gradient(to right, transparent, ${accent}, transparent)` }} />
+      )}
+
+      {/* Left: large cover / icon art */}
+      <div className="relative flex-shrink-0 w-40 sm:w-48">
+        {track.coverUrl ? (
+          <img src={storageUrl(track.coverUrl)} alt={track.title}
+            className="w-full h-full object-cover"
+            style={{ filter: isPlaying ? "brightness(1)" : "brightness(0.85)" }} />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center"
+            style={{ background: `radial-gradient(ellipse at center, ${accent}22 0%, ${accent}06 100%)` }}>
+            <Icon size={56} style={{ color: iconCol ?? accent, filter: `drop-shadow(0 0 16px ${accent}80)` }} />
+          </div>
+        )}
+        {/* Now-playing animated bars overlay */}
+        {isPlaying && (
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-[3px] items-end"
+            style={{ filter: `drop-shadow(0 0 4px ${accent})` }}>
+            {[4, 7, 5, 8, 4, 6, 5].map((h, i) => (
+              <div key={i} className="w-[3px] bg-white rounded-full animate-bounce"
+                style={{ height: `${h * 2}px`, animationDelay: `${i * 0.08}s`, animationDuration: "0.65s" }} />
+            ))}
+          </div>
+        )}
+        {/* Featured badge */}
+        <div className="absolute top-2 left-2 flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-mono uppercase tracking-wider"
+          style={{ background: `${accent}33`, border: `1px solid ${accent}60`, color: accent }}>
+          ★ Featured
+        </div>
+        {track.pinned && (
+          <div className="absolute top-2 right-2">
+            <Pin size={12} className="text-yellow-400 drop-shadow" />
+          </div>
+        )}
+      </div>
+
+      {/* Right: info + controls */}
+      <div className="flex flex-col flex-1 p-5 min-w-0">
+        <div className="mb-3">
+          <h4 className="text-xl font-bold truncate mb-0.5 transition-colors"
+            style={{ color: isPlaying ? accent : "white" }}>
+            {track.title}
+          </h4>
+          <p className="text-xs text-foreground/50 uppercase tracking-widest">{track.genre || track.description}</p>
+          {isPlaying && (
+            <p className="text-[10px] font-mono uppercase tracking-widest mt-1 animate-pulse"
+              style={{ color: `${accent}b0` }}>Now playing</p>
+          )}
+        </div>
+
+        {/* Waveform */}
+        <div className="flex-1 flex items-center mb-4">
+          <div className="w-full flex items-center gap-[2px] h-10 cursor-pointer" onClick={handleSeek}>
+            {WAVEFORM_HEIGHTS.map((h, i) => (
+              <div key={i} className="flex-1 rounded-full transition-colors"
+                style={{ height: `${h}%`, background: i < played ? accent : "rgba(255,255,255,0.1)" }} />
+            ))}
+          </div>
+        </div>
+
+        {/* Controls */}
+        <div className="flex items-center justify-between border-t pt-3" style={{ borderColor: `${accent}20` }}>
+          <span className="text-xs font-mono text-foreground/35 capitalize">{track.genre || "Audio"}</span>
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <button onClick={() => setShowVolume((v) => !v)}
+                className="w-7 h-7 flex items-center justify-center text-foreground/40 hover:text-white transition-colors">
+                {volume === 0 ? <VolumeX size={14} /> : <Volume2 size={14} />}
+              </button>
+              {showVolume && (
+                <div className="absolute bottom-9 left-1/2 -translate-x-1/2 bg-card border border-border rounded-xl px-3 py-3 flex flex-col items-center gap-2 z-20 shadow-xl" style={{ width: 36 }}>
+                  <input type="range" min={0} max={1} step={0.02} value={volume}
+                    onChange={(e) => onVolumeChange(Number(e.target.value))}
+                    className="cursor-pointer"
+                    style={{ writingMode: "vertical-lr", direction: "rtl", height: 80, width: 6, accentColor: accent } as React.CSSProperties} />
+                  <span className="text-[9px] font-mono text-foreground/40">{Math.round(volume * 100)}%</span>
+                </div>
+              )}
+            </div>
+            <button onClick={isPlaying ? onStop : onPlay} disabled={!track.audioUrl}
+              className="w-12 h-12 rounded-full flex items-center justify-center transition-all hover:scale-105 disabled:opacity-40 shadow-lg"
+              style={isPlaying
+                ? { background: accent, boxShadow: `0 0 20px ${accent}60` }
+                : { background: "white" }}>
+              {isPlaying
+                ? <Pause size={18} className="fill-white" />
+                : <Play size={18} className="fill-black ml-0.5" />}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Desktop card ──────────────────────────────────────────────────────────────
 function DesktopAudioCard({
   track, isPlaying, volume, progress,
@@ -311,9 +451,9 @@ function StickyMiniPlayer({
 
 // ── Placeholder tracks (admin hint) ──────────────────────────────────────────
 const PLACEHOLDER_TRACKS: AudioTrack[] = [
-  { id: -1, title: "Cyberpunk Cityscape", description: "", genre: "Game Soundtrack", audioUrl: "", coverUrl: "", iconName: "Music2", sortOrder: 0, active: true, pinned: false, accentColor: "", iconColor: "", createdAt: "", updatedAt: "" },
-  { id: -2, title: "Void Walker",         description: "", genre: "Metalcore",       audioUrl: "", coverUrl: "", iconName: "Music2", sortOrder: 1, active: true, pinned: false, accentColor: "", iconColor: "", createdAt: "", updatedAt: "" },
-  { id: -3, title: "Neon Shadows",        description: "", genre: "Synthwave",       audioUrl: "", coverUrl: "", iconName: "Music2", sortOrder: 2, active: true, pinned: false, accentColor: "", iconColor: "", createdAt: "", updatedAt: "" },
+  { id: -1, title: "Cyberpunk Cityscape", description: "", genre: "Game Soundtrack", audioUrl: "", coverUrl: "", iconName: "Music2", sortOrder: 0, active: true, pinned: false, accentColor: "", iconColor: "", cardStyle: "default", createdAt: "", updatedAt: "" },
+  { id: -2, title: "Void Walker",         description: "", genre: "Metalcore",       audioUrl: "", coverUrl: "", iconName: "Music2", sortOrder: 1, active: true, pinned: false, accentColor: "", iconColor: "", cardStyle: "default", createdAt: "", updatedAt: "" },
+  { id: -3, title: "Neon Shadows",        description: "", genre: "Synthwave",       audioUrl: "", coverUrl: "", iconName: "Music2", sortOrder: 2, active: true, pinned: false, accentColor: "", iconColor: "", cardStyle: "default", createdAt: "", updatedAt: "" },
 ];
 
 // ── Main Portfolio section ────────────────────────────────────────────────────
@@ -493,21 +633,33 @@ export function Portfolio() {
 
               {/* ── DESKTOP: card grid ──────────────────────────────────────── */}
               <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {showTracks.map((track, index) => (
-                  <motion.div key={track.id} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }} transition={{ duration: 0.5, delay: index * 0.1 }} className="group">
-                    <DesktopAudioCard
-                      track={track}
-                      isPlaying={activeId === track.id}
-                      volume={volume}
-                      progress={activeId === track.id ? progress : 0}
-                      onPlay={() => playTrack(track)}
-                      onStop={stopTrack}
-                      onVolumeChange={setVolume}
-                      onProgressUpdate={handleProgressUpdate}
-                    />
-                  </motion.div>
-                ))}
+                {showTracks.map((track, index) => {
+                  const isFeatured = track.cardStyle === "featured";
+                  const sharedProps = {
+                    track,
+                    isPlaying: activeId === track.id,
+                    volume,
+                    progress: activeId === track.id ? progress : 0,
+                    onPlay: () => playTrack(track),
+                    onStop: stopTrack,
+                    onVolumeChange: setVolume,
+                    onProgressUpdate: handleProgressUpdate,
+                  };
+                  return (
+                    <motion.div
+                      key={track.id}
+                      initial={{ opacity: 0, y: 30 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.5, delay: index * 0.08 }}
+                      className={`group ${isFeatured ? "md:col-span-2 lg:col-span-2" : ""}`}
+                    >
+                      {isFeatured
+                        ? <FeaturedAudioCard {...sharedProps} />
+                        : <DesktopAudioCard {...sharedProps} />}
+                    </motion.div>
+                  );
+                })}
               </div>
             </div>
           )}
