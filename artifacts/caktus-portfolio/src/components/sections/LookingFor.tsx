@@ -1,26 +1,26 @@
 import { motion } from "framer-motion";
-import { Gamepad2, Music2, ArrowRight, Sparkles } from "lucide-react";
+import { Music2, Users, ArrowRight, Sparkles } from "lucide-react";
 
 const opportunities = [
   {
-    icon: <Gamepad2 size={32} />,
-    tag: "Primary Goal",
-    title: "Game Scoring",
+    icon: <Music2 size={32} />,
+    tag: "Open To",
+    title: "Production & Composition",
     description:
-      "Looking to join a game studio or indie dev team as a composer. I'll write adaptive, genre-spanning scores — from cinematic orchestral to dark ambient to hard-hitting metal — that make your world feel alive.",
-    highlights: ["Indie & AA studios", "Full OST or per-track", "Adaptive / layered music", "Any genre or tone"],
+      "Available for any project that needs a strong musical identity — artist releases, film and game scores, trailers, commercial audio, or experimental work. If you have a vision that needs sound, let's build it.",
+    highlights: ["Artists & independent releases", "Film, game & trailer scoring", "Full production or composition only", "Any genre or tone"],
     accent: "from-primary/20 to-primary/5",
     border: "border-primary/30 hover:border-primary/60",
     glow: "group-hover:shadow-[0_0_40px_rgba(147,51,234,0.15)]",
     tagColor: "text-primary bg-primary/10 border-primary/20",
   },
   {
-    icon: <Music2 size={32} />,
+    icon: <Users size={32} />,
     tag: "Open To",
-    title: "Band Collaboration",
+    title: "Creative Collaboration",
     description:
-      "Would love to be part of a band as a composer, multi-instrumentalist, or producer. Metal, rock, experimental — I'm open to the conversation and ready to create something together.",
-    highlights: ["Metal & rock focus", "Remote or in-person", "Composition & production", "Long-term creative partner"],
+      "Looking for long-term creative partners — whether that's a band, a studio, or a team where music is central. Metal, rock, experimental — I'm open to the conversation and ready to build something together.",
+    highlights: ["Bands & ensembles", "Studios & creative teams", "Remote or in-person", "Long-term partnership"],
     accent: "from-accent/20 to-accent/5",
     border: "border-accent/30 hover:border-accent/60",
     glow: "group-hover:shadow-[0_0_40px_rgba(99,102,241,0.15)]",
