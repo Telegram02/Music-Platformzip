@@ -1,5 +1,4 @@
-import app from "../artifacts/api-server/dist/app.mjs";
-import { seedDefaults } from "../artifacts/api-server/dist/lib/seed.mjs";
+import app, { seedDefaults } from "../artifacts/api-server/dist/app.mjs";
 
 let seeded = false;
 

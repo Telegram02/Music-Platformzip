@@ -7,6 +7,8 @@ import type { IncomingMessage, ServerResponse } from "node:http";
 import router from "./routes";
 import { logger } from "./lib/logger";
 
+export { seedDefaults } from "./lib/seed";
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const app: any = express();
 
