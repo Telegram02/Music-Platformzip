@@ -34,54 +34,37 @@ const httpLogger = (pinoHttp as any)({
 
 app.use(httpLogger);
 
-function makeOriginChecker() {
+function getAllowedOrigins(): string[] | true {
   const isProd = process.env.NODE_ENV === "production";
-  const staticOrigins: string[] = [];
+  const origins: string[] = [];
 
   if (process.env.CORS_ORIGIN) {
     process.env.CORS_ORIGIN.split(",").forEach((o) => {
       const trimmed = o.trim();
-      if (trimmed) staticOrigins.push(trimmed);
+      if (trimmed) origins.push(trimmed);
     });
   }
 
+  // Auto-allow the Vercel deployment URL if set (injected automatically by Vercel)
   if (process.env.VERCEL_URL) {
-    staticOrigins.push(`https://${process.env.VERCEL_URL}`);
+    origins.push(`https://${process.env.VERCEL_URL}`);
   }
 
-  const replitDomains: string[] = [];
   if (process.env.REPLIT_DOMAINS) {
     process.env.REPLIT_DOMAINS.split(",").forEach((d) => {
-      const trimmed = d.trim();
-      staticOrigins.push(`https://${trimmed}`);
-      replitDomains.push(trimmed);
+      origins.push(`https://${d.trim()}`);
     });
   }
 
-  if (staticOrigins.length === 0 && isProd) {
+  // In production, never fall back to wildcard — it breaks credentialed requests anyway
+  if (origins.length === 0 && isProd) {
     console.warn("WARNING: No CORS_ORIGIN set in production. Set CORS_ORIGIN to your frontend URL.");
   }
 
-  // In dev, allow any subdomain of the same replit.dev project (e.g. Expo web preview)
-  const replitDevBase = replitDomains.length > 0
-    ? replitDomains[0].replace(/^[^.]+\./, "")  // strip leading segment → pike.replit.dev
-    : null;
-
-  return function originFn(
-    origin: string | undefined,
-    callback: (err: Error | null, allow?: boolean) => void,
-  ) {
-    if (!origin) { callback(null, true); return; }
-    if (staticOrigins.includes(origin)) { callback(null, true); return; }
-    if (!isProd && replitDevBase && origin.endsWith(`.${replitDevBase}`)) {
-      callback(null, true); return;
-    }
-    if (staticOrigins.length === 0 && !isProd) { callback(null, true); return; }
-    callback(null, false);
-  };
+  return origins.length > 0 ? origins : true;
 }
 
-app.use(cors({ origin: makeOriginChecker(), credentials: true }));
+app.use(cors({ origin: getAllowedOrigins(), credentials: true }));
 app.use(express.json({ limit: "2mb" }));
 app.use(express.urlencoded({ extended: true, limit: "2mb" }));
 app.use(cookieParser());
