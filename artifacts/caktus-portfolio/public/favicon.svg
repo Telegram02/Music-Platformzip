@@ -1,3 +1,21 @@
 <svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect width="180" height="180" rx="36" fill="#FF3C00"/>
+  <rect width="180" height="180" rx="36" fill="#0a0f0a"/>
+  <!-- Outer C arc -->
+  <path d="M130 46 A60 60 0 1 0 130 134" stroke="#22c55e" stroke-width="12" stroke-linecap="round" fill="none" filter="url(#glow)"/>
+  <!-- Inner C arc -->
+  <path d="M118 62 A38 38 0 1 0 118 118" stroke="#22c55e" stroke-width="8" stroke-linecap="round" fill="none" opacity="0.6" filter="url(#glow)"/>
+  <!-- Waveform bars -->
+  <g fill="#22c55e" opacity="0.9" filter="url(#glow)">
+    <rect x="70" y="84" width="4" height="12" rx="2"/>
+    <rect x="78" y="78" width="4" height="24" rx="2"/>
+    <rect x="86" y="72" width="4" height="36" rx="2"/>
+    <rect x="94" y="78" width="4" height="24" rx="2"/>
+    <rect x="102" y="84" width="4" height="12" rx="2"/>
+  </g>
+  <defs>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="2.5" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
 </svg>

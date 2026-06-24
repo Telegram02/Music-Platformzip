@@ -6,3 +6,9 @@ id = "cNjzjLAAelihOVJ7D_ZD9"
 uri = "file://artifacts/caktus-portfolio/public/og-image.png"
 type = "image"
 title = "caktus-productions-og-card"
+
+[[generated]]
+id = "KRdI737MqcLseKDfoSUrJ"
+uri = "file://artifacts/caktus-portfolio/public/apple-touch-icon.png"
+type = "image"
+title = "caktus-app-icon"
