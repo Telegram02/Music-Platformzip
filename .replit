@@ -18,9 +18,3 @@ expertMode = true
 [postMerge]
 path = "scripts/post-merge.sh"
 timeoutMs = 20000
-
-[userenv]
-
-[userenv.shared]
-ADMIN_PASSWORD = "Darksouls2!"
-ADMIN_USERNAME = "admin"
