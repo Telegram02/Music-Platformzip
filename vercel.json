@@ -13,5 +13,10 @@
         { "key": "Access-Control-Allow-Credentials", "value": "true" }
       ]
     }
-  ]
+  ],
+  "functions": {
+    "api/index.js": {
+      "includeFiles": "api/**"
+    }
+  }
 }

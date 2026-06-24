@@ -15,8 +15,9 @@ const apiDir = path.resolve(artifactDir, "../../api");
 
 async function buildVercel() {
   await esbuild({
-    // Named entry so output file is api/index.js (not api/vercel-handler.js)
-    entryPoints: [{ in: path.resolve(artifactDir, "src/vercel-handler.ts"), out: "index" }],
+    // Named entry so output file is api/bundle.js
+    // api/index.js is committed to git (thin wrapper) so Vercel always sees the function.
+    entryPoints: [{ in: path.resolve(artifactDir, "src/vercel-handler.ts"), out: "bundle" }],
     platform: "node",
     bundle: true,
     format: "cjs",
