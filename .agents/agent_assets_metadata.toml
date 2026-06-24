@@ -5,7 +5,7 @@ outputs = []
 id = "cNjzjLAAelihOVJ7D_ZD9"
 uri = "file://artifacts/caktus-portfolio/public/og-image.png"
 type = "image"
-title = "caktus-productions-og-card"
+title = "caktus-og-site-match"
 
 [[generated]]
 id = "KRdI737MqcLseKDfoSUrJ"
