@@ -3,6 +3,13 @@ import { pool, db, adminCredentialsTable } from "@workspace/db";
 
 const router: IRouter = Router();
 
+// Lightweight keep-alive endpoint — no DB, no async work.
+// Point an external cron at /api/ping every 5 min to prevent Vercel cold starts.
+router.get("/ping", (_req, res) => {
+  res.setHeader("Cache-Control", "no-store");
+  res.json({ ok: true, ts: Date.now() });
+});
+
 router.get("/healthz", async (_req, res) => {
   const result: Record<string, unknown> = { status: "ok" };
 
