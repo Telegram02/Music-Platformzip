@@ -1,24 +1,26 @@
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 import { logger } from "./logger";
 
-const GMAIL_USER = process.env.GMAIL_USER;
-const GMAIL_APP_PASSWORD = process.env.GMAIL_APP_PASSWORD;
+const RESEND_API_KEY = process.env.RESEND_API_KEY;
+const FROM_EMAIL = process.env.RESEND_FROM_EMAIL ?? "onboarding@resend.dev";
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? FROM_EMAIL;
 
-function getTransporter() {
-  if (!GMAIL_USER || !GMAIL_APP_PASSWORD) {
-    throw new Error("GMAIL_USER and GMAIL_APP_PASSWORD env vars are required");
+function getClient(): Resend {
+  if (!RESEND_API_KEY) {
+    throw new Error("RESEND_API_KEY env var is required");
   }
-  return nodemailer.createTransport({
-    service: "gmail",
-    auth: { user: GMAIL_USER, pass: GMAIL_APP_PASSWORD },
-  });
+  return new Resend(RESEND_API_KEY);
+}
+
+export function isEmailConfigured(): boolean {
+  return !!RESEND_API_KEY;
 }
 
 export async function sendOtpEmail(toEmail: string, code: string): Promise<void> {
-  const transporter = getTransporter();
-  await transporter.sendMail({
-    from: `"Caktus Admin" <${GMAIL_USER}>`,
-    to: toEmail,
+  const resend = getClient();
+  await resend.emails.send({
+    from: `Caktus Admin <${FROM_EMAIL}>`,
+    to: [toEmail],
     subject: "Caktus Admin — Your verification code",
     html: `
       <div style="font-family:monospace;background:#0a0a0f;color:#fff;padding:32px;border-radius:8px;max-width:480px">
@@ -40,8 +42,7 @@ export async function sendContactNotification(opts: {
   subject: string;
   message: string;
 }): Promise<void> {
-  const transporter = getTransporter();
-  const adminEmail = process.env.ADMIN_EMAIL ?? GMAIL_USER!;
+  const resend = getClient();
 
   const messageHtml = opts.message
     .replace(/&/g, "&amp;")
@@ -53,10 +54,10 @@ export async function sendContactNotification(opts: {
   const label = isCommission ? "NEW COMMISSION REQUEST" : "NEW CONTACT MESSAGE";
   const accentColor = isCommission ? "#a855f7" : "#6366f1";
 
-  await transporter.sendMail({
-    from: `"Caktus Portfolio" <${GMAIL_USER}>`,
-    to: adminEmail,
-    replyTo: opts.email,
+  await resend.emails.send({
+    from: `Caktus Portfolio <${FROM_EMAIL}>`,
+    to: [ADMIN_EMAIL],
+    reply_to: opts.email,
     subject: opts.subject || `New message from ${opts.name}`,
     html: `
       <div style="font-family:monospace;background:#0a0a0f;color:#fff;padding:32px;max-width:600px;border-radius:8px">
@@ -86,18 +87,18 @@ export async function sendContactNotification(opts: {
     `,
   });
 
-  logger.info({ to: adminEmail, from: opts.email }, "Contact notification sent");
+  logger.info({ to: ADMIN_EMAIL, from: opts.email }, "Contact notification sent");
 }
 
 export async function sendTestimonialRequest(opts: {
   name: string;
   email: string;
 }): Promise<void> {
-  const transporter = getTransporter();
+  const resend = getClient();
 
-  await transporter.sendMail({
-    from: `"Caktus Productions" <${GMAIL_USER}>`,
-    to: opts.email,
+  await resend.emails.send({
+    from: `Caktus Productions <${FROM_EMAIL}>`,
+    to: [opts.email],
     subject: "Would you leave me a testimonial?",
     html: `
       <div style="font-family:monospace;background:#0a0a0f;color:#fff;padding:32px;max-width:560px;border-radius:8px">
@@ -125,13 +126,13 @@ export async function sendAutoReply(opts: {
   email: string;
   subject: string;
 }): Promise<void> {
-  const transporter = getTransporter();
+  const resend = getClient();
   const isCommission = opts.subject.startsWith("[Commission]");
   const replySubject = `Re: ${opts.subject || "Your message to Caktus Productions"}`;
 
-  await transporter.sendMail({
-    from: `"Caktus Productions" <${GMAIL_USER}>`,
-    to: opts.email,
+  await resend.emails.send({
+    from: `Caktus Productions <${FROM_EMAIL}>`,
+    to: [opts.email],
     subject: replySubject,
     html: `
       <div style="font-family:monospace;background:#0a0a0f;color:#fff;padding:32px;max-width:560px;border-radius:8px">
@@ -152,8 +153,4 @@ export async function sendAutoReply(opts: {
   });
 
   logger.info({ to: opts.email }, "Auto-reply sent");
-}
-
-export function isEmailConfigured(): boolean {
-  return !!(GMAIL_USER && GMAIL_APP_PASSWORD);
 }
