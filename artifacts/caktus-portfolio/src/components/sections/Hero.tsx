@@ -14,8 +14,8 @@ function availabilityStatus(text: string): { color: string; pulse: string; label
 
 export function Hero() {
   const { data: settings } = useSiteSettings();
-  const heroBadge = settings?.heroBadge ?? "Music Producer | Composer | Sound Designer";
-  const tagline = settings?.tagline ?? "Cinematic soundtracks, game audio, and professional music production for artists and studios. Emotional storytelling through sound.";
+  const heroBadge = settings?.heroBadge ?? "Music Composer | Producer | Sound Designer";
+  const tagline = settings?.tagline ?? "Music composer and producer specializing in video game soundtracks, hip-hop, metal, orchestral, horror, and ambient music.";
   const introVideoUrl = settings?.introVideoUrl ? storageUrl(settings.introVideoUrl) : "";
   const heroImageUrl = settings?.heroImageUrl ? storageUrl(settings.heroImageUrl) : "";
   const availText = settings?.availability ?? "";
