@@ -94,7 +94,7 @@ router.get("/storage/public-objects/*filePath", async (req: Request, res: Respon
   }
 });
 
-router.get("/storage/objects/*path", requireAdmin, async (req: Request, res: Response) => {
+router.get("/storage/objects/*path", async (req: Request, res: Response) => {
   try {
     const raw = req.params.path;
     const wildcardPath = Array.isArray(raw) ? raw.join("/") : raw;
@@ -104,6 +104,14 @@ router.get("/storage/objects/*path", requireAdmin, async (req: Request, res: Res
     const response = await objectStorageService.downloadObject(objectFile);
     res.status(response.status);
     response.headers.forEach((value, key) => res.setHeader(key, value));
+
+    if (response.status === 200) {
+      setMediaCorsHeaders(res);
+      res.setHeader("Cache-Control", "public, max-age=31536000, stale-while-revalidate=86400, immutable");
+      res.setHeader("Vary", "Accept-Encoding");
+      res.setHeader("Accept-Ranges", "bytes");
+    }
+
     if (response.body) {
       const nodeStream = Readable.fromWeb(response.body as ReadableStream<Uint8Array>);
       nodeStream.pipe(res);
@@ -118,6 +126,13 @@ router.get("/storage/objects/*path", requireAdmin, async (req: Request, res: Res
     req.log.error({ err: error }, "Error serving object");
     res.status(500).json({ error: "Failed to serve object" });
   }
+});
+
+// OPTIONS preflight for /storage/objects/* (needed for audio/video range requests)
+router.options("/storage/objects/*path", (_req: Request, res: Response) => {
+  setMediaCorsHeaders(res);
+  res.setHeader("Access-Control-Max-Age", "86400");
+  res.sendStatus(204);
 });
 
 router.get("/storage/bucket/list", requireAdmin, async (req: Request, res: Response) => {
