@@ -342,6 +342,7 @@ export default function TestimonialsTab() {
 
   const [sectionVisible, setSectionVisible] = useState(true);
   const [savingVisibility, setSavingVisibility] = useState(false);
+  const [confirmId, setConfirmId] = useState<number | null>(null);
 
   useEffect(() => {
     api.getSettings().then((s) => setSectionVisible(s.testimonialsVisible !== "false")).catch(() => {});
@@ -492,13 +493,24 @@ export default function TestimonialsTab() {
                     >
                       <Pencil size={14} />
                     </button>
-                    <button
-                      onClick={() => { if (confirm("Delete this testimonial?")) deleteMutation.mutate(t.id); }}
-                      className="w-7 h-7 flex items-center justify-center text-white/20 hover:text-red-400 hover:bg-red-500/10 rounded transition-colors"
-                      title="Delete"
-                    >
-                      <Trash2 size={14} />
-                    </button>
+                    {confirmId === t.id ? (
+                      <div className="flex items-center gap-1">
+                        <button onClick={() => { setConfirmId(null); deleteMutation.mutate(t.id); }}
+                          className="px-2 py-1 text-xs bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg transition-colors font-medium">
+                          Delete
+                        </button>
+                        <button onClick={() => setConfirmId(null)}
+                          className="px-2 py-1 text-xs bg-white/5 hover:bg-white/10 text-white/50 rounded-lg transition-colors">
+                          Cancel
+                        </button>
+                      </div>
+                    ) : (
+                      <button onClick={() => setConfirmId(t.id)}
+                        className="w-7 h-7 flex items-center justify-center text-white/20 hover:text-red-400 hover:bg-red-500/10 rounded transition-colors"
+                        title="Delete">
+                        <Trash2 size={14} />
+                      </button>
+                    )}
                   </div>
                 </div>
               )}

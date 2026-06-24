@@ -34,8 +34,7 @@ const httpLogger = (pinoHttp as any)({
 
 app.use(httpLogger);
 
-function getAllowedOrigins(): string[] | true {
-  const isProd = process.env.NODE_ENV === "production";
+function getCorsOrigin(): cors.CorsOptionsDelegate | string[] | true {
   const origins: string[] = [];
 
   if (process.env.CORS_ORIGIN) {
@@ -45,9 +44,12 @@ function getAllowedOrigins(): string[] | true {
     });
   }
 
-  // Auto-allow the Vercel deployment URL if set (injected automatically by Vercel)
   if (process.env.VERCEL_URL) {
     origins.push(`https://${process.env.VERCEL_URL}`);
+  }
+
+  if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
+    origins.push(`https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`);
   }
 
   if (process.env.REPLIT_DOMAINS) {
@@ -56,15 +58,21 @@ function getAllowedOrigins(): string[] | true {
     });
   }
 
-  // In production, never fall back to wildcard — it breaks credentialed requests anyway
-  if (origins.length === 0 && isProd) {
-    console.warn("WARNING: No CORS_ORIGIN set in production. Set CORS_ORIGIN to your frontend URL.");
+  // On Vercel, allow any *.vercel.app preview URL (for preview deployments)
+  if (process.env.VERCEL) {
+    return (requestOrigin, callback) => {
+      if (!requestOrigin) { callback(null, true); return; }
+      const allowed =
+        origins.includes(requestOrigin) ||
+        /^https:\/\/[a-z0-9-]+\.vercel\.app$/.test(requestOrigin);
+      callback(null, allowed ? requestOrigin : false);
+    };
   }
 
   return origins.length > 0 ? origins : true;
 }
 
-app.use(cors({ origin: getAllowedOrigins(), credentials: true }));
+app.use(cors({ origin: getCorsOrigin(), credentials: true }));
 app.use(express.json({ limit: "2mb" }));
 app.use(express.urlencoded({ extended: true, limit: "2mb" }));
 app.use(cookieParser());

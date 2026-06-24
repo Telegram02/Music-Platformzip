@@ -1,4 +1,4 @@
-const BASE = (import.meta.env.VITE_API_URL ?? "") + "/api";
+const BASE = (import.meta.env.VITE_API_URL ?? "").replace(/\/+$/, "") + "/api";
 
 async function req<T>(method: string, path: string, body?: unknown): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
@@ -21,6 +21,9 @@ export const api = {
     req<{ ok: boolean }>("POST", "/auth/login", { username, password, rememberMe }),
   logout: () => req<{ ok: boolean }>("POST", "/auth/logout"),
   me: () => req<{ loggedIn: boolean }>("GET", "/auth/me"),
+  needsSetup: () => req<{ needsSetup: boolean }>("GET", "/auth/needs-setup"),
+  setup: (username: string, password: string) =>
+    req<{ ok: boolean }>("POST", "/auth/setup", { username, password }),
 
   // Settings
   getSettings: () => req<Record<string, string>>("GET", "/settings"),
@@ -96,6 +99,7 @@ export interface AudioTrack {
   id: number; title: string; description: string; genre: string;
   iconName: string; audioUrl: string; coverUrl: string;
   sortOrder: number; active: boolean;
+  pinned: boolean; accentColor: string; iconColor: string; cardStyle: string;
   createdAt: string; updatedAt: string;
 }
 

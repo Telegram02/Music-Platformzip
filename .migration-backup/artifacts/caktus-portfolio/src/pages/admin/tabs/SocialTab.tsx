@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { api, type SocialLink } from "@/lib/api";
 import { Trash2, Plus, Save } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 
 const PLATFORMS = ["youtube", "instagram", "soundcloud", "spotify", "tiktok", "twitter", "facebook", "twitch", "discord", "bandcamp", "apple-music", "other"];
 
@@ -16,6 +17,7 @@ export default function SocialTab() {
   const [saving, setSaving] = useState<Record<number, boolean>>({});
   const [newLink, setNewLink] = useState<Partial<SocialLink> | null>(null);
   const [addSaving, setAddSaving] = useState(false);
+  const [confirmId, setConfirmId] = useState<number | null>(null);
 
   async function load() {
     const data = await api.getSocial(true);
@@ -35,15 +37,15 @@ export default function SocialTab() {
     try {
       await api.updateSocialLink(link.id, link);
     } catch (e) {
-      alert("Error: " + (e as Error).message);
+      toast({ title: "Error saving link", description: (e as Error).message, variant: "destructive" });
     } finally {
       setSaving((prev) => ({ ...prev, [link.id]: false }));
     }
   }
 
   async function handleDelete(id: number) {
-    if (!confirm("Remove this link?")) return;
     await api.deleteSocialLink(id);
+    setConfirmId(null);
     await load();
   }
 
@@ -55,7 +57,7 @@ export default function SocialTab() {
       setNewLink(null);
       await load();
     } catch (e) {
-      alert("Error: " + (e as Error).message);
+      toast({ title: "Error adding link", description: (e as Error).message, variant: "destructive" });
     } finally {
       setAddSaving(false);
     }
@@ -150,12 +152,23 @@ export default function SocialTab() {
                   />
                   Active
                 </label>
-                <button
-                  onClick={() => handleDelete(link.id)}
-                  className="p-1.5 rounded-lg bg-white/5 hover:bg-red-500/20 text-white/40 hover:text-red-400 transition-colors"
-                >
-                  <Trash2 size={14} />
-                </button>
+                {confirmId === link.id ? (
+                  <div className="flex items-center gap-1">
+                    <button onClick={() => handleDelete(link.id)}
+                      className="px-2 py-1 text-xs bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg transition-colors font-medium">
+                      Delete
+                    </button>
+                    <button onClick={() => setConfirmId(null)}
+                      className="px-2 py-1 text-xs bg-white/5 hover:bg-white/10 text-white/50 rounded-lg transition-colors">
+                      Cancel
+                    </button>
+                  </div>
+                ) : (
+                  <button onClick={() => setConfirmId(link.id)}
+                    className="p-1.5 rounded-lg bg-white/5 hover:bg-red-500/20 text-white/40 hover:text-red-400 transition-colors">
+                    <Trash2 size={14} />
+                  </button>
+                )}
               </div>
             </div>
             <div className="flex gap-3">

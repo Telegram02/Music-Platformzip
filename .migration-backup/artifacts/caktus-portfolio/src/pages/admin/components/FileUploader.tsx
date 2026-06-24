@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import { uploadFile } from "@/lib/api";
 import { Upload, Check, FolderOpen } from "lucide-react";
 import { BucketFilePicker } from "./BucketFilePicker";
+import { toast } from "@/hooks/use-toast";
 
 interface Props {
   accept: string;
@@ -26,7 +27,7 @@ export function FileUploader({ accept, label, onUploaded }: Props) {
       setDone(true);
       setTimeout(() => setDone(false), 3000);
     } catch (err) {
-      alert("Upload failed: " + (err as Error).message);
+      toast({ title: "Upload failed", description: (err as Error).message, variant: "destructive" });
     } finally {
       setUploading(false);
       if (inputRef.current) inputRef.current.value = "";

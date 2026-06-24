@@ -95,6 +95,33 @@ router.post("/auth/confirm-reset", resetLimiter, async (req, res): Promise<void>
   res.json({ ok: true });
 });
 
+// First-time setup — only works when no admin account exists yet
+router.get("/auth/needs-setup", async (_req, res): Promise<void> => {
+  const rows = await db.select().from(adminCredentialsTable).limit(1).catch(() => []);
+  res.json({ needsSetup: rows.length === 0 });
+});
+
+router.post("/auth/setup", async (req, res): Promise<void> => {
+  const { username, password } = req.body as { username?: string; password?: string };
+  if (!username?.trim() || !password || password.length < 8) {
+    res.status(400).json({ error: "Username and a password of at least 8 characters are required." });
+    return;
+  }
+
+  // Only allowed when no admin account exists
+  const existing = await db.select().from(adminCredentialsTable).limit(1).catch(() => []);
+  if (existing.length > 0) {
+    res.status(403).json({ error: "An admin account already exists. Use the login page." });
+    return;
+  }
+
+  const passwordHash = await bcrypt.hash(password, 12);
+  const email = process.env.ADMIN_EMAIL ?? "admin@caktus.local";
+  await db.insert(adminCredentialsTable).values({ email, username: username.trim(), passwordHash });
+  req.log.info({ username: username.trim() }, "Admin account created via first-time setup");
+  res.json({ ok: true });
+});
+
 router.post("/auth/login", loginLimiter, async (req, res): Promise<void> => {
   const { username, password, rememberMe } = req.body as {
     username?: string; password?: string; rememberMe?: boolean;
@@ -116,13 +143,13 @@ router.post("/auth/login", loginLimiter, async (req, res): Promise<void> => {
     if (!envPassword) {
       loginError = "No admin account exists. Set ADMIN_PASSWORD in environment variables.";
     } else if (username !== envUsername) {
-      loginError = `Username "${username}" not found. Try "${envUsername}".`;
+      loginError = "Invalid credentials.";
     } else if (password !== envPassword) {
       loginError = "Password is incorrect.";
     }
     // If loginError is still null here, env-var auth passed — token is issued below.
   } else if (rows[0].username !== username) {
-    loginError = `Username "${username}" not found. The admin username is "${rows[0].username}".`;
+    loginError = "Invalid credentials.";
   } else {
     const passwordOk = await bcrypt.compare(password, rows[0].passwordHash);
     if (!passwordOk) loginError = "Password is incorrect.";

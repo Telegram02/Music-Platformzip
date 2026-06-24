@@ -2,6 +2,7 @@ import { useState } from "react";
 import { uploadFile, storageUrl } from "@/lib/api";
 import { Upload, Copy, Check, FolderOpen } from "lucide-react";
 import { BucketFilePicker } from "../components/BucketFilePicker";
+import { toast } from "@/hooks/use-toast";
 
 interface Uploaded {
   name: string;
@@ -24,7 +25,7 @@ export default function MediaTab() {
         setUploads((prev) => [{ name: file.name, path, type: file.type }, ...prev]);
       }
     } catch (e) {
-      alert("Upload failed: " + (e as Error).message);
+      toast({ title: "Upload failed", description: (e as Error).message, variant: "destructive" });
     } finally {
       setUploading(false);
     }

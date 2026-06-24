@@ -8,6 +8,7 @@ import {
   type LucideIcon
 } from "lucide-react";
 import { api, type Service } from "@/lib/api";
+import { toast } from "@/hooks/use-toast";
 
 const ICON_MAP: Record<string, LucideIcon> = {
   Music2, Gamepad2, Radio, SlidersHorizontal, Film, Speaker,
@@ -171,6 +172,7 @@ export default function ServicesTab() {
   const [saving, setSaving] = useState(false);
   const [sectionVisible, setSectionVisible] = useState(true);
   const [savingVisibility, setSavingVisibility] = useState(false);
+  const [confirmId, setConfirmId] = useState<number | null>(null);
 
   function refresh() {
     api.getServices(true)
@@ -202,7 +204,7 @@ export default function ServicesTab() {
       setAdding(false);
       refresh();
       queryClient.invalidateQueries({ queryKey: ["services"] });
-    } catch (e) { alert((e as Error).message); }
+    } catch (e) { toast({ title: "Error saving service", description: (e as Error).message, variant: "destructive" }); }
     finally { setSaving(false); }
   }
 
@@ -213,13 +215,13 @@ export default function ServicesTab() {
       setEditingId(null);
       refresh();
       queryClient.invalidateQueries({ queryKey: ["services"] });
-    } catch (e) { alert((e as Error).message); }
+    } catch (e) { toast({ title: "Error saving service", description: (e as Error).message, variant: "destructive" }); }
     finally { setSaving(false); }
   }
 
   async function handleDelete(id: number) {
-    if (!confirm("Delete this service?")) return;
     await api.deleteService(id);
+    setConfirmId(null);
     refresh();
     queryClient.invalidateQueries({ queryKey: ["services"] });
   }
@@ -325,12 +327,23 @@ export default function ServicesTab() {
                 >
                   <Pencil size={14} />
                 </button>
-                <button
-                  onClick={() => handleDelete(svc.id)}
-                  className="p-1.5 text-white/30 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all"
-                >
-                  <Trash2 size={14} />
-                </button>
+                {confirmId === svc.id ? (
+                  <div className="flex items-center gap-1">
+                    <button onClick={() => handleDelete(svc.id)}
+                      className="px-2 py-1 text-xs bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg transition-colors font-medium">
+                      Delete
+                    </button>
+                    <button onClick={() => setConfirmId(null)}
+                      className="px-2 py-1 text-xs bg-white/5 hover:bg-white/10 text-white/50 rounded-lg transition-colors">
+                      Cancel
+                    </button>
+                  </div>
+                ) : (
+                  <button onClick={() => setConfirmId(svc.id)}
+                    className="p-1.5 text-white/30 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all">
+                    <Trash2 size={14} />
+                  </button>
+                )}
               </div>
             </div>
           );
