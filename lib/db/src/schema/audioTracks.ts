@@ -12,6 +12,9 @@ export const audioTracksTable = pgTable("audio_tracks", {
   coverUrl: text("cover_url").notNull().default(""),
   sortOrder: integer("sort_order").notNull().default(0),
   active: boolean("active").notNull().default(true),
+  pinned: boolean("pinned").notNull().default(false),
+  accentColor: text("accent_color").notNull().default(""),
+  iconColor: text("icon_color").notNull().default(""),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
 });

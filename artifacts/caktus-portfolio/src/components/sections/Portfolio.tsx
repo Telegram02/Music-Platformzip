@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { Play, Pause, ExternalLink, Music2, Volume2, VolumeX, SkipBack, SkipForward, X, type LucideIcon, ChevronLeft, ChevronRight } from "lucide-react";
+import { Play, Pause, ExternalLink, Music2, Volume2, VolumeX, SkipBack, SkipForward, X, Pin, type LucideIcon, ChevronLeft, ChevronRight } from "lucide-react";
 import { useRef, useState, useEffect, useCallback } from "react";
 import { useAudioTracks, usePortfolioItems, useSiteSettings } from "@/hooks/useSiteData";
 import { type AudioTrack, type PortfolioItem, storageUrl } from "@/lib/api";
@@ -33,6 +33,8 @@ function DesktopAudioCard({
 }) {
   const [showVolume, setShowVolume] = useState(false);
   const Icon: LucideIcon = GENRE_ICON_MAP[track.iconName ?? "Music2"] ?? Music2;
+  const accent = track.accentColor || "#9333ea";
+  const iconCol = track.iconColor || null;
 
   useEffect(() => {
     if (!isPlaying) return;
@@ -53,22 +55,37 @@ function DesktopAudioCard({
   const played = Math.round(progress * WAVEFORM_HEIGHTS.length);
 
   return (
-    <div className={`bg-background/80 border p-6 rounded-sm backdrop-blur-sm transition-colors relative overflow-hidden flex flex-col h-full ${
-      isPlaying ? "border-primary/60 shadow-[0_0_20px_rgba(147,51,234,0.15)]" : "border-border/50 group-hover:border-primary/40"
-    }`}>
-      {isPlaying && <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-primary to-transparent" />}
+    <div
+      className="bg-background/80 border p-6 rounded-sm backdrop-blur-sm transition-all relative overflow-hidden flex flex-col h-full"
+      style={{
+        borderColor: isPlaying ? `${accent}99` : `${accent}22`,
+        boxShadow: isPlaying ? `0 0 24px ${accent}26` : undefined,
+      }}
+    >
+      {isPlaying && (
+        <div className="absolute top-0 left-0 right-0 h-[2px]"
+          style={{ background: `linear-gradient(to right, transparent, ${accent}, transparent)` }} />
+      )}
+      {track.pinned && (
+        <div className="absolute top-2 right-2 flex items-center gap-1 px-1.5 py-0.5 rounded bg-yellow-400/15 border border-yellow-400/30">
+          <Pin size={9} className="text-yellow-400" />
+          <span className="text-[9px] font-mono text-yellow-400 uppercase tracking-wider">Pinned</span>
+        </div>
+      )}
 
       <div className="flex items-start gap-4 mb-5">
         <div className="relative flex-shrink-0">
           {track.coverUrl ? (
             <img src={storageUrl(track.coverUrl)} alt={track.title} className="w-14 h-14 rounded-sm object-cover border border-border/50" />
           ) : (
-            <div className="w-14 h-14 rounded-sm bg-primary/10 border border-primary/20 flex items-center justify-center">
-              <Icon size={28} className="text-primary" />
+            <div className="w-14 h-14 rounded-sm flex items-center justify-center"
+              style={{ background: `${accent}18`, border: `1px solid ${accent}33` }}>
+              <Icon size={28} style={{ color: iconCol ?? accent }} />
             </div>
           )}
           {isPlaying && (
-            <div className="absolute -bottom-1 -right-1 flex gap-[2px] items-end h-4 px-1 py-0.5 bg-primary rounded-sm">
+            <div className="absolute -bottom-1 -right-1 flex gap-[2px] items-end h-4 px-1 py-0.5 rounded-sm"
+              style={{ background: accent }}>
               {[3, 5, 4, 6, 3].map((h, i) => (
                 <div key={i} className="w-[2px] bg-white rounded-full animate-bounce"
                   style={{ height: `${h * 2}px`, animationDelay: `${i * 0.1}s`, animationDuration: "0.6s" }} />
@@ -77,11 +94,16 @@ function DesktopAudioCard({
           )}
         </div>
         <div className="flex-1 min-w-0">
-          <h4 className={`text-base font-bold mb-0.5 truncate transition-colors ${isPlaying ? "text-primary" : "text-white group-hover:text-primary"}`}>
+          <h4 className="text-base font-bold mb-0.5 truncate transition-colors text-white"
+            style={isPlaying ? { color: accent } : {}}>
             {track.title}
           </h4>
           <p className="text-xs text-foreground/50 uppercase tracking-widest truncate">{track.genre || track.description}</p>
-          {isPlaying && <p className="text-[10px] font-mono text-primary/70 uppercase tracking-widest mt-1 animate-pulse">Now playing</p>}
+          {isPlaying && (
+            <p className="text-[10px] font-mono uppercase tracking-widest mt-1 animate-pulse" style={{ color: `${accent}b0` }}>
+              Now playing
+            </p>
+          )}
         </div>
       </div>
 
@@ -89,8 +111,8 @@ function DesktopAudioCard({
       <div className="flex-grow flex items-center py-2 mb-4">
         <div className="w-full flex items-center gap-[2px] h-10 cursor-pointer" onClick={handleSeek}>
           {WAVEFORM_HEIGHTS.map((h, i) => (
-            <div key={i} className={`flex-1 rounded-full transition-colors ${i < played ? "bg-primary" : "bg-foreground/15"}`}
-              style={{ height: `${h}%` }} />
+            <div key={i} className="flex-1 rounded-full transition-colors"
+              style={{ height: `${h}%`, background: i < played ? accent : "rgba(255,255,255,0.1)" }} />
           ))}
         </div>
       </div>
@@ -107,16 +129,15 @@ function DesktopAudioCard({
               <div className="absolute bottom-9 left-1/2 -translate-x-1/2 bg-card border border-border rounded-xl px-3 py-3 flex flex-col items-center gap-2 z-20 shadow-xl" style={{ width: 36 }}>
                 <input type="range" min={0} max={1} step={0.02} value={volume}
                   onChange={(e) => onVolumeChange(Number(e.target.value))}
-                  className="w-24 accent-primary cursor-pointer"
-                  style={{ writingMode: "vertical-lr", direction: "rtl", height: 80, width: 6 }} />
+                  className="w-24 cursor-pointer"
+                  style={{ writingMode: "vertical-lr", direction: "rtl", height: 80, width: 6, accentColor: accent } as React.CSSProperties} />
                 <span className="text-[9px] font-mono text-foreground/40">{Math.round(volume * 100)}%</span>
               </div>
             )}
           </div>
           <button onClick={isPlaying ? onStop : onPlay} disabled={!track.audioUrl}
-            className={`w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-105 disabled:opacity-40 ${
-              isPlaying ? "bg-primary text-white" : "bg-white text-black"
-            }`}>
+            className="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-105 disabled:opacity-40"
+            style={isPlaying ? { background: accent } : { background: "white" }}>
             {isPlaying ? <Pause size={16} className="fill-white" /> : <Play size={16} className="fill-black ml-0.5" />}
           </button>
         </div>
@@ -130,26 +151,37 @@ function MobileAudioCard({
   track, isPlaying, onPlay, onStop,
 }: { track: AudioTrack; isPlaying: boolean; onPlay: () => void; onStop: () => void }) {
   const Icon: LucideIcon = GENRE_ICON_MAP[track.iconName ?? "Music2"] ?? Music2;
+  const accent = track.accentColor || "#9333ea";
+  const iconCol = track.iconColor || null;
   return (
-    <div className={`flex items-center gap-3 px-4 py-3 rounded-xl border transition-all ${
-      isPlaying ? "border-primary/50 bg-primary/5" : "border-border/40 bg-background/60"
-    }`}>
+    <div
+      className="flex items-center gap-3 px-4 py-3 rounded-xl border transition-all"
+      style={{
+        borderColor: isPlaying ? `${accent}80` : `${accent}22`,
+        background: isPlaying ? `${accent}0d` : "rgba(0,0,0,0.4)",
+      }}
+    >
       {track.coverUrl ? (
         <img src={storageUrl(track.coverUrl)} alt={track.title} className="w-10 h-10 rounded-lg object-cover flex-shrink-0 border border-border/40" />
       ) : (
-        <div className="w-10 h-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
-          <Icon size={18} className="text-primary" />
+        <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
+          style={{ background: `${accent}18`, border: `1px solid ${accent}33` }}>
+          <Icon size={18} style={{ color: iconCol ?? accent }} />
         </div>
       )}
       <div className="flex-1 min-w-0">
-        <p className={`text-sm font-semibold truncate ${isPlaying ? "text-primary" : "text-white"}`}>{track.title}</p>
+        <div className="flex items-center gap-1.5">
+          <p className="text-sm font-semibold truncate text-white" style={isPlaying ? { color: accent } : {}}>
+            {track.title}
+          </p>
+          {track.pinned && <Pin size={10} className="text-yellow-400 flex-shrink-0" />}
+        </div>
         <p className="text-xs text-foreground/40 truncate capitalize">{track.genre || "Audio"}</p>
       </div>
       {isPlaying && <MiniWave playing />}
       <button onClick={isPlaying ? onStop : onPlay} disabled={!track.audioUrl}
-        className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 transition-all disabled:opacity-30 ${
-          isPlaying ? "bg-primary text-white" : "bg-white/10 text-white hover:bg-white/20"
-        }`}>
+        className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 transition-all disabled:opacity-30"
+        style={isPlaying ? { background: accent } : { background: "rgba(255,255,255,0.1)" }}>
         {isPlaying ? <Pause size={14} className="fill-white" /> : <Play size={14} className="fill-white ml-0.5" />}
       </button>
     </div>
@@ -225,7 +257,8 @@ function StickyMiniPlayer({
         onClick={handleSeekClick}
       >
         <div className="absolute inset-0 bg-white/5 group-hover:bg-white/10 transition-colors" />
-        <div className="h-full bg-primary transition-all duration-150" style={{ width: `${progress * 100}%` }} />
+        <div className="h-full transition-all duration-150"
+          style={{ width: `${progress * 100}%`, background: track.accentColor || "#9333ea" }} />
       </div>
 
       <div className="max-w-3xl mx-auto px-3 sm:px-4 py-2.5 flex items-center gap-2 sm:gap-3">
@@ -278,9 +311,9 @@ function StickyMiniPlayer({
 
 // ── Placeholder tracks (admin hint) ──────────────────────────────────────────
 const PLACEHOLDER_TRACKS: AudioTrack[] = [
-  { id: -1, title: "Cyberpunk Cityscape", description: "", genre: "Game Soundtrack", audioUrl: "", coverUrl: "", iconName: "Music2", sortOrder: 0, active: true, createdAt: "", updatedAt: "" },
-  { id: -2, title: "Void Walker",         description: "", genre: "Metalcore",       audioUrl: "", coverUrl: "", iconName: "Music2", sortOrder: 1, active: true, createdAt: "", updatedAt: "" },
-  { id: -3, title: "Neon Shadows",        description: "", genre: "Synthwave",       audioUrl: "", coverUrl: "", iconName: "Music2", sortOrder: 2, active: true, createdAt: "", updatedAt: "" },
+  { id: -1, title: "Cyberpunk Cityscape", description: "", genre: "Game Soundtrack", audioUrl: "", coverUrl: "", iconName: "Music2", sortOrder: 0, active: true, pinned: false, accentColor: "", iconColor: "", createdAt: "", updatedAt: "" },
+  { id: -2, title: "Void Walker",         description: "", genre: "Metalcore",       audioUrl: "", coverUrl: "", iconName: "Music2", sortOrder: 1, active: true, pinned: false, accentColor: "", iconColor: "", createdAt: "", updatedAt: "" },
+  { id: -3, title: "Neon Shadows",        description: "", genre: "Synthwave",       audioUrl: "", coverUrl: "", iconName: "Music2", sortOrder: 2, active: true, pinned: false, accentColor: "", iconColor: "", createdAt: "", updatedAt: "" },
 ];
 
 // ── Main Portfolio section ────────────────────────────────────────────────────
@@ -301,7 +334,12 @@ export function Portfolio() {
   const TRACKS_PER_PAGE = 5;
 
   const sectionRef = useRef<HTMLElement>(null);
-  const showTracks = tracks.length > 0 ? tracks : PLACEHOLDER_TRACKS;
+  const rawTracks = tracks.length > 0 ? tracks : PLACEHOLDER_TRACKS;
+  const showTracks = [...rawTracks].sort((a, b) => {
+    if (a.pinned && !b.pinned) return -1;
+    if (!a.pinned && b.pinned) return 1;
+    return a.sortOrder - b.sortOrder;
+  });
   const hasRealTracks = tracks.length > 0;
   const activeIdx    = showTracks.findIndex((t) => t.id === activeId);
   const activeTrack  = activeIdx >= 0 ? showTracks[activeIdx] : null;

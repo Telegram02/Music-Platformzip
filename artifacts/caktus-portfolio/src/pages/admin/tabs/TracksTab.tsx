@@ -1,37 +1,101 @@
 import { useState, useEffect } from "react";
 import { api, uploadFile, storageUrl, type AudioTrack } from "@/lib/api";
 import { FileUploader } from "../components/FileUploader";
-import { Trash2, Edit2, Plus, X, Check } from "lucide-react";
+import { Trash2, Edit2, Plus, X, Check, Pin, PinOff } from "lucide-react";
 import { Music2 } from "lucide-react";
 import { GENRE_ICON_MAP, GENRE_ICON_GROUPS } from "@/lib/genreIcons";
 import { toast } from "@/hooks/use-toast";
 
-function GenreIconPicker({
-  value, onChange,
-}: { value: string; onChange: (name: string) => void }) {
+// ── Preset accent colors ──────────────────────────────────────────────────────
+const ACCENT_PRESETS = [
+  { label: "Purple (default)", value: "" },
+  { label: "Cyan",    value: "#22d3ee" },
+  { label: "Pink",    value: "#ec4899" },
+  { label: "Amber",   value: "#f59e0b" },
+  { label: "Emerald", value: "#10b981" },
+  { label: "Red",     value: "#ef4444" },
+  { label: "Blue",    value: "#3b82f6" },
+  { label: "Orange",  value: "#f97316" },
+  { label: "White",   value: "#ffffff" },
+];
+
+const ICON_COLOR_PRESETS = [
+  { label: "Auto (matches genre)", value: "" },
+  { label: "Purple",  value: "#a855f7" },
+  { label: "Cyan",    value: "#22d3ee" },
+  { label: "Pink",    value: "#ec4899" },
+  { label: "Amber",   value: "#f59e0b" },
+  { label: "Emerald", value: "#10b981" },
+  { label: "Red",     value: "#ef4444" },
+  { label: "Blue",    value: "#3b82f6" },
+  { label: "White",   value: "#ffffff" },
+];
+
+function ColorSwatchPicker({
+  label, presets, value, onChange,
+}: { label: string; presets: { label: string; value: string }[]; value: string; onChange: (v: string) => void }) {
+  return (
+    <div className="space-y-2">
+      <label className="block text-white/50 text-xs">{label}</label>
+      <div className="flex flex-wrap gap-2">
+        {presets.map((p) => {
+          const active = value === p.value;
+          return (
+            <button
+              key={p.label}
+              type="button"
+              title={p.label}
+              onClick={() => onChange(p.value)}
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs transition-all ${
+                active
+                  ? "border-white/40 bg-white/15 text-white"
+                  : "border-white/10 bg-white/5 text-white/50 hover:border-white/25 hover:text-white"
+              }`}
+            >
+              {p.value ? (
+                <span
+                  className="w-3 h-3 rounded-full flex-shrink-0 border border-white/20"
+                  style={{ background: p.value }}
+                />
+              ) : (
+                <span className="w-3 h-3 rounded-full flex-shrink-0 bg-gradient-to-br from-purple-500 to-pink-500 border border-white/20" />
+              )}
+              {p.label}
+            </button>
+          );
+        })}
+        {/* Custom hex */}
+        <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-white/10 bg-white/5">
+          <label className="text-white/40 text-xs">Custom</label>
+          <input
+            type="color"
+            value={value || "#9333ea"}
+            onChange={(e) => onChange(e.target.value)}
+            className="w-5 h-5 rounded cursor-pointer border-0 bg-transparent p-0"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function GenreIconPicker({ value, onChange }: { value: string; onChange: (name: string) => void }) {
   return (
     <div className="space-y-2">
       {GENRE_ICON_GROUPS.map((group) => (
-        <div
-          key={group.label}
-          className={`flex items-center gap-3 px-3 py-2 rounded-lg border ${group.borderColor} ${group.bgColor}`}
-        >
+        <div key={group.label}
+          className={`flex items-center gap-3 px-3 py-2 rounded-lg border ${group.borderColor} ${group.bgColor}`}>
           <span className={`text-[10px] font-mono uppercase tracking-wider w-20 flex-shrink-0 ${group.textColor}`}>
             {group.label}
           </span>
           <div className="flex gap-1.5 flex-wrap">
             {group.icons.map(({ name, icon: Icon }) => (
-              <button
-                key={name}
-                type="button"
-                title={name}
-                onClick={() => onChange(name)}
+              <button key={name} type="button" title={name} onClick={() => onChange(name)}
                 className={`w-8 h-8 flex items-center justify-center rounded-md border transition-all ${
                   value === name
                     ? `${group.activeBorder} ${group.activeBg} ${group.textColor}`
                     : "border-white/10 bg-white/5 text-white/40 hover:border-white/30 hover:text-white"
-                }`}
-              >
+                }`}>
                 <Icon size={14} />
               </button>
             ))}
@@ -45,6 +109,7 @@ function GenreIconPicker({
 const empty = (): Partial<AudioTrack> => ({
   title: "", description: "", genre: "", iconName: "Music2",
   audioUrl: "", coverUrl: "", sortOrder: 0, active: true,
+  pinned: false, accentColor: "", iconColor: "",
 });
 
 export default function TracksTab() {
@@ -73,19 +138,33 @@ export default function TracksTab() {
       else { await api.createTrack(editing); }
       cancelEdit();
       await load();
-    } catch (e) { toast({ title: "Error saving track", description: (e as Error).message, variant: "destructive" }); }
-    finally { setSaving(false); }
+      toast({ title: editingId ? "Track updated" : "Track created" });
+    } catch (e) {
+      toast({ title: "Error saving track", description: (e as Error).message, variant: "destructive" });
+    } finally { setSaving(false); }
   }
 
   async function handleDelete(id: number) {
     await api.deleteTrack(id);
     setConfirmId(null);
     await load();
+    toast({ title: "Track deleted" });
+  }
+
+  async function togglePin(t: AudioTrack) {
+    await api.updateTrack(t.id, { ...t, pinned: !t.pinned });
+    await load();
   }
 
   function set(key: keyof AudioTrack, value: string | number | boolean) {
     setEditing((prev) => prev ? { ...prev, [key]: value } : prev);
   }
+
+  const sortedTracks = [...tracks].sort((a, b) => {
+    if (a.pinned && !b.pinned) return -1;
+    if (!a.pinned && b.pinned) return 1;
+    return a.sortOrder - b.sortOrder;
+  });
 
   return (
     <div className="space-y-6">
@@ -105,6 +184,7 @@ export default function TracksTab() {
       {editing && (
         <div className="bg-white/5 border border-purple-500/30 rounded-xl p-6 space-y-5">
           <h3 className="text-white font-semibold">{editingId ? "Edit Track" : "New Track"}</h3>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {([
               ["title", "Title", "text"],
@@ -130,9 +210,23 @@ export default function TracksTab() {
             <label className="block text-white/50 text-xs mb-2">
               Genre Icon <span className="text-white/25">(shown when no cover art)</span>
             </label>
-            <GenreIconPicker
-              value={editing.iconName ?? "Music2"}
-              onChange={(name) => set("iconName", name)}
+            <GenreIconPicker value={editing.iconName ?? "Music2"} onChange={(name) => set("iconName", name)} />
+          </div>
+
+          {/* Color customization */}
+          <div className="border border-white/10 rounded-xl p-4 space-y-4 bg-white/3">
+            <p className="text-white/60 text-xs font-mono uppercase tracking-widest">Card Colors</p>
+            <ColorSwatchPicker
+              label="Accent color — card glow, waveform bars, play button"
+              presets={ACCENT_PRESETS}
+              value={editing.accentColor ?? ""}
+              onChange={(v) => set("accentColor", v)}
+            />
+            <ColorSwatchPicker
+              label="Icon color — icon tint when no cover art is set"
+              presets={ICON_COLOR_PRESETS}
+              value={editing.iconColor ?? ""}
+              onChange={(v) => set("iconColor", v)}
             />
           </div>
 
@@ -151,10 +245,19 @@ export default function TracksTab() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <input type="checkbox" id="active-track" checked={editing.active ?? true}
-              onChange={(e) => set("active", e.target.checked)} className="accent-purple-500" />
-            <label htmlFor="active-track" className="text-white/60 text-sm">Active (visible on site)</label>
+          <div className="flex flex-wrap items-center gap-6">
+            <div className="flex items-center gap-2">
+              <input type="checkbox" id="active-track" checked={editing.active ?? true}
+                onChange={(e) => set("active", e.target.checked)} className="accent-purple-500" />
+              <label htmlFor="active-track" className="text-white/60 text-sm">Active (visible on site)</label>
+            </div>
+            <div className="flex items-center gap-2">
+              <input type="checkbox" id="pinned-track" checked={editing.pinned ?? false}
+                onChange={(e) => set("pinned", e.target.checked)} className="accent-yellow-400" />
+              <label htmlFor="pinned-track" className="text-white/60 text-sm flex items-center gap-1.5">
+                <Pin size={12} className="text-yellow-400" /> Pin to top of list
+              </label>
+            </div>
           </div>
 
           <div className="flex gap-3 pt-2">
@@ -174,28 +277,52 @@ export default function TracksTab() {
         {tracks.length === 0 && (
           <p className="text-white/30 text-sm text-center py-8">No tracks yet. Add your first track.</p>
         )}
-        {tracks.map((t) => {
+        {sortedTracks.map((t) => {
           const Icon = GENRE_ICON_MAP[t.iconName ?? "Music2"] ?? Music2;
           const group = GENRE_ICON_GROUPS.find((g) => g.icons.some((i) => i.name === t.iconName));
-          const iconColor = group?.textColor ?? "text-purple-300";
+          const iconColor = t.iconColor || group?.textColor || "text-purple-300";
           const iconBg = group?.activeBg ?? "bg-purple-500/20";
           const iconBorder = group?.activeBorder ?? "border-purple-500/30";
+          const accent = t.accentColor || "#9333ea";
           return (
             <div key={t.id}
-              className="flex items-center gap-4 bg-white/5 border border-white/10 rounded-xl px-5 py-4">
+              className={`flex items-center gap-4 bg-white/5 border rounded-xl px-5 py-4 transition-all ${
+                t.pinned ? "border-yellow-400/30 bg-yellow-400/5" : "border-white/10"
+              }`}
+              style={t.accentColor ? { borderColor: `${t.accentColor}30` } : {}}>
               {t.coverUrl ? (
                 <img src={storageUrl(t.coverUrl)} alt={t.title}
                   className="w-12 h-12 rounded-lg object-cover flex-shrink-0" />
               ) : (
-                <div className={`w-12 h-12 rounded-lg border flex items-center justify-center flex-shrink-0 ${iconBg} ${iconBorder}`}>
-                  <Icon size={20} className={iconColor} />
+                <div className={`w-12 h-12 rounded-lg border flex items-center justify-center flex-shrink-0 ${iconBg} ${iconBorder}`}
+                  style={t.accentColor ? { borderColor: `${accent}40`, background: `${accent}18` } : {}}>
+                  <Icon size={20}
+                    className={t.iconColor ? "" : iconColor}
+                    style={t.iconColor ? { color: t.iconColor } : {}} />
                 </div>
               )}
+
               <div className="flex-1 min-w-0">
-                <p className="text-white font-medium text-sm truncate">{t.title}</p>
-                <p className="text-white/40 text-xs">{t.genre} {!t.active && "· Hidden"}</p>
+                <div className="flex items-center gap-2">
+                  <p className="text-white font-medium text-sm truncate">{t.title}</p>
+                  {t.pinned && <Pin size={11} className="text-yellow-400 flex-shrink-0" />}
+                </div>
+                <p className="text-white/40 text-xs">
+                  {t.genre}
+                  {!t.active && " · Hidden"}
+                  {t.accentColor && <span className="ml-1">· <span className="inline-block w-2 h-2 rounded-full align-middle" style={{ background: t.accentColor }} /></span>}
+                </p>
               </div>
+
               <div className="flex items-center gap-2 flex-shrink-0">
+                <button onClick={() => togglePin(t)} title={t.pinned ? "Unpin" : "Pin to top"}
+                  className={`p-2 rounded-lg transition-colors ${
+                    t.pinned
+                      ? "bg-yellow-400/15 text-yellow-400 hover:bg-yellow-400/25"
+                      : "bg-white/5 hover:bg-yellow-400/10 text-white/30 hover:text-yellow-400"
+                  }`}>
+                  {t.pinned ? <PinOff size={14} /> : <Pin size={14} />}
+                </button>
                 <button onClick={() => startEdit(t)}
                   className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-colors">
                   <Edit2 size={15} />
