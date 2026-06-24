@@ -21,6 +21,11 @@ export interface StorageFile {
   key: string;
 }
 
+export interface ObjectMeta {
+  contentType: string;
+  contentLength: number;
+}
+
 function getR2Client(): S3Client {
   const accountId = process.env.R2_ACCOUNT_ID;
   const accessKeyId = process.env.R2_ACCESS_KEY_ID;
@@ -94,23 +99,56 @@ export class ObjectStorageService {
     }
   }
 
-  async downloadObject(file: StorageFile, cacheTtlSec = 3600): Promise<Response> {
+  async headObject(file: StorageFile): Promise<ObjectMeta> {
     const client = getR2Client();
     const bucket = getBucketName();
     const response = await client.send(
-      new GetObjectCommand({ Bucket: bucket, Key: file.key })
+      new HeadObjectCommand({ Bucket: bucket, Key: file.key })
     );
-    const body = response.Body as Readable;
-    const webStream = Readable.toWeb(body) as ReadableStream;
-    return new Response(webStream, {
-      headers: {
-        "Content-Type": response.ContentType ?? "application/octet-stream",
-        "Cache-Control": `public, max-age=${cacheTtlSec}`,
-        ...(response.ContentLength
-          ? { "Content-Length": String(response.ContentLength) }
-          : {}),
-      },
+    return {
+      contentType: response.ContentType ?? "application/octet-stream",
+      contentLength: response.ContentLength ?? 0,
+    };
+  }
+
+  /**
+   * Download an object (or a byte range of it) from R2.
+   *
+   * When `range` is provided (e.g. "bytes=0-1023") R2 returns a 206 Partial
+   * Content response with Content-Range and a smaller Content-Length.  We
+   * surface both as headers on the returned Response so the route can forward
+   * them to the browser unchanged.
+   */
+  async downloadObject(file: StorageFile, range?: string): Promise<Response> {
+    const client = getR2Client();
+    const bucket = getBucketName();
+
+    const command = new GetObjectCommand({
+      Bucket: bucket,
+      Key: file.key,
+      ...(range ? { Range: range } : {}),
     });
+
+    const s3res = await client.send(command);
+    const body = s3res.Body as Readable;
+    const webStream = Readable.toWeb(body) as ReadableStream;
+
+    const isPartial = range && s3res.ContentRange != null;
+    const status = isPartial ? 206 : 200;
+
+    const headers: Record<string, string> = {
+      "Content-Type": s3res.ContentType ?? "application/octet-stream",
+    };
+
+    if (s3res.ContentLength != null) {
+      headers["Content-Length"] = String(s3res.ContentLength);
+    }
+
+    if (s3res.ContentRange) {
+      headers["Content-Range"] = s3res.ContentRange;
+    }
+
+    return new Response(webStream, { status, headers });
   }
 
   async getObjectEntityFile(objectPath: string): Promise<StorageFile> {
