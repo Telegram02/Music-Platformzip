@@ -5,7 +5,7 @@ import { logger } from "./logger";
 
 const DEFAULT_SETTINGS: Record<string, string> = {
   bio: "I'm Caktus — a music composer and producer with 8 years of experience and a passion for making every project feel exactly the way it should. I work across a wide range of styles: hip-hop, metal, rock, orchestral, horror, ambient, and cinematic. Whatever the sound, I bring the same focus — make it hit, make it feel right.",
-  tagline: "Music composer and producer specializing in video game soundtracks, hip-hop, metal, orchestral, horror, and ambient music.",
+  tagline: "Music composer and producer working in hip-hop, metal, rock, orchestral, cinematic, horror, and ambient music.",
   yearsExperience: "8",
   contactEmail: "madebycaktus@gmail.com",
   discord: "caktus",
