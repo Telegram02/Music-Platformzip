@@ -123,6 +123,21 @@ const CARD_STYLES = [
     ),
   },
   {
+    value: "compact",
+    label: "Compact",
+    desc: "Slim single row, fits more tracks",
+    preview: (
+      <svg viewBox="0 0 48 16" className="w-12 h-4">
+        <rect x="1" y="1" width="46" height="14" rx="3" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.15)" strokeWidth="1.2"/>
+        <rect x="4" y="4" width="7" height="7" rx="1.5" fill="rgba(255,255,255,0.1)"/>
+        <rect x="14" y="4.5" width="14" height="2" rx="1" fill="rgba(255,255,255,0.3)"/>
+        <rect x="14" y="9" width="9" height="1.5" rx="1" fill="rgba(255,255,255,0.12)"/>
+        <rect x="30" y="6" width="8" height="1.5" rx="1" fill="rgba(147,51,234,0.5)"/>
+        <circle cx="43" cy="8" r="4.5" fill="rgba(147,51,234,0.4)"/>
+      </svg>
+    ),
+  },
+  {
     value: "featured",
     label: "Featured",
     desc: "Wide 2-column card with large artwork",

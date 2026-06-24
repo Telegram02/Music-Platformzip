@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { Play, Pause, ExternalLink, Music2, Volume2, VolumeX, SkipBack, SkipForward, X, Pin, type LucideIcon, ChevronLeft, ChevronRight } from "lucide-react";
+import { Play, Pause, ExternalLink, Music2, Volume2, VolumeX, SkipBack, SkipForward, X, Pin, Link2, Check, type LucideIcon, ChevronLeft, ChevronRight } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 import { useRef, useState, useEffect, useCallback } from "react";
 import { useAudioTracks, usePortfolioItems, useSiteSettings } from "@/hooks/useSiteData";
 import { type AudioTrack, type PortfolioItem, storageUrl } from "@/lib/api";
@@ -18,6 +19,105 @@ function MiniWave({ playing }: { playing: boolean }) {
         <div key={i} className={`w-[2px] bg-primary rounded-full ${playing ? "animate-bounce" : "opacity-40"}`}
           style={{ height: `${h * 2}px`, animationDelay: `${i * 0.1}s`, animationDuration: "0.7s" }} />
       ))}
+    </div>
+  );
+}
+
+// ── Share button (inline copy-to-clipboard) ───────────────────────────────────
+function ShareButton({ track, size = 14 }: { track: AudioTrack; size?: number }) {
+  const [copied, setCopied] = useState(false);
+  function handleShare(e: React.MouseEvent) {
+    e.stopPropagation();
+    const url = `${window.location.origin}/?track=${track.id}`;
+    navigator.clipboard.writeText(url).then(() => {
+      setCopied(true);
+      toast({ title: "Link copied!", description: `Share link for "${track.title}" is ready to paste.` });
+      setTimeout(() => setCopied(false), 2000);
+    }).catch(() => {
+      toast({ title: "Copy failed", description: "Could not access clipboard.", variant: "destructive" });
+    });
+  }
+  return (
+    <button onClick={handleShare} title="Copy share link"
+      className="flex items-center justify-center text-foreground/35 hover:text-white transition-colors">
+      {copied ? <Check size={size} className="text-green-400" /> : <Link2 size={size} />}
+    </button>
+  );
+}
+
+// ── Compact card ──────────────────────────────────────────────────────────────
+function CompactAudioCard({
+  track, isPlaying, onPlay, onStop,
+}: { track: AudioTrack; isPlaying: boolean; onPlay: () => void; onStop: () => void }) {
+  const Icon: LucideIcon = GENRE_ICON_MAP[track.iconName ?? "Music2"] ?? Music2;
+  const accent = track.accentColor || "#9333ea";
+  const iconCol = track.iconColor || null;
+  return (
+    <div
+      className="flex items-center gap-3 px-4 py-3 rounded-sm border transition-all"
+      style={{
+        borderColor: isPlaying ? `${accent}80` : `${accent}20`,
+        background: isPlaying
+          ? `linear-gradient(90deg, ${accent}12 0%, rgba(0,0,0,0.6) 100%)`
+          : "rgba(0,0,0,0.5)",
+      }}
+    >
+      {/* Icon / cover */}
+      <div className="relative flex-shrink-0">
+        {track.coverUrl ? (
+          <img src={storageUrl(track.coverUrl)} alt={track.title} className="w-9 h-9 rounded object-cover border border-border/40" />
+        ) : (
+          <div className="w-9 h-9 rounded flex items-center justify-center"
+            style={{ background: `${accent}18`, border: `1px solid ${accent}30` }}>
+            <Icon size={16} style={{ color: iconCol ?? accent }} />
+          </div>
+        )}
+        {isPlaying && (
+          <div className="absolute inset-0 rounded flex items-center justify-center"
+            style={{ background: `${accent}55` }}>
+            <div className="flex gap-[2px] items-end h-4">
+              {[3, 5, 4, 6, 3].map((h, i) => (
+                <div key={i} className="w-[2px] bg-white rounded-full animate-bounce"
+                  style={{ height: `${h * 2}px`, animationDelay: `${i * 0.1}s`, animationDuration: "0.65s" }} />
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Title + genre */}
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-semibold truncate transition-colors"
+          style={{ color: isPlaying ? accent : "white" }}>
+          {track.title}
+          {track.pinned && <Pin size={9} className="inline ml-1 text-yellow-400 mb-0.5" />}
+        </p>
+        <p className="text-[11px] text-foreground/40 capitalize truncate">{track.genre || "Audio"}</p>
+      </div>
+
+      {/* Mini waveform strip */}
+      <div className="hidden lg:flex items-end gap-[2px] h-6 flex-shrink-0">
+        {[4, 7, 5, 8, 6, 9, 5, 7, 4, 6, 8, 5].map((h, i) => (
+          <div key={i} className="w-[2px] rounded-full transition-all duration-300"
+            style={{
+              height: `${h * 2}px`,
+              background: isPlaying
+                ? (i % 3 === 0 ? accent : `${accent}70`)
+                : "rgba(255,255,255,0.12)",
+              animation: isPlaying ? `bounce ${0.5 + (i % 3) * 0.15}s ease-in-out infinite alternate` : "none",
+            }} />
+        ))}
+      </div>
+
+      {/* Share + Play */}
+      <div className="flex items-center gap-2 flex-shrink-0">
+        <ShareButton track={track} size={13} />
+        <button onClick={isPlaying ? onStop : onPlay} disabled={!track.audioUrl}
+          className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-all hover:scale-105 disabled:opacity-30"
+          style={isPlaying ? { background: accent, boxShadow: `0 0 10px ${accent}60` } : { background: "rgba(255,255,255,0.1)" }}>
+          {isPlaying ? <Pause size={13} className="fill-white" /> : <Play size={13} className="fill-white ml-0.5" />}
+        </button>
+      </div>
     </div>
   );
 }
@@ -129,7 +229,10 @@ function FeaturedAudioCard({
 
         {/* Controls */}
         <div className="flex items-center justify-between border-t pt-3" style={{ borderColor: `${accent}20` }}>
-          <span className="text-xs font-mono text-foreground/35 capitalize">{track.genre || "Audio"}</span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-mono text-foreground/35 capitalize">{track.genre || "Audio"}</span>
+            <ShareButton track={track} size={13} />
+          </div>
           <div className="flex items-center gap-2">
             <div className="relative">
               <button onClick={() => setShowVolume((v) => !v)}
@@ -258,7 +361,10 @@ function DesktopAudioCard({
       </div>
 
       <div className="flex items-center justify-between pt-4 border-t border-border/50">
-        <span className="text-xs font-mono text-foreground/35 capitalize">{track.genre || "Audio"}</span>
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-mono text-foreground/35 capitalize">{track.genre || "Audio"}</span>
+          <ShareButton track={track} size={13} />
+        </div>
         <div className="flex items-center gap-2">
           <div className="relative">
             <button onClick={() => setShowVolume((v) => !v)}
@@ -319,6 +425,7 @@ function MobileAudioCard({
         <p className="text-xs text-foreground/40 truncate capitalize">{track.genre || "Audio"}</p>
       </div>
       {isPlaying && <MiniWave playing />}
+      <ShareButton track={track} size={13} />
       <button onClick={isPlaying ? onStop : onPlay} disabled={!track.audioUrl}
         className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 transition-all disabled:opacity-30"
         style={isPlaying ? { background: accent } : { background: "rgba(255,255,255,0.1)" }}>
@@ -443,6 +550,7 @@ function StickyMiniPlayer({
             className="w-7 h-7 flex items-center justify-center rounded-full text-white/30 hover:text-white hover:bg-white/10 transition-colors ml-1">
             <X size={13} />
           </button>
+          <ShareButton track={track} size={13} />
         </div>
       </div>
     </motion.div>
@@ -474,6 +582,15 @@ export function Portfolio() {
   const TRACKS_PER_PAGE = 5;
 
   const sectionRef = useRef<HTMLElement>(null);
+  const pendingTrackId = useRef<number | null>(null);
+
+  // Read ?track=<id> on mount
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const tid = params.get("track");
+    if (tid) pendingTrackId.current = Number(tid);
+  }, []);
+
   const rawTracks = tracks.length > 0 ? tracks : PLACEHOLDER_TRACKS;
   const showTracks = [...rawTracks].sort((a, b) => {
     if (a.pinned && !b.pinned) return -1;
