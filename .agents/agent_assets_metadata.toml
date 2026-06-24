@@ -1,0 +1,8 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "cNjzjLAAelihOVJ7D_ZD9"
+uri = "file://artifacts/caktus-portfolio/public/og-image.png"
+type = "image"
+title = "caktus-productions-og-card"
