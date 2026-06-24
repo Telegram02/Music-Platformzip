@@ -21,6 +21,9 @@ export const api = {
     req<{ ok: boolean }>("POST", "/auth/login", { username, password, rememberMe }),
   logout: () => req<{ ok: boolean }>("POST", "/auth/logout"),
   me: () => req<{ loggedIn: boolean }>("GET", "/auth/me"),
+  needsSetup: () => req<{ needsSetup: boolean }>("GET", "/auth/needs-setup"),
+  setup: (username: string, password: string) =>
+    req<{ ok: boolean }>("POST", "/auth/setup", { username, password }),
 
   // Settings
   getSettings: () => req<Record<string, string>>("GET", "/settings"),
